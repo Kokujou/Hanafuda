@@ -15,6 +15,7 @@ namespace Hanafuda
 {
     public partial class Global : MonoBehaviour
     {
+        public static Global global;
         public static int MovingCards;
         public static Sprite[] CardSkins;
         public static int Turn = -1;
@@ -33,6 +34,7 @@ namespace Hanafuda
         /// </summary>
         private void Awake()
         {
+            global = this;
             DontDestroyOnLoad(this);
             allYaku = AllYaku;
             allCards = AllCards;

@@ -56,7 +56,7 @@ namespace Hanafuda
         Card tHandCard;
         internal List<Yaku> newYaku = new List<Yaku>();
         float time, animLeft = -200;
-        bool FieldSelect, _Turn = true, initKoikoi, shownYaku;
+        bool FieldSelect, initKoikoi, shownYaku;
         /// <summary>
         /// 1: Normal, 2: Kartenzug
         /// </summary>
@@ -69,38 +69,6 @@ namespace Hanafuda
         /// <summary>
         /// Vereinbarung von Aktionen beim Rundenwechsel
         /// </summary>
-        internal bool Turn
-        {
-            get { return _Turn; }
-            set
-            {
-                if (PlayMode == 1 && _Turn)
-                {
-                    // Einsammeln bei Kartenzug? //
-                    matches = new List<Card>();
-                    if (Board.Platz.Exists(x => x.Monat == Board.Deck[0].Monat))
-                        matches.AddRange(Board.Platz.FindAll(x => x.Monat == Board.Deck[0].Monat));
-                    selected = Board.Deck[0];
-                    tHandCard = Board.Deck[0];
-                    if (matches.Count == 2)
-                    {
-                        if (Global.Settings.mobile)
-                        {
-                            for (int i = 0; i < Board.Platz.Count; i++)
-                            {
-                                Color col = matches.Exists(x => x.name == Board.Platz[i].name) ? new Color(.3f, .3f, .3f) : new Color(.5f, .5f, .5f);
-                                Board.Platz[i].Objekt.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Foreground").material.SetColor("_TintColor", col);
-                            }
-                        }
-                        else
-                            for (int i = 0; i < 2; i++)
-                                StartCoroutine(matches[i].BlinkCard());
-                    }
-                    PlayMode = 2;
-                }
-                else _Turn = value;
-            }
-        }
         void SyncDeck(NetworkMessage msg)
         {
             int seed = Convert.ToInt32(msg.ReadMessage<Global.Message>().message);
@@ -118,14 +86,14 @@ namespace Hanafuda
         void GenerateDeck(int seed)
         {
             if (Global.players.Count == 0)
-                Board = new Spielfeld(new List<object>() { new Player(Global.Settings.P1Name), new Player(Global.Settings.P2Name) }, seed);
+                Board = new Spielfeld(new List<object>() { new Player(Global.Settings.P1Name), new Player(Global.Settings.P2Name) }, TurnCallback, seed);
             else
             {
-                Board = new Spielfeld(Global.players.Cast<object>().ToList(), seed);
+                Board = new Spielfeld(Global.players.Cast<object>().ToList(), TurnCallback, seed);
                 for (int i = 0; i < Board.players.Count; i++)
                     ((Player)Board.players[0]).Reset();
             }
-            _Turn = Global.Settings.Name == ((Player)Board.players[Global.Turn]).Name;
+            Board._Turn = Global.Settings.Name == ((Player)Board.players[Global.Turn]).Name;
             FieldSetup();
         }
         void Awake()
@@ -165,10 +133,13 @@ namespace Hanafuda
                 return;
             }
             if (Global.players.Count == 0)
-                Board = new Spielfeld(new List<object>() { new Player(Global.Settings.P1Name), new KI((KI.Mode)Global.Settings.KIMode, Board, Turn, "Computer") });
+            {
+                Board = new Spielfeld(new List<object>() { new Player(Global.Settings.P1Name) }, x => TurnCallback(x));
+                Board.players.Add(new KI((KI.Mode)Global.Settings.KIMode, Board, Board.Turn, "Computer"));
+            }
             else
             {
-                Board = new Spielfeld(Global.players.Cast<object>().ToList());
+                Board = new Spielfeld(Global.players.Cast<object>().ToList(), TurnCallback);
                 for (int i = 0; i < Board.players.Count; i++)
                     ((Player)Board.players[0]).Reset();
             }
@@ -253,7 +224,7 @@ namespace Hanafuda
         /// <returns></returns>
         public void DrawTurn(int[] move)
         {
-            Card hCard = ((Player)Board.players[Turn ? 0 : 1]).Hand[move[0]];
+            Card hCard = ((Player)Board.players[Board.Turn ? 0 : 1]).Hand[move[0]];
             Card fCard = move[1] >= 0 ? Board.Platz[move[1]] : null;
             List<Card> Matches = Board.Platz.FindAll(x => x.Monat == hCard.Monat);
             switch (Matches.Count)
@@ -269,7 +240,7 @@ namespace Hanafuda
                     Board.PlayCard(hCard, new List<Card>() { fCard });
                     break;
             }
-            Turn = !Turn;
+            Board.Turn = !Board.Turn;
         }
 
         void Update()
@@ -284,24 +255,24 @@ namespace Hanafuda
         }
         private void CheckNewYaku()
         {
-            int oPoints = ((Player)(Board.players[Turn ? 0 : 1])).tempPoints;
-            List<KeyValuePair<Yaku, int>> oYaku = ((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku;
-            ((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku = new List<KeyValuePair<Yaku, int>>(Yaku.GetYaku(((Player)(Board.players[Turn ? 0 : 1])).CollectedCards).ToDictionary(x => x, x => 0));
+            int oPoints = ((Player)(Board.players[Board.Turn ? 0 : 1])).tempPoints;
+            List<KeyValuePair<Yaku, int>> oYaku = ((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku;
+            ((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku = new List<KeyValuePair<Yaku, int>>(Yaku.GetYaku(((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedCards).ToDictionary(x => x, x => 0));
             newYaku.Clear();
-            if (((Player)(Board.players[Turn ? 0 : 1])).tempPoints > oPoints)
+            if (((Player)(Board.players[Board.Turn ? 0 : 1])).tempPoints > oPoints)
             {
-                for (int i = 0; i < ((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku.Count; i++)
+                for (int i = 0; i < ((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku.Count; i++)
                 {
-                    if (!oYaku.Exists(x => x.Key.name == ((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku[i].Key.name && x.Value == ((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku[i].Value))
+                    if (!oYaku.Exists(x => x.Key.name == ((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku[i].Key.name && x.Value == ((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku[i].Value))
                     {
-                        newYaku.Add(((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku[i].Key);
+                        newYaku.Add(((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku[i].Key);
                     }
                 }
                 _CherryBlossoms = Instantiate(Global.prefabCollection.CherryBlossoms);
             }
             if (newYaku.Count == 0)
             {
-                _Turn = !_Turn;
+                Board._Turn = Board._Turn;
                 PlayMode = 1;
                 if (Global.Settings.Multiplayer)
                 {
@@ -400,11 +371,11 @@ namespace Hanafuda
             entry.callback.AddListener((data) =>
             {
                 initKoikoi = false;
-                ((Player)Board.players[Turn ? 0 : 1]).Koikoi++;
+                ((Player)Board.players[Board.Turn ? 0 : 1]).Koikoi++;
                 StartCoroutine(Global.prefabCollection.KoikoiText.KoikoiAnimation(() =>
                 {
                     allowInput = true;
-                    Turn = !Turn;
+                    Board.Turn = !Board.Turn;
                     PlayMode = 1;
                 }));
                 Destroy(Koikoi);
@@ -505,7 +476,34 @@ namespace Hanafuda
                 }
             }
         }
-
+        public void TurnCallback(bool value)
+        {
+            if (PlayMode == 1 && Board._Turn)
+            {
+                // Einsammeln bei Kartenzug? //
+                matches = new List<Card>();
+                if (Board.Platz.Exists(x => x.Monat == Board.Deck[0].Monat))
+                    matches.AddRange(Board.Platz.FindAll(x => x.Monat == Board.Deck[0].Monat));
+                selected = Board.Deck[0];
+                tHandCard = Board.Deck[0];
+                if (matches.Count == 2)
+                {
+                    if (Global.Settings.mobile)
+                    {
+                        for (int i = 0; i < Board.Platz.Count; i++)
+                        {
+                            Color col = matches.Exists(x => x.name == Board.Platz[i].name) ? new Color(.3f, .3f, .3f) : new Color(.5f, .5f, .5f);
+                            Board.Platz[i].Objekt.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Foreground").material.SetColor("_TintColor", col);
+                        }
+                    }
+                    else
+                        for (int i = 0; i < 2; i++)
+                            StartCoroutine(matches[i].BlinkCard());
+                }
+                PlayMode = 2;
+            }
+            else Board._Turn = value;
+        }
         public void OnGUI()
         {
             GUI.skin = Skin;

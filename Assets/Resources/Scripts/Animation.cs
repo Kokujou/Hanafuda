@@ -53,6 +53,7 @@ namespace ExtensionMethods
         /// <param name="unhover">Rückgängigmachen des Hovers</param>
         public static void HoverCard(this BoxCollider col, bool unhover = false)
         {
+            if (!col) return;
             int factor = unhover ? -1 : 1;
             if (Global.Settings.mobile)
             {

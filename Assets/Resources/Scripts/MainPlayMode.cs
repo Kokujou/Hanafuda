@@ -59,18 +59,16 @@ namespace Hanafuda
         /// </summary>
         void NormalMode()
         {
-            if (Turn && Global.MovingCards == 0)
+            if (Board.Turn && Global.MovingCards == 0)
             {
-                if (Global.Settings.mobile && Global.MovingCards == 0 && Turn && !FieldSelect)
+                if (Global.Settings.mobile && Global.MovingCards == 0 && Board.Turn && !FieldSelect)
                 {
                     if (time == 0f)
                         time = Time.time;
-                    else if (Time.time - time > 1)
-                    {
+                    else if (Time.time - time > 2)
                         CreateSlide();
-                    }
-                    else time = 0f;
                 }
+                else time = 0f;
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit Hit;
                 bool hit = Physics.Raycast(ray, out Hit);
@@ -98,53 +96,56 @@ namespace Hanafuda
                 /*
                  * Hover-Aktionen
                  */
-                else if (!FieldSelect)
-                {
-                    Global.prev?.HoverCard(true);
-                    StopAllCoroutines();
-                    Board.RefillCards();
-                    selected = Hit.collider.gameObject.GetComponent<CardRef>().card;
-                    ((BoxCollider)Hit.collider).HoverCard();
-                    Card selCard = selected;
-                    matches = Board.Platz.FindAll(x => x.Monat == selCard.Monat);
-                    for (int i = 0; i < matches.Count; i++)
-                    {
-                        StartCoroutine(matches[i].BlinkCard());
-                    }
-                }
                 else
-                    HoverMatches(FieldSelect ? "Feld" : "P1Hand");
+                    HoverMatches(FieldSelect ? "Feld" : "P1Hand", () =>
+                    {
+                        if (!FieldSelect)
+                {
+                            Global.prev?.HoverCard(true);
+                            StopAllCoroutines();
+                            Board.RefillCards();
+                            selected = Hit.collider.gameObject.GetComponent<CardRef>().card;
+                            ((BoxCollider)Hit.collider)?.HoverCard();
+                            Card selCard = selected;
+                            matches = Board.Platz.FindAll(x => x.Monat == selCard.Monat);
+                            for (int i = 0; i < matches.Count; i++)
+                            {
+                                StartCoroutine(matches[i].BlinkCard());
+                            }
+                        }
+                    });
             }
-            else if (!Turn && Global.MovingCards == 0)
+            else if (!Board.Turn && Global.MovingCards == 0)
             {
                 if (!Global.Settings.Multiplayer)
-                    DrawTurn(((KI)Board.players[Turn ? 0 : 1]).MakeTurn(Board));
+                    DrawTurn(((KI)Board.players[Board.Turn ? 0 : 1]).MakeTurn(Board));
             }
         }
-        private void HoverMatches(string layer)
+        private void HoverMatches(string layer, Action insert = null)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit) && hit.collider.gameObject.layer == LayerMask.NameToLayer(layer))
             {
                 Global.prev?.HoverCard(true);
+                insert?.Invoke();
                 if (matches.Exists(x => x.name == hit.collider.gameObject.name))
                 {
                     selected = hit.collider.gameObject.GetComponent<CardRef>().card;
-                    ((BoxCollider)hit.collider).HoverCard();
+                    ((BoxCollider)hit.collider)?.HoverCard();
                 }
             }
             else if (hit.collider == null && Global.prev != null)
             {
                 selected = null;
-                Global.prev.HoverCard(true);
+                Global.prev?.HoverCard(true);
                 Board.RefillCards();
             }
         }
         private void MatchCard(GameObject sel)
         {
             Card selCard = sel.GetComponent<CardRef>().card;
-            Move[0] = ((Player)Board.players[Turn ? 0 : 1]).Hand.IndexOf(selCard);
+            Move[0] = ((Player)Board.players[Board.Turn ? 0 : 1]).Hand.IndexOf(selCard);
             List<Card> Matches = Board.Platz.FindAll(x => x.Monat == selCard.Monat);
             if (Matches.Count == 2)
             {
@@ -154,7 +155,7 @@ namespace Hanafuda
             else
             {
                 Board.PlayCard(selCard, Matches);
-                Turn = !Turn;
+                Board.Turn = !Board.Turn;
             }
         }
         private void SelectFieldCard(GameObject sel)
@@ -165,7 +166,7 @@ namespace Hanafuda
             Move[1] = Board.Platz.IndexOf(selCard);
             Board.PlayCard(tHandCard, new List<Card>() { selCard });
             FieldSelect = false;
-            Turn = !Turn;
+            Board.Turn = !Board.Turn;
         }
 
         private void CreateSlide()
@@ -176,7 +177,7 @@ namespace Hanafuda
                 Slide.transform.localPosition = new Vector3(0, -8, 10);
                 SlideHand SlideScript = Slide.AddComponent<SlideHand>();
                 SlideScript.toHover = Board.Platz;
-                SlideScript.cParent = ((Player)Board.players[Turn ? 0 : 1]).Hand;
+                SlideScript.cParent = ((Player)Board.players[Board.Turn ? 0 : 1]).Hand;
                 SlideScript.onComplete = x => { selected = x; allowInput = true; };
                 allowInput = false;
                 time = 0f;

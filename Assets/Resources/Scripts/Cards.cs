@@ -99,12 +99,17 @@ namespace Hanafuda
         public List<Card> Platz = new List<Card>();
         public List<object> players = new List<object>();
         public float Value;
-        public bool Turn;
+        public bool _Turn = true;
+        Action<bool> TurnCallback;
+        public bool Turn
+        {
+            get { return _Turn; }
+            set { TurnCallback(value); }
+        }
         public void PlayCard(Card handCard, List<Card> Matches = null, List<Card> source = null)
         {
             Transform tPlatz = Global.Settings.mobile ? MainSceneVariables.variableCollection.MFeld :
                 MainSceneVariables.variableCollection.Feld;
-            MonoBehaviour mono = new MonoBehaviour();
             bool fromHand = true;
             if (Matches == null) Matches = new List<Card>();
             if (source == null) source = ((Player)players[Turn ? 0 : 1]).Hand;
@@ -118,7 +123,7 @@ namespace Hanafuda
             if (j == 0) action = " und legt sie aufs Spielfeld.";
             else action = action.Remove(action.Length - 2, 1) + "ein.";
             Global.Spielverlauf.Add(Global.Settings.Name + " wählt " + handCard.name + action);
-            mono.StopAllCoroutines();
+            Global.global.StopAllCoroutines();
             RefillCards();
             source.Remove(handCard);
             handCard.Objekt.transform.parent = tPlatz;
@@ -128,7 +133,7 @@ namespace Hanafuda
             else
             {
                 Platz.Add(handCard);
-                mono.StartCoroutine(handCard.Objekt.transform.StandardAnimation(tPlatz.position +
+                Global.global.StartCoroutine(handCard.Objekt.transform.StandardAnimation(tPlatz.position +
                     (Global.Settings.mobile ? new Vector3(((Platz.Count - 1) / 3) * (11f / 1.5f), -9 + (18f / 1.5f) * ((Platz.Count - 1) % 3))
                     : new Vector3(((Platz.Count - 1) / 2) * 11f, -9 + 18 * ((Platz.Count - 1) % 2))),
                     new Vector3(0, 180, 0), handCard.Objekt.transform.localScale / (Global.Settings.mobile ? 1.5f : 1f)));
@@ -141,7 +146,7 @@ namespace Hanafuda
                     ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(Matches[i]);
                     if (i < Matches.Count - 1)
                         Platz.Remove(Matches[i]);
-                    mono.StartCoroutine(Matches[i].Objekt.transform.StandardAnimation(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Turn ? 0 : Screen.height)),
+                    Global.global.StartCoroutine(Matches[i].Objekt.transform.StandardAnimation(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Turn ? 0 : Screen.height)),
                         Vector3.zero, Vector3.zero, 0, AddFunc: () => { GameObject.Destroy(match); }));
                 }
                 else
@@ -153,7 +158,7 @@ namespace Hanafuda
                     if (i < Matches.Count - 1)
                         Platz.Remove(Matches[i]);
                     Matches[i].Objekt.layer = LayerMask.NameToLayer("Collected");
-                    mono.StartCoroutine(Matches[i].Objekt.transform.StandardAnimation(Matches[i].Objekt.transform.parent.position +
+                    Global.global.StartCoroutine(Matches[i].Objekt.transform.StandardAnimation(Matches[i].Objekt.transform.parent.position +
                         new Vector3(5.5f * ((collection.childCount - 1) % 5), -((collection.childCount - 1) / 5) * 2f, -((collection.childCount - 1) / 5)),
                         new Vector3(0, 180, 0), Matches[i].Objekt.transform.localScale / 2));
                 }
@@ -162,21 +167,22 @@ namespace Hanafuda
             {
                 Transform Hand = Turn ? MainSceneVariables.variableCollection.Hand1M : MainSceneVariables.variableCollection.Hand2M;
                 if (fromHand)
-                    mono.StartCoroutine(ResortCardsMobile(((Player)players[Turn ? 0 : 1]).Hand, Hand.position, 8, isHand: true, delay: 1));
-                mono.StartCoroutine(ResortCardsMobile(Platz, tPlatz.position, 3, rowWise: false, delay: 1));
+                    Global.global.StartCoroutine(ResortCardsMobile(((Player)players[Turn ? 0 : 1]).Hand, Hand.position, 8, isHand: true, delay: 1));
+                Global.global.StartCoroutine(ResortCardsMobile(Platz, tPlatz.position, 3, rowWise: false, delay: 1));
             }
             else
             {
                 Transform Hand = Turn ? MainSceneVariables.variableCollection.Hand1 : MainSceneVariables.variableCollection.Hand2;
                 if (fromHand)
-                    mono.StartCoroutine(ResortCards(((Player)players[Turn ? 0 : 1]).Hand, Hand.transform.position, delay: 1));
-                mono.StartCoroutine(ResortCards(Platz, tPlatz.position, 2, delay: 1));
+                    Global.global.StartCoroutine(ResortCards(((Player)players[Turn ? 0 : 1]).Hand, Hand.transform.position, delay: 1));
+                Global.global.StartCoroutine(ResortCards(Platz, tPlatz.position, 2, delay: 1));
             }
         }
 
-        public Spielfeld(List<object> Players, int seed = -1)
+        public Spielfeld(List<object> Players, Action<bool> turnCallback, int seed = -1)
         {
             players = Players;
+            TurnCallback = turnCallback;
             var rnd = seed == -1 ? new Random() : new Random(seed);
             for (var i = 0; i < Global.allCards.Count; i++)
             {
@@ -263,20 +269,18 @@ namespace Hanafuda
         /// 
         IEnumerator ResortCards(List<Card> toSort, Vector3 StartPos, int rows = 1, int maxCols = int.MaxValue, float delay = 0f)
         {
-            MonoBehaviour mono = new MonoBehaviour();
             yield return new WaitForSeconds(delay);
             while ((float)toSort.Count / rows > maxCols)
                 rows++;
             for (int i = 0; i < toSort.Count; i++)
             {
-                mono.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
+                Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
                     new Vector3((i / rows) * 11f, -9 * (rows - 1) + ((i + 1) % rows) * 18, 0),
                     toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
             }
         }
         IEnumerator ResortCardsMobile(List<Card> toSort, Vector3 StartPos, int maxSize, bool isHand = false, bool rowWise = true, float delay = 0f)
         {
-            MonoBehaviour mono = new MonoBehaviour();
             yield return new WaitForSeconds(delay);
             int iterations = 1;
             if (isHand)
@@ -285,7 +289,7 @@ namespace Hanafuda
                 {
                     GameObject temp = toSort[card].Objekt;
                     bool hand1 = temp.transform.parent.name.Contains("1");
-                    mono.StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, new Vector3(0, temp.transform.rotation.eulerAngles.y, hand1 ? 0 : 180), temp.transform.localScale, 0, .3f, () =>
+                    Global.global.StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, new Vector3(0, temp.transform.rotation.eulerAngles.y, hand1 ? 0 : 180), temp.transform.localScale, 0, .3f, () =>
                     {
                         GameObject Card = new GameObject();
                         Card.transform.parent = temp.transform.parent;
@@ -297,7 +301,7 @@ namespace Hanafuda
                         int id = hand.IndexOf(temp.transform.parent);
                         float max = ((Player)players[Turn ? 0 : 1]).Hand.Count - 1;
                         if (max == 0) max = 0.5f;
-                        mono.StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, -id), temp.transform.parent.eulerAngles + new Vector3(0, 0, -60f + (120f / max) * (max - id)), temp.transform.parent.localScale, .6f, .3f, () =>
+                        Global.global.StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, -id), temp.transform.parent.eulerAngles + new Vector3(0, 0, -60f + (120f / max) * (max - id)), temp.transform.parent.localScale, .6f, .3f, () =>
                         {
                             GameObject oldParent = temp.transform.parent.gameObject;
                             temp.transform.parent = temp.transform.parent.parent;
@@ -314,8 +318,8 @@ namespace Hanafuda
                     iterations = maxSize;
                     for (int i = 0; i < toSort.Count; i++)
                     {
-                        mono.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
-                            new Vector3((i % 1) * (11f / 1.5f), -9 + (i / 1) * (18f / 1.5f), 0),
+                        Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
+                            new Vector3((i % iterations) * (11f / 1.5f), -9 + (i / iterations) * (18f / 1.5f), 0),
                             toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
                     }
                 }
@@ -324,8 +328,8 @@ namespace Hanafuda
                     iterations = maxSize;
                     for (int i = 0; i < toSort.Count; i++)
                     {
-                        mono.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
-                            new Vector3((i / 1) * (11f / 1.5f), -9 + (i % 1) * (18f / 1.5f), 0),
+                        Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
+                            new Vector3((i / iterations) * (11f / 1.5f), -9 + (i % iterations) * (18f / 1.5f), 0),
                             toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
                     }
                 }

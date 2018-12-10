@@ -52,7 +52,8 @@ namespace Hanafuda
         }
         public Material Image;
         public Monate Monat;
-        public GameObject Objekt;
+        GameObject _Objekt;
+        public GameObject Objekt { get { return _Objekt; } set { _Objekt = value; _Objekt.AddComponent<CardRef>().card = this; } }
         public Typen Typ;
         public IEnumerator BlinkCard()
         {

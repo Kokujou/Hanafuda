@@ -207,25 +207,14 @@ namespace Hanafuda
             var i = 0;
             while (watch.ElapsedMilliseconds < rndTime)
             {
-                if (Global.prev != null)
-                {
-                    Global.prev.HoverCard(true);
-                    Global.prev = null;
-                }
-
-                cols[i].HoverCard();
+                Global.prev?.HoverCard(true);
+                cols[i]?.HoverCard();
                 yield return new WaitForSeconds(.05f);
                 i++;
                 if (i >= cols.Count)
                     i = 0;
             }
-
-            if (Global.prev != null)
-            {
-                Global.prev.HoverCard(true);
-                Global.prev = null;
-            }
-
+            Global.prev?.HoverCard(true);
             cols[i].gameObject.transform.parent = null;
             StartCoroutine(cols[i].gameObject.transform.StandardAnimation(new Vector3(mobile ? 13 : 55, mobile ? 18 : 0, 0), new Vector3(0, 180, 0),
                 cols[i].gameObject.transform.localScale * (mobile ? 1 : 2), 0));
@@ -259,11 +248,7 @@ namespace Hanafuda
                         Turn = !Turn;
                         var sel = GameObject.Find(selected);
                         selected = "";
-                        if (Global.prev != null)
-                        {
-                            Global.prev.HoverCard(true);
-                            Global.prev = null;
-                        }
+                        Global.prev?.HoverCard(true);
 
                         sel.transform.parent = null;
                         sel.layer = 0;
@@ -299,23 +284,14 @@ namespace Hanafuda
                     else if (Physics.Raycast(ray, out hit, 1 << LayerMask.NameToLayer("Card")) &&
                              selected != hit.collider.gameObject.name)
                     {
-                        if (Global.prev != null)
-                        {
-                            Global.prev.HoverCard(true);
-                            Global.prev = null;
-                        }
-
+                        Global.prev?.HoverCard(true);
                         selected = hit.collider.gameObject.name;
-                        ((BoxCollider)hit.collider).HoverCard();
+                        ((BoxCollider)hit.collider)?.HoverCard();
                     }
                     else if (hit.collider == null)
                     {
                         selected = "";
-                        if (Global.prev != null)
-                        {
-                            Global.prev.HoverCard(true);
-                            Global.prev = null;
-                        }
+                        Global.prev?.HoverCard(true);
                     }
                 }
             }
