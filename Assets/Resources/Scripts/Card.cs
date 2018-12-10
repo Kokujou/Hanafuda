@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 /* To-Do:
@@ -20,8 +22,8 @@ namespace Hanafuda
         public Card card;
     }
 
-    [Serializable]
-    public class Card
+    [Serializable, CreateAssetMenu(menuName = "Card")]
+    public class Card : ScriptableObject
     {
         public enum Monate
         {
@@ -42,29 +44,18 @@ namespace Hanafuda
 
         public enum Typen
         {
+            None = -1,
             Landschaft,
             Bänder,
             Tiere,
             Lichter
         }
-
         public Material Image;
         public Monate Monat;
-        public string Name;
         public GameObject Objekt;
         public Typen Typ;
 
-        public Card(Monate monat, Typen typ, string name, GameObject objekt = null)
-        {
-            Monat = monat;
-            Typ = typ;
-            Name = name;
-            Objekt = objekt;
-            Image = Resources.Load<Material>("Motive/Materials/" + Name);
-            if (Objekt)
-                Objekt.AddComponent<CardRef>().card = this;
-        }
-
+        
         public IEnumerator BlinkCard()
         {
             var faktor = 1;
@@ -95,17 +86,12 @@ namespace Hanafuda
         {
             if (obj.GetType() == typeof(Card))
             {
-                if (((Card) obj).Name == Name)
+                if (((Card)obj).name == name)
                     return true;
                 return false;
             }
 
             return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
         }
     }
 }

@@ -102,18 +102,18 @@ namespace Hanafuda
                     GUILayout.BeginVertical();
                     for (var yaku = 0; yaku < Global.allYaku.Count; yaku++)
                     {
-                        GUILayout.Label(Global.allYaku[yaku].JName + "\t" + Global.allYaku[yaku].Name);
+                        GUILayout.Label(Global.allYaku[yaku].JName + "\t" + Global.allYaku[yaku].name);
                         GUILayout.BeginHorizontal();
                         var shownCards = new List<Card>();
                         if (Global.allYaku[yaku].Mask[1] == 1)
                             shownCards.AddRange(
-                                Global.allCards.FindAll(x => Global.allYaku[yaku].Namen.Contains(x.Name)));
+                                Global.allCards.FindAll(x => Global.allYaku[yaku].Namen.Contains(x.name)));
                         if (Global.allYaku[yaku].Mask[0] == 1)
                             shownCards.AddRange(Global.allCards.FindAll(x =>
-                                !Global.allYaku[yaku].Namen.Contains(x.Name) && x.Typ == Global.allYaku[yaku].TypPref));
+                                !Global.allYaku[yaku].Namen.Contains(x.name) && x.Typ == Global.allYaku[yaku].TypPref));
                         var colCards = shownCards.FindAll(x =>
-                            ((Player) Board.players[tab]).CollectedCards.Exists(y => y.Name == x.Name));
-                        shownCards.RemoveAll(x => colCards.Exists(y => y.Name == x.Name));
+                            ((Player) Board.players[tab]).CollectedCards.Exists(y => y.name == x.name));
+                        shownCards.RemoveAll(x => colCards.Exists(y => y.name == x.name));
                         for (var card = 0; card < shownCards.Count && card < Global.allYaku[yaku].minSize; card++)
                         {
                             if (card % 6 == 5)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExtensionMethods;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -50,7 +51,7 @@ namespace Hanafuda
             {
                 var seed = Random.Range(0, 100);
                 LoadDeck(seed);
-                NetworkServer.SendToAll(132, new Global.Message {message = seed.ToString()});
+                NetworkServer.SendToAll(132, new Global.Message { message = seed.ToString() });
             }
         }
 
@@ -72,7 +73,7 @@ namespace Hanafuda
                 all.RemoveAll(x => x.Monat == all[rnd].Monat);
                 var go = Instantiate(Global.prefabCollection.PKarte, Kartenziehen.transform);
                 go.GetComponentsInChildren<MeshRenderer>()[0].material = tempDeck[i].Image;
-                go.name = tempDeck[i].Name;
+                go.name = tempDeck[i].name;
                 if (Camera.main.aspect < 1)
                 {
                     go.transform.localPosition = new Vector3(0, 0, i * 0.1f);
@@ -112,7 +113,7 @@ namespace Hanafuda
             sel.transform.parent = null;
             sel.layer = 0;
             //!
-            StartCoroutine(Global.StandardAnimation(sel.transform, new Vector3(13 * (P2 ? 1 : -1), 18, 0),
+            StartCoroutine(sel.transform.StandardAnimation(new Vector3(13 * (P2 ? 1 : -1), 18, 0),
                 new Vector3(0, 180, 0), sel.transform.localScale, 0));
             var Info = Instantiate(Global.prefabCollection.PText);
             Info.transform.position = new Vector3(P2 ? 0 : -24, 41, 0);
@@ -129,12 +130,12 @@ namespace Hanafuda
                 if (P2)
                 {
                     P2Selection = sel.name;
-                    Global.Settings.playerClients[0].Send(131, new Global.Message {message = sel.name});
+                    Global.Settings.playerClients[0].Send(131, new Global.Message { message = sel.name });
                 }
                 else
                 {
                     P1Selection = sel.name;
-                    NetworkServer.SendToAll(131, new Global.Message {message = sel.name});
+                    NetworkServer.SendToAll(131, new Global.Message { message = sel.name });
                 }
 
                 if (P1Selection != "" && P2Selection != "")
@@ -150,7 +151,7 @@ namespace Hanafuda
             var col = GameObject.Find(card).GetComponent<BoxCollider>();
             col.gameObject.transform.parent = null;
             col.gameObject.layer = 0;
-            StartCoroutine(Global.StandardAnimation(col.gameObject.transform, new Vector3(
+            StartCoroutine(col.gameObject.transform.StandardAnimation(new Vector3(
                     (P2 ? -1 : 1) * (Global.Settings.mobile ? 13 : 55),
                     Global.Settings.mobile ? 18 : 0, 0), new Vector3(0, 180, 0),
                 col.gameObject.transform.localScale * (Global.Settings.mobile ? 1 : 2), 0));
@@ -171,7 +172,7 @@ namespace Hanafuda
         private IEnumerator GetResult(string P1Sel, string P2Sel)
         {
             var tempTurn = false;
-            if (Global.allCards.Find(x => x.Name == P2Sel).Monat < Global.allCards.Find(x => x.Name == P1Sel).Monat)
+            if (Global.allCards.Find(x => x.name == P2Sel).Monat < Global.allCards.Find(x => x.name == P1Sel).Monat)
             {
                 Info1.GetComponent<TextMesh>().color = new Color(165, 28, 28, 255) / 255;
                 Info2.GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255;
@@ -209,11 +210,11 @@ namespace Hanafuda
             {
                 if (Global.prev != null)
                 {
-                    Global.UnhoverCard(Global.prev);
+                    Global.prev.UnhoverCard();
                     Global.prev = null;
                 }
 
-                Global.HoverCard(cols[i]);
+                cols[i].HoverCard();
                 yield return new WaitForSeconds(.05f);
                 i++;
                 if (i >= cols.Count)
@@ -222,13 +223,12 @@ namespace Hanafuda
 
             if (Global.prev != null)
             {
-                Global.UnhoverCard(Global.prev);
+                Global.prev.UnhoverCard();
                 Global.prev = null;
             }
 
             cols[i].gameObject.transform.parent = null;
-            StartCoroutine(Global.StandardAnimation(cols[i].gameObject.transform,
-                new Vector3(mobile ? 13 : 55, mobile ? 18 : 0, 0), new Vector3(0, 180, 0),
+            StartCoroutine(cols[i].gameObject.transform.StandardAnimation(new Vector3(mobile ? 13 : 55, mobile ? 18 : 0, 0), new Vector3(0, 180, 0),
                 cols[i].gameObject.transform.localScale * (mobile ? 1 : 2), 0));
             Order.GetComponentsInChildren<TextMesh>()[0].text = "Spiel wird\ngestartet...";
             Order.GetComponentsInChildren<TextMesh>()[1].text = "Spiel wird\ngestartet...";
@@ -262,13 +262,13 @@ namespace Hanafuda
                         selected = "";
                         if (Global.prev != null)
                         {
-                            Global.UnhoverCard(Global.prev);
+                            Global.prev.UnhoverCard();
                             Global.prev = null;
                         }
 
                         sel.transform.parent = null;
                         sel.layer = 0;
-                        StartCoroutine(Global.StandardAnimation(sel.transform, new Vector3(55 * (P2 ? 1 : -1), 0, 0),
+                        StartCoroutine(sel.transform.StandardAnimation(new Vector3(55 * (P2 ? 1 : -1), 0, 0),
                             new Vector3(0, 180, 0), sel.transform.localScale * 2, 0));
                         var Info = Instantiate(Global.prefabCollection.PText);
                         Info.transform.position = new Vector3(P2 ? 40 : -65, 30, 0);
@@ -285,12 +285,12 @@ namespace Hanafuda
                             if (P2)
                             {
                                 P2Selection = sel.name;
-                                Global.Settings.playerClients[0].Send(131, new Global.Message {message = sel.name});
+                                Global.Settings.playerClients[0].Send(131, new Global.Message { message = sel.name });
                             }
                             else
                             {
                                 P1Selection = sel.name;
-                                NetworkServer.SendToAll(131, new Global.Message {message = sel.name});
+                                NetworkServer.SendToAll(131, new Global.Message { message = sel.name });
                             }
 
                             if (P1Selection != "" && P2Selection != "")
@@ -302,19 +302,19 @@ namespace Hanafuda
                     {
                         if (Global.prev != null)
                         {
-                            Global.UnhoverCard(Global.prev);
+                            Global.prev.UnhoverCard();
                             Global.prev = null;
                         }
 
                         selected = hit.collider.gameObject.name;
-                        Global.HoverCard((BoxCollider) hit.collider);
+                        ((BoxCollider)hit.collider).HoverCard();
                     }
                     else if (hit.collider == null)
                     {
                         selected = "";
                         if (Global.prev != null)
                         {
-                            Global.UnhoverCard(Global.prev);
+                            Global.prev.UnhoverCard();
                             Global.prev = null;
                         }
                     }

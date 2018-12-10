@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fd4bbc85cf55f948b9a1799644fb53e, type: 3}
+  m_Name: Aka Ao Kasane
+  m_EditorClassIdentifier: 
+  addPoints: 0
+  basePoints: 10
+  JName: "\u8D64\u9752\u91CD"
+  Mask: 0000000001000000
+  minSize: 6
+  Namen:
+  - Pinie mit Spruch-Band
+  - "Pflaumenbl\xFCten mit Spruch-Band"
+  - "Kirschbl\xFCten mit Spruch-Band"
+  - Chrysanthemen mit blauem Band
+  - Ahorn mit blauem Band
+  - Pfingstrose mit blauem Band
+  TypPref: -1

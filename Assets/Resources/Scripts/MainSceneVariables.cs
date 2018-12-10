@@ -23,7 +23,6 @@ namespace Hanafuda
                            variableCollection.PCCollections[i].name;
                 variableCollection.Collections.Add(name.GetHashCode(), variableCollection.PCCollections[i]);
             }
-
             Instantiate(obj);
         }
 
@@ -33,7 +32,6 @@ namespace Hanafuda
             public float BoxX;
             public Hashtable Collections = new Hashtable();
             public Transform ExCol, ExColBack, Hand1, Hand2, Hand1M, Hand2M, Feld, MFeld, Deck, MDeck, EffectCamera;
-
             [SerializeField] public List<Transform> PCCollections = new List<Transform>();
         }
     }

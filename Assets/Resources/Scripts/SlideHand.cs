@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using ExtensionMethods;
 
 namespace Hanafuda
 {
@@ -22,7 +23,7 @@ namespace Hanafuda
 
         private void Start()
         {
-            StartCoroutine(Global.BlinkSlide(gameObject));
+            StartCoroutine(gameObject.BlinkSlide());
         }
 
         // Update is called once per frame
@@ -35,22 +36,22 @@ namespace Hanafuda
                 var Parent = gameObject.transform.parent.gameObject;
                 if (Input.GetMouseButtonDown(0) && Physics.Raycast(ray, out hit) &&
                     hit.collider.name.StartsWith("Slide") &&
-                    (int) ((hit.point.x + 15f) / (30f / cParent.Count)) != selectedCard) valid = true;
+                    (int)((hit.point.x + 15f) / (30f / cParent.Count)) != selectedCard) valid = true;
                 if (Input.GetMouseButton(0) && valid)
                 {
                     // Visualisierung der hover-Bounds
                     //GameObject.Find("Slide(Clone)").GetComponent<SpriteRenderer>().color *= new Color(1, 1, 1, 0);
                     if (Global.prev)
                     {
-                        Global.UnhoverCard(Global.prev);
+                        Global.prev.UnhoverCard();
                         Global.prev = null;
                     }
 
-                    selectedCard = (int) ((Camera.main.ScreenToWorldPoint(Input.mousePosition).x + 15f) /
+                    selectedCard = (int)((Camera.main.ScreenToWorldPoint(Input.mousePosition).x + 15f) /
                                           (30f / cParent.Count));
                     if (selectedCard < 0) selectedCard = 0;
                     else if (selectedCard >= cParent.Count) selectedCard = cParent.Count - 1;
-                    Global.HoverCard(cParent[selectedCard].Objekt.GetComponent<BoxCollider>());
+                    cParent[selectedCard].Objekt.GetComponent<BoxCollider>().HoverCard();
                     for (var i = 0; i < toHover.Count; i++)
                     {
                         Color col;
@@ -80,7 +81,7 @@ namespace Hanafuda
                         gameObject.GetComponent<SpriteRenderer>().color += new Color(0, 0, 0, 0.6f);
                         if (Global.prev)
                         {
-                            Global.UnhoverCard(Global.prev);
+                            Global.prev.UnhoverCard();
                             Global.prev = null;
                         }
 
