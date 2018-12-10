@@ -335,8 +335,61 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5256904d077997e4ea56f68e6907ec7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  test:
+  - {fileID: 11400000, guid: 5f4076689d6f8f0418f35a532206508f, type: 2}
+  - {fileID: 11400000, guid: e256e9c6131b50844a600e7fe7883d8b, type: 2}
+  - {fileID: 11400000, guid: 58368613431f3b340a060c91da13f4fa, type: 2}
+  - {fileID: 11400000, guid: 10b06b31e1d2bc0468c4dbd832018bd9, type: 2}
+  - {fileID: 11400000, guid: 512b9faf03929ef4ba6b2f93c9be8b90, type: 2}
+  - {fileID: 11400000, guid: 5d13f2934b98dc644aff81feaf6cc5bc, type: 2}
+  - {fileID: 11400000, guid: 173815d95d4c79a479717f6665896307, type: 2}
+  - {fileID: 11400000, guid: fa4dc3a7231c65f478e5fef3d1dc04d9, type: 2}
+  - {fileID: 11400000, guid: 25e8561e6924fc048a76309039d39df9, type: 2}
+  - {fileID: 11400000, guid: 5518062b6cd0a9c448223df554078a27, type: 2}
+  - {fileID: 11400000, guid: d9b5b759c5a0d184facd994e1c908123, type: 2}
+  - {fileID: 11400000, guid: 8e9e200dd53ceaa45b746e351f02eff8, type: 2}
+  - {fileID: 11400000, guid: 26d6efdd0320016408be436184da3bd4, type: 2}
+  - {fileID: 11400000, guid: e894633850bf37442ac12be5b987216d, type: 2}
+  - {fileID: 11400000, guid: d20fd031f095f3e4cb547516184a1610, type: 2}
+  - {fileID: 11400000, guid: ce1c2df1945fe224893121940da97259, type: 2}
+  - {fileID: 11400000, guid: 45f0d132f3a551f43bc5771dc39470f4, type: 2}
+  - {fileID: 11400000, guid: 85559b3ff2b9e4e4f8e79aa0fa4bc60a, type: 2}
+  - {fileID: 11400000, guid: 31e48ea292d419245922f8a3d9587cab, type: 2}
+  - {fileID: 11400000, guid: d409ed87432f18e4aa7fb59ddd1a31ac, type: 2}
+  - {fileID: 11400000, guid: efff91dfc999e6a46af5a5df08053b67, type: 2}
+  - {fileID: 11400000, guid: 7e5b3355aec73dc4596515b75f1a7a00, type: 2}
+  - {fileID: 11400000, guid: d8e8b5dc155c4c942afeaa7974d0b7ca, type: 2}
+  - {fileID: 11400000, guid: fed0f26edd8cf4f43b26d045c74a8409, type: 2}
+  - {fileID: 11400000, guid: 83ec7f9313d0032439b26a2bacd4fd03, type: 2}
+  - {fileID: 11400000, guid: 89ddd6351bc3f154db1548e0ebe9f275, type: 2}
+  - {fileID: 11400000, guid: 9f537ebb2ac9ad84689f97333f5cb10f, type: 2}
+  - {fileID: 11400000, guid: 648ec4e2d15430b4e907cef89dbe4772, type: 2}
+  - {fileID: 11400000, guid: 828ee3277f269604986285d92d89d388, type: 2}
+  - {fileID: 11400000, guid: 093fd0738a7ec934f901f07bcaac39c4, type: 2}
+  - {fileID: 11400000, guid: c151848adde9bab498fef31ac6882b01, type: 2}
+  - {fileID: 11400000, guid: eef6607acb95ada4382c7dcb4ac981ec, type: 2}
+  - {fileID: 11400000, guid: 7d826770b2bf9d74f95ab720d7afc8f8, type: 2}
+  - {fileID: 11400000, guid: cbe72d14c7cf49f4793b80abd6535c37, type: 2}
+  - {fileID: 11400000, guid: bb1bedaa78555374896ef603b969da57, type: 2}
+  - {fileID: 11400000, guid: b9d0711c75972304297b57a0f0d2d04d, type: 2}
+  - {fileID: 11400000, guid: 8ca7b58aa2ddfe74586dabea48fc2ea2, type: 2}
+  - {fileID: 11400000, guid: 225fefbffbed4004d991b2405db98cb1, type: 2}
+  - {fileID: 11400000, guid: b5b1ac990c572624f915172504e34dda, type: 2}
+  - {fileID: 11400000, guid: d7ec37e5707cc2a4687833181ace2e17, type: 2}
+  - {fileID: 11400000, guid: 7ed9203a447425044ba5e01ed19c103d, type: 2}
+  - {fileID: 11400000, guid: d64263f0eaf36e3449b7cfd0ad22fc91, type: 2}
+  - {fileID: 11400000, guid: 5fc0ce28bf61f4b4091c450fc8bb5b4e, type: 2}
+  - {fileID: 11400000, guid: 6e60a4c4ee91875409a0b2acb55f17ac, type: 2}
+  - {fileID: 11400000, guid: 13099da61f2c625419d5794683b04026, type: 2}
+  - {fileID: 11400000, guid: c64a370299f1ca44fa55f6a1a19ced26, type: 2}
+  - {fileID: 11400000, guid: 2fede93ccb8426d4a8bf177d3973733c, type: 2}
+  - {fileID: 11400000, guid: ed4e4dddd5b762d45912174567e4d6e6, type: 2}
   jFont: {fileID: 12800000, guid: 456c1062521d26b4abbcdcf368a4ef1a, type: 3}
   singleton:
+    EdoFont: {fileID: 12800000, guid: d5042aba50af22c4db76ff47f545d052, type: 3}
+    MGUISkin: {fileID: 11400000, guid: 1b7138507e3f428418711c459723bb3e, type: 2}
+    IngameSkin: {fileID: 11400000, guid: 67144345a0f2a594aa854480d2cd3cf7, type: 2}
+    FinishSkin: {fileID: 11400000, guid: 0d8916956ccc7c4408446d1b24ef5ae6, type: 2}
     PKarte: {fileID: 105438, guid: 2efd8c4b2892b1f48bcef93565567ed4, type: 2}
     PSlide: {fileID: 1997753205899480, guid: 18caf9b5642fa684bbd031e63ea80621, type: 2}
     CherryBlossoms: {fileID: 1475183275279244, guid: 1daf0a368c796db4c8861910b7911fd7,
@@ -349,10 +402,6 @@ MonoBehaviour:
       type: 2}
     gKouYaku: {fileID: 1492468234595444, guid: 57ced8d467e3074449a907fb971bc79a, type: 2}
     PText: {fileID: 1771767747600700, guid: 823b7f92431231843a1db4ba516a913c, type: 2}
-    EdoFont: {fileID: 12800000, guid: d5042aba50af22c4db76ff47f545d052, type: 3}
-    MGUISkin: {fileID: 11400000, guid: 1b7138507e3f428418711c459723bb3e, type: 2}
-    IngameSkin: {fileID: 11400000, guid: 67144345a0f2a594aa854480d2cd3cf7, type: 2}
-    FinishSkin: {fileID: 11400000, guid: 0d8916956ccc7c4408446d1b24ef5ae6, type: 2}
 --- !u!4 &1233903757
 Transform:
   m_ObjectHideFlags: 0

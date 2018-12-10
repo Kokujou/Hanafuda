@@ -430,7 +430,7 @@ namespace Hanafuda
         }
         void Update()
         {
-            Global.SetCameraRect(Camera.main);
+            Camera.main.SetCameraRect();
             //Global.SetCameraRect(EffectCam.GetComponent<Camera>());
             if (allowInput)
             {

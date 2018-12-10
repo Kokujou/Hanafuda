@@ -10,6 +10,29 @@ namespace ExtensionMethods
     public static partial class Animation
     {
         /// <summary>
+        /// Korrigiert den Kamera-Aspekt zu Portrait(mobil) oder Landscape (PC)
+        /// </summary>
+        /// <param name="cam"></param>
+        public static void SetCameraRect(this Camera cam)
+        {
+            if (Screen.width >= Screen.height)
+                cam.aspect = 16f / 9f;
+            else
+                cam.aspect = .6f;
+        }
+        /// <summary>
+        /// Generiert eine 1x1 Textur einer Farbe
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public static Texture2D CreateTexture(this Color color)
+        {
+            var result = new Texture2D(1, 1);
+            result.SetPixel(0, 0, color);
+            result.Apply();
+            return result;
+        }
+        /// <summary>
         /// Transparenz-Animation des Hilfs-Pfeils für die mobile Handkarten-Animation
         /// </summary>
         /// <param name="obj"></param>

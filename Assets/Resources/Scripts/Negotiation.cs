@@ -248,7 +248,7 @@ namespace Hanafuda
         /// </summary>
         private void Update()
         {
-            Global.SetCameraRect(Camera.main);
+            Camera.main.SetCameraRect();
             if (Turn)
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);

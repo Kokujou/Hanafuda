@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExtensionMethods;
+using System;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -86,10 +87,10 @@ namespace Hanafuda
                                 GUI.skin.GetStyle("YakuHead"));
                         {
                             GUI.BeginGroup(new Rect(Screen.width / 8, 0, Screen.width, Screen.height));
-                            GUI.DrawTexture(new Rect(Screen.width * 0.25f - 20, 45, 2, Screen.height - 120),
-                                Global.ColorTex(Color.gray));
+                                GUI.DrawTexture(new Rect(Screen.width * 0.25f - 20, 45, 2, Screen.height - 120),
+                                    Color.gray.CreateTexture());
                             GUI.DrawTexture(new Rect(Screen.width * 0.5f - 20, 45, 2, Screen.height - 120),
-                                Global.ColorTex(Color.gray));
+                                Color.gray.CreateTexture());
                             var Sets = ((Player) main.Board.players[0]).CollectedCards;
                             for (var yaku = 0; yaku < Global.allYaku.Count; yaku++)
                             {
@@ -134,7 +135,7 @@ namespace Hanafuda
                                                     t);
                                                 GUI.DrawTexture(
                                                     new Rect((card - cards.Count) * 55, 20 + card / 5 * 85, 50, 80),
-                                                    Global.ColorTex(new Color(0, 0, 0, .5f)));
+                                                    new Color(0, 0, 0, .5f).CreateTexture());
                                             }
                                         }
                                         else
@@ -143,7 +144,7 @@ namespace Hanafuda
                                                 .GetComponent<MeshRenderer>().material.mainTexture;
                                             GUI.DrawTexture(new Rect(card % 5 * 55, 20 + card / 5 * 85, 50, 80), t);
                                             GUI.DrawTexture(new Rect(card % 5 * 55, 20 + card / 5 * 85, 50, 80),
-                                                Global.ColorTex(new Color(0, 0, 0, .5f)));
+                                                new Color(0, 0, 0, .5f).CreateTexture());
                                         }
                                     }
                                     else
@@ -164,7 +165,7 @@ namespace Hanafuda
                                                 new Rect((card - cards.Count) % 5 * 55, 20 + card / 5 * 85, 50, 80), t);
                                             GUI.DrawTexture(
                                                 new Rect((card - cards.Count) % 5 * 55, 20 + card / 5 * 85, 50, 80),
-                                                Global.ColorTex(new Color(0, 0, 0, .5f)));
+                                                new Color(0, 0, 0, .5f).CreateTexture());
                                         }
                                     }
                                 }
@@ -211,7 +212,7 @@ namespace Hanafuda
                                                 card % 12 * (Screen.width / 20),
                                                 80 + (95 + 10 * (1 - card / 12)) *
                                                 ((type > 0 ? type + 1 : type) + card / 12), 50, 80),
-                                            Global.ColorTex(new Color(0, 0, 0, 0.5f)));
+                                            new Color(0, 0, 0, .5f).CreateTexture());
                                 }
                             }
                         }

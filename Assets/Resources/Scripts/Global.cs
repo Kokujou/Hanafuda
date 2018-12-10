@@ -6,6 +6,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 // ReSharper disable All
+/*
+ * Todo:
+ *  - Dynamische Generierung der Card Skins
+ */
 
 namespace Hanafuda
 {
@@ -18,37 +22,21 @@ namespace Hanafuda
         public static BoxCollider prev;
         public static List<Card> allCards = new List<Card>();
         public static List<Yaku> allYaku = new List<Yaku>();
+        public List<Card> test;
         public static List<string> Spielverlauf = new List<string>();
         public static List<Player> players = new List<Player>();
         public Font jFont;
-
-        /// <summary>
-        ///     Generierung einer 1x1 Textur, die nur aus einer Farbe besteht
-        /// </summary>
-        /// <param name="color">Farbe der Textur</param>
-        /// <returns></returns>
-        public static Texture2D ColorTex(Color color)
-        {
-            var result = new Texture2D(1, 1);
-            result.SetPixel(0, 0, color);
-            result.Apply();
-            return result;
-        }
-        public static void SetCameraRect(Camera cam)
-        {
-            if (Screen.width >= Screen.height)
-                cam.aspect = 16f / 9f;
-            else
-                cam.aspect = .6f;
-        }
+        public List<Card> AllCards = new List<Card>();
+        public List<Yaku> AllYaku = new List<Yaku>();
         /// <summary>
         ///     Harte Wertinitialisierung von Karten und Yaku
         /// </summary>
         private void Awake()
         {
             DontDestroyOnLoad(this);
+            allYaku = AllYaku;
+            allCards = AllCards;
             JFont = jFont;
-            Settings.mobile = Camera.main.aspect < 1;
             var skins = Resources.LoadAll<Texture2D>("Images/").Where(x => x.name.StartsWith("Back")).ToArray();
             CardSkins = new Sprite[skins.Length];
             for (var i = 0; i < skins.Length; i++)

@@ -39,7 +39,7 @@ namespace Hanafuda
             /// <summary>
             ///     Mobiler o. Desktopmodus
             /// </summary>
-            public static bool mobile = false;
+            public static bool mobile { get { return Camera.main.aspect < 1; } }
 
             public static List<NetworkClient> playerClients = new List<NetworkClient>();
             public static int CardSkin = 0;
