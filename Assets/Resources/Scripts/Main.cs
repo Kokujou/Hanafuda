@@ -247,157 +247,10 @@ namespace Hanafuda
         // Update is called once per frame
         public Card selected;
         /// <summary>
-        /// Sortieren von Eltern-Objekten der Karten-Sammlungen
-        /// </summary>
-        /// <param name="toSort">zu sortierende Sammlung</param>
-        /// <param name="StartPos">Startposition der Sammlung</param>
-        /// <param name="rows">Anzahl der Zeilen, auf die die Karten aufgeteilt werden sollen</param>
-        /// <param name="maxCols">Maximale Anzahl von Spalten</param>
-        /// <returns></returns>
-        /// 
-        IEnumerator ResortCards(List<Card> toSort, Vector3 StartPos, int rows = 1, int maxCols = int.MaxValue, float delay = 0f)
-        {
-            yield return new WaitForSeconds(delay);
-            while ((float)toSort.Count / rows > maxCols)
-                rows++;
-            for (int i = 0; i < toSort.Count; i++)
-            {
-                StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
-                    new Vector3((i / rows) * 11f, -9 * (rows - 1) + ((i + 1) % rows) * 18, 0),
-                    toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
-            }
-        }
-        IEnumerator ResortCardsMobile(List<Card> toSort, Vector3 StartPos, int maxSize, bool isHand = false, bool rowWise = true, float delay = 0f)
-        {
-            yield return new WaitForSeconds(delay);
-            int iterations = 1;
-            if (isHand)
-            {
-                for (int card = 0; card < toSort.Count; card++)
-                {
-                    GameObject temp = toSort[card].Objekt;
-                    bool hand1 = temp.transform.parent.name.Contains("1");
-                    StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, new Vector3(0, temp.transform.rotation.eulerAngles.y, hand1 ? 0 : 180), temp.transform.localScale, 0, .3f, () =>
-                        {
-                            GameObject Card = new GameObject();
-                            Card.transform.parent = temp.transform.parent;
-                            temp.transform.parent = Card.transform;
-                            Card.transform.localPosition = new Vector3(0, hand1 ? -8 : 8);
-                            temp.transform.localPosition = new Vector3(0, hand1 ? 8 : -8, 0);
-                            List<Transform> hand = new List<Transform>(temp.transform.parent.parent.gameObject.GetComponentsInChildren<Transform>());
-                            hand.RemoveAll(x => !x.name.Contains("New"));
-                            int id = hand.IndexOf(temp.transform.parent);
-                            float max = ((Player)Board.players[Turn ? 0 : 1]).Hand.Count - 1;
-                            if (max == 0) max = 0.5f;
-                            StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, -id), temp.transform.parent.eulerAngles + new Vector3(0, 0, -60f + (120f / max) * (max - id)), temp.transform.parent.localScale, .6f, .3f, () =>
-                                      {
-                                          GameObject oldParent = temp.transform.parent.gameObject;
-                                          temp.transform.parent = temp.transform.parent.parent;
-                                          Destroy(oldParent);
-                                          //temp.transform.localPosition = new Vector3(temp.transform.localPosition.x, temp.transform.localPosition.y, id/10f);
-                                      }));
-                        }));
-                }
-            }
-            else
-            {
-                if (rowWise)
-                {
-                    iterations = maxSize;
-                    for (int i = 0; i < toSort.Count; i++)
-                    {
-                        StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
-                            new Vector3((i % 1) * (11f / 1.5f), -9 + (i / 1) * (18f / 1.5f), 0),
-                            toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
-                    }
-                }
-                else
-                {
-                    iterations = maxSize;
-                    for (int i = 0; i < toSort.Count; i++)
-                    {
-                        StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
-                            new Vector3((i / 1) * (11f / 1.5f), -9 + (i % 1) * (18f / 1.5f), 0),
-                            toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
-                    }
-                }
-            }
-
-        }
-        /// <summary>
         /// Animation des KoiKoi Schriftzugs (Vergrößerung)
         /// </summary>
         /// <param name="append">Aktion bei Vollendung der Animation</param>
         /// <returns></returns>
-
-        public void PlayCard(Card handCard, List<Card> Matches = null, List<Card> source = null)
-        {
-            bool fromHand = true;
-            if (Matches == null) Matches = new List<Card>();
-            if (source == null) source = ((Player)Board.players[Turn ? 0 : 1]).Hand;
-            else fromHand = false;
-            string action = " und sammelt ";
-            int j = 0;
-            for (j = 0; j < Matches.Count; j++)
-            {
-                action += Matches[j].name + ", ";
-            }
-            if (j == 0) action = " und legt sie aufs Spielfeld.";
-            else action = action.Remove(action.Length - 2, 1) + "ein.";
-            Global.Spielverlauf.Add(Global.Settings.Name + " wählt " + handCard.name + action);
-            StopAllCoroutines();
-            Board.RefillCards();
-            source.Remove(handCard);
-            handCard.Objekt.transform.parent = Platz.transform;
-            handCard.Objekt.layer = LayerMask.NameToLayer("Feld");
-            if (Matches.Count > 0)
-                Matches.Add(handCard);
-            else
-            {
-                Board.Platz.Add(handCard);
-                StartCoroutine(handCard.Objekt.transform.StandardAnimation(Platz.transform.position +
-                    (Global.Settings.mobile ? new Vector3(((Board.Platz.Count - 1) / 3) * (11f / 1.5f), -9 + (18f / 1.5f) * ((Board.Platz.Count - 1) % 3))
-                    : new Vector3(((Board.Platz.Count - 1) / 2) * 11f, -9 + 18 * ((Board.Platz.Count - 1) % 2))),
-                    new Vector3(0, 180, 0), handCard.Objekt.transform.localScale / (Global.Settings.mobile ? 1.5f : 1f)));
-            }
-            for (int i = 0; i < matches.Count; i++)
-            {
-                if (Global.Settings.mobile)
-                {
-                    GameObject match = matches[i].Objekt;
-                    ((Player)Board.players[Turn ? 0 : 1]).CollectedCards.Add(matches[i]);
-                    if (i < matches.Count - 1)
-                        Board.Platz.Remove(matches[i]);
-                    StartCoroutine(matches[i].Objekt.transform.StandardAnimation(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Turn ? 0 : Screen.height)),
-                        Vector3.zero, Vector3.zero, 0, AddFunc: () => { Destroy(match); }));
-                }
-                else
-                {
-                    Transform collection = MainSceneVariables.variableCollection.PCCollections[
-                        ("Collection" + (Turn ? "1" : "2") + matches[i].Typ.ToString()).GetHashCode()];
-                    matches[i].Objekt.transform.parent = collection;
-                    ((Player)Board.players[Turn ? 0 : 1]).CollectedCards.Add(matches[i]);
-                    if (i < matches.Count - 1)
-                        Board.Platz.Remove(matches[i]);
-                    matches[i].Objekt.layer = LayerMask.NameToLayer("Collected");
-                    StartCoroutine(matches[i].Objekt.transform.StandardAnimation(matches[i].Objekt.transform.parent.position +
-                        new Vector3(5.5f * ((collection.childCount - 1) % 5), -((collection.childCount - 1) / 5) * 2f, -((collection.childCount - 1) / 5)),
-                        new Vector3(0, 180, 0), matches[i].Objekt.transform.localScale / 2));
-                }
-            }
-            if (Global.Settings.mobile)
-            {
-                if (fromHand)
-                    StartCoroutine(ResortCardsMobile(((Player)Board.players[Turn ? 0 : 1]).Hand, (Turn ? Hand1 : Hand2).transform.position, 8, isHand: true, delay: 1));
-                StartCoroutine(ResortCardsMobile(Board.Platz, Platz.transform.position, 3, rowWise: false, delay: 1));
-            }
-            else
-            {
-                if (fromHand)
-                    StartCoroutine(ResortCards(((Player)Board.players[Turn ? 0 : 1]).Hand, (Turn ? Hand1 : Hand2).transform.position, delay: 1));
-                StartCoroutine(ResortCards(Board.Platz, Platz.transform.position, 2, delay: 1));
-            }
-        }
         public void DrawTurn(int[] move)
         {
             Card hCard = ((Player)Board.players[Turn ? 0 : 1]).Hand[move[0]];
@@ -406,14 +259,14 @@ namespace Hanafuda
             switch (Matches.Count)
             {
                 case 0:
-                    PlayCard(hCard);
+                    Board.PlayCard(hCard);
                     break;
                 case 1:
                 case 3:
-                    PlayCard(hCard, Matches);
+                    Board.PlayCard(hCard, Matches);
                     break;
                 case 2:
-                    PlayCard(hCard, new List<Card>() { fCard });
+                    Board.PlayCard(hCard, new List<Card>() { fCard });
                     break;
             }
             Turn = !Turn;

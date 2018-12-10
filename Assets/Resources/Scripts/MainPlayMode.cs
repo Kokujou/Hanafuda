@@ -25,26 +25,6 @@ namespace Hanafuda
                 }
             }
         }
-        private void HoverMatches(string layer)
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit) && hit.collider.gameObject.layer == LayerMask.NameToLayer(layer))
-            {
-                Global.prev?.HoverCard(true);
-                if (matches.Exists(x => x.name == hit.collider.gameObject.name))
-                {
-                    selected = hit.collider.gameObject.GetComponent<CardRef>().card;
-                    ((BoxCollider)hit.collider).HoverCard();
-                }
-            }
-            else if (hit.collider == null && Global.prev != null)
-            {
-                selected = null;
-                Global.prev.HoverCard(true);
-                Board.RefillCards();
-            }
-        }
         /// <summary>
         /// Aktionen beim ziehen einer Karte
         /// </summary>
@@ -60,7 +40,7 @@ namespace Hanafuda
                         selected = null;
                         Global.prev?.HoverCard(true);
                         Move[2] = Board.Platz.IndexOf(sel);
-                        PlayCard(tHandCard, new List<Card>() { sel }, Board.Deck);
+                        Board.PlayCard(tHandCard, new List<Card>() { sel }, Board.Deck);
                         CheckNewYaku();
                     }
                     else
@@ -69,7 +49,7 @@ namespace Hanafuda
                 else
                 {
                     selected = null;
-                    PlayCard(tHandCard, matches, Board.Deck);
+                    Board.PlayCard(tHandCard, matches, Board.Deck);
                     CheckNewYaku();
                 }
             }
@@ -85,7 +65,7 @@ namespace Hanafuda
                 {
                     if (time == 0f)
                         time = Time.time;
-                    else if (Time.time - time > 2)
+                    else if (Time.time - time > 1)
                     {
                         CreateSlide();
                     }
@@ -102,7 +82,6 @@ namespace Hanafuda
                     GameObject sel = selected.Objekt;
                     selected = null;
                     Global.prev?.HoverCard(true);
-                    Card selCard;
                     if (FieldSelect)
                         SelectFieldCard(sel);
                     else
@@ -142,7 +121,26 @@ namespace Hanafuda
                     DrawTurn(((KI)Board.players[Turn ? 0 : 1]).MakeTurn(Board));
             }
         }
-
+        private void HoverMatches(string layer)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit) && hit.collider.gameObject.layer == LayerMask.NameToLayer(layer))
+            {
+                Global.prev?.HoverCard(true);
+                if (matches.Exists(x => x.name == hit.collider.gameObject.name))
+                {
+                    selected = hit.collider.gameObject.GetComponent<CardRef>().card;
+                    ((BoxCollider)hit.collider).HoverCard();
+                }
+            }
+            else if (hit.collider == null && Global.prev != null)
+            {
+                selected = null;
+                Global.prev.HoverCard(true);
+                Board.RefillCards();
+            }
+        }
         private void MatchCard(GameObject sel)
         {
             Card selCard = sel.GetComponent<CardRef>().card;
@@ -155,7 +153,7 @@ namespace Hanafuda
             }
             else
             {
-                PlayCard(selCard, Matches);
+                Board.PlayCard(selCard, Matches);
                 Turn = !Turn;
             }
         }
@@ -165,7 +163,7 @@ namespace Hanafuda
             Board.RefillCards();
             Card selCard = sel.GetComponent<CardRef>().card;
             Move[1] = Board.Platz.IndexOf(selCard);
-            PlayCard(tHandCard, new List<Card>() { selCard });
+            Board.PlayCard(tHandCard, new List<Card>() { selCard });
             FieldSelect = false;
             Turn = !Turn;
         }

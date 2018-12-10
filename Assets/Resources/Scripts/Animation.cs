@@ -81,23 +81,13 @@ namespace ExtensionMethods
             GameObject koi = GameObject.Instantiate(toInstantiate);
             koi.transform.position = new Vector3(0, 0, 0);
             koi.transform.localScale = new Vector3(0, 0, 0);
-            while (koi.transform.localScale.x <= 9.6f)
+            yield return koi.transform.StandardAnimation(koi.transform.position, koi.transform.eulerAngles, new Vector3(9.6f, 2.4f, 2.4f));
+            yield return koi.transform.StandardAnimation(koi.transform.position, koi.transform.eulerAngles, Vector3.zero, 1.5f, AddFunc: () =>
             {
-                koi.transform.localScale += new Vector3(9.6f / 50f, 2.4f / 50f, 2.4f / 50f);
-                yield return null;
-            }
-
-            koi.transform.localScale = new Vector3(9.6f, 2.4f, 2.4f);
-            yield return new WaitForSeconds(.5f);
-            while (koi.transform.localScale.x >= 0)
-            {
-                koi.transform.localScale -= new Vector3(9.6f / 50f, 2.4f / 50f, 2.4f / 50f);
-                yield return null;
-            }
-
-            koi.transform.localScale = new Vector3(0, 0, 0);
-            GameObject.Destroy(koi);
-            append();
+                GameObject.Destroy(koi);
+                append();
+            });
+            
         }
         /// <summary>
         ///     Standardmäßige Animation von Objekten durch Interpolation
@@ -141,5 +131,15 @@ namespace ExtensionMethods
                 AddFunc[i]();
             Global.MovingCards--;
         }
+        /// <summary>
+        /// Sortieren von Eltern-Objekten der Karten-Sammlungen
+        /// </summary>
+        /// <param name="toSort">zu sortierende Sammlung</param>
+        /// <param name="StartPos">Startposition der Sammlung</param>
+        /// <param name="rows">Anzahl der Zeilen, auf die die Karten aufgeteilt werden sollen</param>
+        /// <param name="maxCols">Maximale Anzahl von Spalten</param>
+        /// <returns></returns>
+        /// 
+
     }
 }
