@@ -1,0 +1,154 @@
+Initialize engine version: 5.3.3f1 (910d71450a97)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: NVIDIA GeForce GTX 780 Ti  (ID=0x100a)
+    Vendor:   NVIDIA
+    VRAM:     3012 MB
+Cluster Renderer Log : ARG list
+G:\Unity Projekte\Hanafuda\Koi Koi.exe
+Begin MonoManager ReloadAssembly
+Platform assembly: G:\Unity Projekte\Hanafuda\Koi Koi_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading G:\Unity Projekte\Hanafuda\Koi Koi_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: G:\Unity Projekte\Hanafuda\Koi Koi_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading G:\Unity Projekte\Hanafuda\Koi Koi_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: G:\Unity Projekte\Hanafuda\Koi Koi_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading G:\Unity Projekte\Hanafuda\Koi Koi_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: G:\Unity Projekte\Hanafuda\Koi Koi_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading G:\Unity Projekte\Hanafuda\Koi Koi_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+- Completed reload, in  0.116 seconds
+Platform assembly: G:\Unity Projekte\Hanafuda\Koi Koi_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: G:\Unity Projekte\Hanafuda\Koi Koi_Data\Managed\System.dll (this message is harmless)
+desktop: 1920x1080 60Hz; virtual: 1920x1080 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 0.584249 ms
+Setting up 3 worker threads for Enlighten.
+  Thread -> id: 226c -> priority: 1 
+  Thread -> id: ab0 -> priority: 1 
+  Thread -> id: dd4 -> priority: 1 
+MatchMakingClient Create :https://mm.unet.unity3d.com/json/reply/CreateMatchRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+MatchMakingClient ListMatches :https://mm.unet.unity3d.com/json/reply/ListMatchRequest
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+Crash!!!
+SymInit: Symbol-SearchPath: '.;G:\Unity Projekte\Hanafuda;G:\Unity Projekte\Hanafuda;C:\WINDOWS;C:\WINDOWS\system32;SRV*C:\websymbols*http://msdl.microsoft.com/download/symbols;', symOptions: 530, UserName: 'kokujou'
+OS-Version: 10.0.10586 () 0x100-0x1
+G:\Unity Projekte\Hanafuda\Koi Koi.exe:Koi Koi.exe (00007FF623920000), size: 21741568 (result: 0), SymType: 'PDB', PDB: '.\player_win_x64.pdb', fileVersion: 5.3.3.3441
+C:\WINDOWS\SYSTEM32\ntdll.dll:ntdll.dll (00007FFE027E0000), size: 1839104 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\ntdll.dll', fileVersion: 10.0.10586.306
+C:\WINDOWS\system32\KERNEL32.DLL:KERNEL32.DLL (00007FFE02350000), size: 708608 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\KERNEL32.DLL', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\KERNELBASE.dll:KERNELBASE.dll (00007FFDFEFE0000), size: 1998848 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\KERNELBASE.dll', fileVersion: 10.0.10586.306
+C:\WINDOWS\system32\GDI32.dll:GDI32.dll (00007FFE001E0000), size: 1597440 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\GDI32.dll', fileVersion: 10.0.10586.306
+C:\WINDOWS\system32\USER32.dll:USER32.dll (00007FFE02680000), size: 1400832 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\USER32.dll', fileVersion: 10.0.10586.306
+C:\WINDOWS\SYSTEM32\HID.DLL:HID.DLL (00007FFDFDDF0000), size: 49152 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\HID.DLL', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\ADVAPI32.dll:ADVAPI32.dll (00007FFE00130000), size: 684032 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\ADVAPI32.dll', fileVersion: 10.0.10586.63
+C:\WINDOWS\system32\msvcrt.dll:msvcrt.dll (00007FFE00880000), size: 643072 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\msvcrt.dll', fileVersion: 7.0.10586.0
+C:\WINDOWS\system32\sechost.dll:sechost.dll (00007FFDFFBE0000), size: 372736 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\sechost.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\RPCRT4.dll:RPCRT4.dll (00007FFE00920000), size: 1163264 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\RPCRT4.dll', fileVersion: 10.0.10586.306
+JSON Response: [[UnityEngine.Networking.Match.CreateMatchResponse]-success:True-extendedInfo:]-address:54.93.109.208,port:9999,networkId:0x0010000000054CBF,nodeId:0x1007,usingRelay:True
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+C:\WINDOWS\system32\WS2_32.dll:WS2_32.dll (00007FFE00810000), size: 438272 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\WS2_32.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\ole32.dll:ole32.dll (00007FFDFFFE0000), size: 1323008 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\ole32.dll', fileVersion: 10.0.10586.162
+C:\WINDOWS\system32\combase.dll:combase.dll (00007FFE02400000), size: 2609152 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\combase.dll', fileVersion: 10.0.10586.103
+C:\WINDOWS\SYSTEM32\VERSION.dll:VERSION.dll (00007FFDFB110000), size: 40960 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\VERSION.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\bcryptPrimitives.dll:bcryptPrimitives.dll (00007FFDFEF20000), size: 434176 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\bcryptPrimitives.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\SHLWAPI.dll:SHLWAPI.dll (00007FFE02100000), size: 335872 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\SHLWAPI.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\SHELL32.dll:SHELL32.dll (00007FFE00BA0000), size: 22396928 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\SHELL32.dll', fileVersion: 10.0.10586.306
+C:\WINDOWS\system32\cfgmgr32.dll:cfgmgr32.dll (00007FFDFEF90000), size: 274432 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\cfgmgr32.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\windows.storage.dll:windows.storage.dll (00007FFDFF360000), size: 6569984 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\windows.storage.dll', fileVersion: 10.0.10586.306
+C:\WINDOWS\system32\kernel.appcore.dll:kernel.appcore.dll (00007FFDFEE50000), size: 61440 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\kernel.appcore.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\shcore.dll:shcore.dll (00007FFDFF1D0000), size: 741376 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\shcore.dll', fileVersion: 10.0.10586.306
+0
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+C:\WINDOWS\system32\powrprof.dll:powrprof.dll (00007FFDFEE00000), size: 307200 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\powrprof.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\profapi.dll:profapi.dll (00007FFDFEE60000), size: 81920 (result: 0), SymType: '-nosymbols-', PDB: 'C:\WINDOWS\system32\profapi.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\OLEAUT32.dll:OLEAUT32.dll (00007FFE02280000), size: 790528 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\OLEAUT32.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\OPENGL32.dll:OPENGL32.dll (00007FFDE3110000), size: 1216512 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\OPENGL32.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\IMM32.dll:IMM32.dll (00007FFE02160000), size: 241664 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\IMM32.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\WINMM.dll:WINMM.dll (00007FFDFCF00000), size: 143360 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\WINMM.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\MSACM32.dll:MSACM32.dll (00007FFDF1760000), size: 114688 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\MSACM32.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\DNSAPI.dll:DNSAPI.dll (00007FFDFD820000), size: 696320 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\DNSAPI.dll', fileVersion: 10.0.10586.212
+C:\WINDOWS\SYSTEM32\IPHLPAPI.DLL:IPHLPAPI.DLL (00007FFDFC050000), size: 229376 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\IPHLPAPI.DLL', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\WINHTTP.dll:WINHTTP.dll (00007FFDFAEF0000), size: 819200 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\WINHTTP.dll', fileVersion: 10.0.10586.71
+C:\WINDOWS\SYSTEM32\GLU32.dll:GLU32.dll (00007FFDE8C90000), size: 188416 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\GLU32.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\NSI.dll:NSI.dll (00007FFDFFD10000), size: 32768 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\NSI.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\DDRAW.dll:DDRAW.dll (00007FFDE2A80000), size: 1024000 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\DDRAW.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\WINMMBASE.dll:WINMMBASE.dll (0000000000ED0000), size: 180224 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\WINMMBASE.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\DCIMAN32.dll:DCIMAN32.dll (00007FFDF2680000), size: 32768 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\DCIMAN32.dll', fileVersion: 10.0.10586.3
+G:\Unity Projekte\Hanafuda\Koi Koi_Data\Mono\mono.dll:mono.dll (00007FFDD53D0000), size: 2990080 (result: 0), SymType: '-exported-', PDB: 'G:\Unity Projekte\Hanafuda\Koi Koi_Data\Mono\mono.dll', fileVersion: 1.0.0.1
+C:\WINDOWS\system32\PSAPI.DLL:PSAPI.DLL (00007FFDFFCA0000), size: 32768 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\PSAPI.DLL', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\MSWSOCK.dll:MSWSOCK.dll (00007FFDFE730000), size: 376832 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\MSWSOCK.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\uxtheme.dll:uxtheme.dll (00007FFDFD780000), size: 614400 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\uxtheme.dll', fileVersion: 10.0.10586.0
+C:\Program Files (x86)\TeamViewer\tv_x64.dll:tv_x64.dll (00007FFDEEEA0000), size: 299008 (result: 0), SymType: '-exported-', PDB: 'C:\Program Files (x86)\TeamViewer\tv_x64.dll', fileVersion: 11.0.59518.0
+C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.10586.0_none_8c15ae12515e1c22\COMCTL32.dll:COMCTL32.dll (00007FFDFA530000), size: 2572288 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.10586.0_none_8c15ae12515e1c22\COMCTL32.dll', fileVersion: 6.10.10586.0
+C:\WINDOWS\system32\MSCTF.dll:MSCTF.dll (00007FFE00A40000), size: 1417216 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\MSCTF.dll', fileVersion: 10.0.10586.71
+C:\WINDOWS\system32\dwmapi.dll:dwmapi.dll (00007FFDFCCA0000), size: 139264 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\dwmapi.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\d3d11.dll:d3d11.dll (00007FFDFC980000), size: 2785280 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\d3d11.dll', fileVersion: 10.0.10586.122
+C:\WINDOWS\SYSTEM32\dxgi.dll:dxgi.dll (00007FFDFC700000), size: 663552 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\dxgi.dll', fileVersion: 10.0.10586.306
+C:\WINDOWS\SYSTEM32\nvwgf2umx.dll:nvwgf2umx.dll (00007FFDF8380000), size: 20008960 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\nvwgf2umx.dll', fileVersion: 10.18.13.6451
+C:\WINDOWS\SYSTEM32\bcrypt.dll:bcrypt.dll (00007FFDFEA00000), size: 167936 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\bcrypt.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\nvspcap64.dll:nvspcap64.dll (00007FFDF0D10000), size: 1798144 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\nvspcap64.dll', fileVersion: 2.11.2.55
+C:\WINDOWS\system32\SETUPAPI.dll:SETUPAPI.dll (00007FFE00370000), size: 4362240 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\SETUPAPI.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\nvapi64.dll:nvapi64.dll (00007FFDF9A90000), size: 3883008 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\nvapi64.dll', fileVersion: 10.18.13.6451
+C:\WINDOWS\SYSTEM32\SspiCli.dll:SspiCli.dll (00007FFDFEB10000), size: 184320 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\SspiCli.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\MMDevAPI.DLL:MMDevAPI.DLL (00007FFDF7FE0000), size: 458752 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\MMDevAPI.DLL', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\DEVOBJ.dll:DEVOBJ.dll (00007FFDFD8D0000), size: 159744 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\DEVOBJ.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\PROPSYS.dll:PROPSYS.dll (00007FFDFC100000), size: 1597440 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\PROPSYS.dll', fileVersion: 7.0.10586.0
+C:\WINDOWS\SYSTEM32\wdmaud.drv:wdmaud.drv (00007FFDE8CC0000), size: 270336 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\wdmaud.drv', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\ksuser.dll:ksuser.dll (00007FFDF76A0000), size: 32768 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\ksuser.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\AVRT.dll:AVRT.dll (00007FFDFA2B0000), size: 45056 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\AVRT.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\AUDIOSES.DLL:AUDIOSES.DLL (00007FFDE76E0000), size: 557056 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\AUDIOSES.DLL', fileVersion: 10.0.10586.122
+C:\WINDOWS\SYSTEM32\wintypes.dll:wintypes.dll (00007FFDFB3A0000), size: 1269760 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\wintypes.dll', fileVersion: 10.0.10586.103
+C:\WINDOWS\SYSTEM32\msacm32.drv:msacm32.drv (00007FFDF66E0000), size: 49152 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\msacm32.drv', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\midimap.dll:midimap.dll (00007FFDF56F0000), size: 40960 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\midimap.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\dsound.dll:dsound.dll (00007FFDE5E90000), size: 638976 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\dsound.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\clbcatq.dll:clbcatq.dll (00007FFE021B0000), size: 684032 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\clbcatq.dll', fileVersion: 2001.12.10941.16384
+C:\WINDOWS\SYSTEM32\xinput1_3.dll:xinput1_3.dll (000000000CD20000), size: 122880 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\xinput1_3.dll', fileVersion: 9.18.944.0
+C:\WINDOWS\system32\wbem\wbemprox.dll:wbemprox.dll (00007FFDF2D50000), size: 69632 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\wbem\wbemprox.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\wbemcomn.dll:wbemcomn.dll (00007FFDF63A0000), size: 520192 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\wbemcomn.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\wbem\wbemsvc.dll:wbemsvc.dll (00007FFDF2A30000), size: 81920 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\wbem\wbemsvc.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\wbem\fastprox.dll:fastprox.dll (00007FFDF2A50000), size: 1007616 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\wbem\fastprox.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\CRYPTSP.dll:CRYPTSP.dll (00007FFDFE7E0000), size: 94208 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\CRYPTSP.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\system32\rsaenh.dll:rsaenh.dll (00007FFDFE470000), size: 212992 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\system32\rsaenh.dll', fileVersion: 10.0.10586.306
+C:\WINDOWS\SYSTEM32\CRYPTBASE.dll:CRYPTBASE.dll (00007FFDFE900000), size: 45056 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\CRYPTBASE.dll', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\dhcpcsvc6.DLL:dhcpcsvc6.DLL (00007FFDF7A90000), size: 90112 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\dhcpcsvc6.DLL', fileVersion: 10.0.10586.0
+C:\WINDOWS\SYSTEM32\dhcpcsvc.DLL:dhcpcsvc.DLL (00007FFDF7A70000), size: 106496 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\dhcpcsvc.DLL', fileVersion: 10.0.10586.0
+C:\WINDOWS\System32\fwpuclnt.dll:fwpuclnt.dll (00007FFDF7B40000), size: 421888 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\System32\fwpuclnt.dll', fileVersion: 10.0.10586.212
+C:\Windows\System32\rasadhlp.dll:rasadhlp.dll (00007FFDF6530000), size: 40960 (result: 0), SymType: '-exported-', PDB: 'C:\Windows\System32\rasadhlp.dll', fileVersion: 10.0.10586.71
+C:\WINDOWS\SYSTEM32\dbghelp.dll:dbghelp.dll (00007FFDD1D40000), size: 1622016 (result: 0), SymType: '-exported-', PDB: 'C:\WINDOWS\SYSTEM32\dbghelp.dll', fileVersion: 10.0.10586.0
+
+========== OUTPUTING STACK TRACE ==================
+
+0x00007FF62420E85F (Koi Koi) sha1_block_data_order
+0x00007FF6241A2E6F (Koi Koi) [c:\buildagent\work\791dfb8eaaa1b\openssl-winrt\tmp64\md32_common.h:337] SHA1_Update 
+0x00007FF6241DF1FB (Koi Koi) [c:\buildagent\work\791dfb8eaaa1b\openssl-winrt\crypto\rand\md_rand.c:292] ssleay_rand_add 
+0x00007FF624178A4F (Koi Koi) [c:\buildagent\work\791dfb8eaaa1b\openssl-winrt\crypto\rand\rand_lib.c:158] RAND_add 
+0x00007FF62424B998 (Koi Koi) [c:\buildagent\work\791dfb8eaaa1b\openssl-winrt\crypto\rand\rand_win.c:595] RAND_poll 
+0x00007FF6241DF65D (Koi Koi) [c:\buildagent\work\791dfb8eaaa1b\openssl-winrt\crypto\rand\md_rand.c:444] ssleay_rand_bytes 
+0x00007FF6241A5DEF (Koi Koi) [c:\buildagent\work\25a5312e9b3cc105\curl-unity-stable\lib\vtls\openssl.c:245] ossl_seed 
+0x00007FF6241A6E1D (Koi Koi) [c:\buildagent\work\25a5312e9b3cc105\curl-unity-stable\lib\vtls\openssl.c:1518] ossl_connect_step1 
+0x00007FF6241A8E0A (Koi Koi) [c:\buildagent\work\25a5312e9b3cc105\curl-unity-stable\lib\vtls\openssl.c:2598] ossl_connect_common 
+0x00007FF62415100D (Koi Koi) [c:\buildagent\work\25a5312e9b3cc105\curl-unity-stable\lib\vtls\vtls.c:313] Curl_ssl_connect_nonblocking 
+0x00007FF6241BB2D6 (Koi Koi) [c:\buildagent\work\25a5312e9b3cc105\curl-unity-stable\lib\http.c:1343] Curl_http_connect 
+0x00007FF624152EBD (Koi Koi) [c:\buildagent\work\25a5312e9b3cc105\curl-unity-stable\lib\url.c:3445] Curl_protocol_connect 
+0x00007FF62415A464 (Koi Koi) [c:\buildagent\work\25a5312e9b3cc105\curl-unity-stable\lib\multi.c:1197] multi_runsingle 
+0x00007FF62415AE0E (Koi Koi) [c:\buildagent\work\25a5312e9b3cc105\curl-unity-stable\lib\multi.c:1800] curl_multi_perform 
+0x00007FF62414202B (Koi Koi) [c:\buildagent\work\25a5312e9b3cc105\curl-unity-stable\lib\easy.c:709] easy_transfer 
+0x00007FF62414217E (Koi Koi) [c:\buildagent\work\25a5312e9b3cc105\curl-unity-stable\lib\easy.c:797] easy_perform 
+0x00007FF623A85384 (Koi Koi) [c:\buildslave\unity\build\runtime\export\www.cpp:896] WWWCurl::GetURL 
+0x00007FF623A853E5 (Koi Koi) [c:\buildslave\unity\build\runtime\export\www.cpp:961] WWWCurl::WWW_ThreadEntryPoint 
+0x00007FF623C093C6 (Koi Koi) [c:\buildslave\unity\build\runtime\threads\thread.cpp:44] Thread::RunThreadWrapper 
+0x00007FFE02368102 (KERNEL32) BaseThreadInitThunk
+
+========== END OF STACKTRACE ===========
+
+**** Crash! ****
