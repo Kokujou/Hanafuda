@@ -297,7 +297,7 @@ namespace Hanafuda
                                 StartCoroutine(GetResult(P1Selection, P2Selection));
                         }
                     }
-                    else if (Physics.Raycast(ray, out hit, 5000f, 1 << LayerMask.NameToLayer("Card")) &&
+                    else if (Physics.Raycast(ray, out hit, 1 << LayerMask.NameToLayer("Card")) &&
                              selected != hit.collider.gameObject.name)
                     {
                         if (Global.prev != null)

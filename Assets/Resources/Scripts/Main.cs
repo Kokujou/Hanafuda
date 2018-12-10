@@ -418,19 +418,48 @@ namespace Hanafuda
             }
             Turn = !Turn;
         }
-        
+
         void Update()
         {
             Camera.main.SetCameraRect();
             //Global.SetCameraRect(EffectCam.GetComponent<Camera>());
             if (allowInput)
-            {
-                MainPlayMode playMode = new MainPlayMode(PlayMode);
-                playMode.Execute();
-            }
+                ExecutePlaymode();
             YakuActions();
             if (Global.Settings.mobile)
                 UpdateMobile();
+        }
+        private void CheckNewYaku()
+        {
+            int oPoints = ((Player)(Board.players[Turn ? 0 : 1])).tempPoints;
+            List<KeyValuePair<Yaku, int>> oYaku = ((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku;
+            ((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku = new List<KeyValuePair<Yaku, int>>(Yaku.GetYaku(((Player)(Board.players[Turn ? 0 : 1])).CollectedCards).ToDictionary(x => x, x => 0));
+            newYaku.Clear();
+            if (((Player)(Board.players[Turn ? 0 : 1])).tempPoints > oPoints)
+            {
+                for (int i = 0; i < ((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku.Count; i++)
+                {
+                    if (!oYaku.Exists(x => x.Key.name == ((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku[i].Key.name && x.Value == ((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku[i].Value))
+                    {
+                        newYaku.Add(((Player)(Board.players[Turn ? 0 : 1])).CollectedYaku[i].Key);
+                    }
+                }
+                _CherryBlossoms = Instantiate(Global.prefabCollection.CherryBlossoms);
+            }
+            if (newYaku.Count == 0)
+            {
+                _Turn = !_Turn;
+                PlayMode = 1;
+                if (Global.Settings.Multiplayer)
+                {
+                    string move = Move[0].ToString() + "," + Move[1].ToString() + "," + Move[2].ToString();
+                    if (NetworkServer.active)
+                        NetworkServer.SendToAll(131, new Global.Message() { message = move });
+                    else
+                        Global.Settings.playerClients[0].Send(131, new Global.Message() { message = move });
+                }
+            }
+            Move = new[] { -1, -1, -1 };
         }
         public void YakuActions()
         {

@@ -54,8 +54,6 @@ namespace Hanafuda
         public Monate Monat;
         public GameObject Objekt;
         public Typen Typ;
-
-        
         public IEnumerator BlinkCard()
         {
             var faktor = 1;

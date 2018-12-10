@@ -45,7 +45,7 @@ namespace Hanafuda
                     var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                     RaycastHit hit;
                     if (ExCol.position.x != -23.1f && ExCol.position.x != 23.1f ||
-                        Physics.Raycast(ray, out hit, 5000f) && hit.collider.name == "ExCol")
+                        Physics.Raycast(ray, out hit) && hit.collider.name == "ExCol")
                         mobileContainerX = Camera.main.ScreenPointToRay(Input.mousePosition).origin.x;
                 }
                 else if (Input.GetMouseButtonUp(0))
