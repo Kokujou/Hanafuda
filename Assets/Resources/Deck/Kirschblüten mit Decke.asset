@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26e17bce524bbe498fef0587a241978, type: 3}
   m_Name: "Kirschbl\xFCten mit Decke"
   m_EditorClassIdentifier: 
-  Image: {fileID: 0}
-  Monat: 0
+  Image: {fileID: 2100000, guid: a0fa6329d118bdd4799d46473de8a8d2, type: 2}
+  Monat: 2
   Objekt: {fileID: 0}
-  Typ: 0
+  Typ: 3

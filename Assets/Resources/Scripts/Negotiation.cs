@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
@@ -201,7 +200,7 @@ namespace Hanafuda
         {
             yield return new WaitForSeconds(1);
             float rndTime = Random.Range(1000, 2000);
-            var watch = new Stopwatch();
+            var watch = new System.Diagnostics.Stopwatch();
             var cols = new List<BoxCollider>();
             cols.AddRange(Kartenziehen.GetComponentsInChildren<BoxCollider>());
             watch.Start();

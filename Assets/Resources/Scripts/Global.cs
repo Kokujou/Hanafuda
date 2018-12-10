@@ -49,23 +49,18 @@ namespace Hanafuda
         {
             public string message;
         }
-        public static Yaku CreateYaku(string Name, string jName, int[] mask, int basepoints, int minsize, List<string> Namen = null,
-            Card.Typen typPref = Card.Typen.None, int addPoints = 0)
+        public static Card CreateCard(Card.Monate monat, Card.Typen typ, string Name)
         {
-            Yaku asset = ScriptableObject.CreateInstance<Yaku>();
-            AssetDatabase.CreateAsset(asset, "Assets/Resources/Yaku/" + Name + ".asset");
+            Card asset = ScriptableObject.CreateInstance<Card>();
+            AssetDatabase.CreateAsset(asset, "Assets/Resources/Deck/" + Name + ".asset");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = asset;
             asset.name = Name;
-            asset.JName = jName;
-            asset.addPoints = addPoints;
-            asset.basePoints = basepoints;
-            asset.Namen = Namen;
-            asset.minSize = minsize;
-            asset.Mask = mask;
-            asset.TypPref = typPref;
+            asset.Monat = monat;
+            asset.Typ = typ;
+            asset.Image = Resources.Load<Material>("Motive/Materials/" + Name);
             return asset;
         }
     }

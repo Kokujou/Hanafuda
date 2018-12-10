@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26e17bce524bbe498fef0587a241978, type: 3}
   m_Name: "Buschtr\xE4llerer"
   m_EditorClassIdentifier: 
-  Image: {fileID: 0}
-  Monat: 0
+  Image: {fileID: 2100000, guid: cf385b5feb5376249bdc2ac85c538b0c, type: 2}
+  Monat: 1
   Objekt: {fileID: 0}
-  Typ: 0
+  Typ: 2

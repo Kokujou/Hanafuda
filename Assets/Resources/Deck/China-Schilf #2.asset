@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26e17bce524bbe498fef0587a241978, type: 3}
   m_Name: 'China-Schilf #2'
   m_EditorClassIdentifier: 
-  Image: {fileID: 0}
-  Monat: 0
+  Image: {fileID: 2100000, guid: 8ad1a5b03656cbf4b8bc00148a7b3d6f, type: 2}
+  Monat: 7
   Objekt: {fileID: 0}
   Typ: 0
