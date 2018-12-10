@@ -12,7 +12,6 @@ namespace ExtensionMethods
         /// <summary>
         /// Korrigiert den Kamera-Aspekt zu Portrait(mobil) oder Landscape (PC)
         /// </summary>
-        /// <param name="cam"></param>
         public static void SetCameraRect(this Camera cam)
         {
             if (Screen.width >= Screen.height)
@@ -23,7 +22,6 @@ namespace ExtensionMethods
         /// <summary>
         /// Generiert eine 1x1 Textur einer Farbe
         /// </summary>
-        /// <param name="color"></param>
         /// <returns></returns>
         public static Texture2D CreateTexture(this Color color)
         {
@@ -35,7 +33,6 @@ namespace ExtensionMethods
         /// <summary>
         /// Transparenz-Animation des Hilfs-Pfeils für die mobile Handkarten-Animation
         /// </summary>
-        /// <param name="obj"></param>
         /// <returns></returns>
         public static IEnumerator BlinkSlide(this GameObject obj)
         {
@@ -51,56 +48,33 @@ namespace ExtensionMethods
             }
         }
         /// <summary>
-        ///     Hervorheben (Vergrößern) einer Karte
+        /// Hervorheben der Karten. Mobil: Verschiebung, PC: Skalierung
         /// </summary>
-        /// <param name="col">Kollider der zu vergrößernden Karte</param>
-        public static void HoverCard(this BoxCollider col)
+        /// <param name="unhover">Rückgängigmachen des Hovers</param>
+        public static void HoverCard(this BoxCollider col, bool unhover = false)
         {
-            var mobile = Camera.main.aspect < 1;
-            if (mobile)
+            int factor = unhover ? -1 : 1;
+            if (Global.Settings.mobile)
             {
                 var tempZ = col.gameObject.transform.position.z;
-                col.gameObject.transform.Translate(0, 10, 0);
+                col.gameObject.transform.Translate(0, factor * 10, 0);
                 col.gameObject.transform.position = new Vector3(col.gameObject.transform.position.x,
                     col.gameObject.transform.position.y, tempZ);
             }
             else
             {
-                col.gameObject.transform.position -= new Vector3(0, 0, 5);
-                col.gameObject.transform.localScale *= 2;
+                col.gameObject.transform.position -= factor * new Vector3(0, 0, 5);
+                col.gameObject.transform.localScale *= Mathf.Pow(2, factor);
                 col.size /= 2;
             }
-            Global.prev = col;
+            if (Global.prev == col) return;
+            Global.prev = unhover ? null : col;
         }
 
         /// <summary>
-        ///     Rückgängigmachen von Karten-Hervorhebung
+        /// Skalierungs-Animation des Koikoi-Schriftzugs
         /// </summary>
-        /// <param name="col">Kollider der hervorgehobenen Karte</param>
-        public static void UnhoverCard(this BoxCollider col)
-        {
-            var mobile = Camera.main.aspect < 1;
-            if (mobile)
-            {
-                var tempZ = col.gameObject.transform.position.z;
-                col.gameObject.transform.Translate(0, -10, 0);
-                col.gameObject.transform.position = new Vector3(col.gameObject.transform.position.x,
-                    col.gameObject.transform.position.y, tempZ);
-            }
-            else
-            {
-                col.gameObject.transform.position += new Vector3(0, 0, 5);
-                col.gameObject.transform.localScale /= 2;
-                col.size *= 2;
-            }
-
-            if (Global.prev == col) Global.prev = null;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="append"></param>
-        /// <param name="toInstantiate"></param>
+        /// <param name="append">Aktion nach Abschluss der Animation</param>
         /// <returns></returns>
         public static IEnumerator KoikoiAnimation(this GameObject toInstantiate, Action append)
         {
@@ -128,7 +102,6 @@ namespace ExtensionMethods
         /// <summary>
         ///     Standardmäßige Animation von Objekten durch Interpolation
         /// </summary>
-        /// <param name="obj">Zielobjekt</param>
         /// <param name="destPos">Zielposition</param>
         /// <param name="destRot">Zielrotation</param>
         /// <param name="destScale">Zielskalierung</param>

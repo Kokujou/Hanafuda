@@ -210,7 +210,7 @@ namespace Hanafuda
             {
                 if (Global.prev != null)
                 {
-                    Global.prev.UnhoverCard();
+                    Global.prev.HoverCard(true);
                     Global.prev = null;
                 }
 
@@ -223,7 +223,7 @@ namespace Hanafuda
 
             if (Global.prev != null)
             {
-                Global.prev.UnhoverCard();
+                Global.prev.HoverCard(true);
                 Global.prev = null;
             }
 
@@ -262,7 +262,7 @@ namespace Hanafuda
                         selected = "";
                         if (Global.prev != null)
                         {
-                            Global.prev.UnhoverCard();
+                            Global.prev.HoverCard(true);
                             Global.prev = null;
                         }
 
@@ -302,7 +302,7 @@ namespace Hanafuda
                     {
                         if (Global.prev != null)
                         {
-                            Global.prev.UnhoverCard();
+                            Global.prev.HoverCard(true);
                             Global.prev = null;
                         }
 
@@ -314,7 +314,7 @@ namespace Hanafuda
                         selected = "";
                         if (Global.prev != null)
                         {
-                            Global.prev.UnhoverCard();
+                            Global.prev.HoverCard(true);
                             Global.prev = null;
                         }
                     }

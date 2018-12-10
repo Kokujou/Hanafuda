@@ -43,7 +43,7 @@ namespace Hanafuda
                     //GameObject.Find("Slide(Clone)").GetComponent<SpriteRenderer>().color *= new Color(1, 1, 1, 0);
                     if (Global.prev)
                     {
-                        Global.prev.UnhoverCard();
+                        Global.prev.HoverCard(true);
                         Global.prev = null;
                     }
 
@@ -81,7 +81,7 @@ namespace Hanafuda
                         gameObject.GetComponent<SpriteRenderer>().color += new Color(0, 0, 0, 0.6f);
                         if (Global.prev)
                         {
-                            Global.prev.UnhoverCard();
+                            Global.prev.HoverCard(true);
                             Global.prev = null;
                         }
 
