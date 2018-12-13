@@ -41,12 +41,7 @@ namespace Hanafuda
                 {
                     // Visualisierung der hover-Bounds
                     //GameObject.Find("Slide(Clone)").GetComponent<SpriteRenderer>().color *= new Color(1, 1, 1, 0);
-                    if (Global.prev)
-                    {
-                        Global.prev.HoverCard(true);
-                        Global.prev = null;
-                    }
-
+                    Global.prev?.HoverCard(true);
                     selectedCard = (int)((Camera.main.ScreenToWorldPoint(Input.mousePosition).x + 15f) /
                                           (30f / cParent.Count));
                     if (selectedCard < 0) selectedCard = 0;
@@ -79,11 +74,7 @@ namespace Hanafuda
                     else
                     {
                         gameObject.GetComponent<SpriteRenderer>().color += new Color(0, 0, 0, 0.6f);
-                        if (Global.prev)
-                        {
-                            Global.prev.HoverCard(true);
-                            Global.prev = null;
-                        }
+                        Global.prev?.HoverCard(true);
 
                         for (var i = 0; i < toHover.Count; i++)
                         {

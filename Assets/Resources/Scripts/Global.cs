@@ -15,6 +15,7 @@ namespace Hanafuda
 {
     public partial class Global : MonoBehaviour
     {
+        public static Global global;
         public static int MovingCards;
         public static Sprite[] CardSkins;
         public static int Turn = -1;
@@ -33,6 +34,7 @@ namespace Hanafuda
         /// </summary>
         private void Awake()
         {
+            global = this;
             DontDestroyOnLoad(this);
             allYaku = AllYaku;
             allCards = AllCards;
@@ -43,6 +45,14 @@ namespace Hanafuda
                 CardSkins[i] = Sprite.Create(skins[0], new Rect(0, 0, skins[i].width, skins[i].height),
                     new Vector2(.5f, .5f));
             prefabCollection = singleton;
+            for (int i = 0; i < AllYaku.Count; i++)
+            {
+                AllYaku[i].Name = AllYaku[i].name;
+            }
+            for (int i = 0; i < AllCards.Count; i++)
+            {
+                AllCards[i].Name = AllCards[i].name;
+            }
         }
 
         public class Message : MessageBase
@@ -57,10 +67,10 @@ namespace Hanafuda
             AssetDatabase.Refresh();
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = asset;
-            asset.name = Name;
+            /*asset.Name = Name;
             asset.Monat = monat;
             asset.Typ = typ;
-            asset.Image = Resources.Load<Material>("Motive/Materials/" + Name);
+            asset.Image = Resources.Load<Material>("Motive/Materials/" + Name);*/
             return asset;
         }
     }

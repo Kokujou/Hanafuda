@@ -21,7 +21,7 @@ namespace Hanafuda
         public int addPoints;
         public int basePoints;
         public string JName;
-
+        public string Name;
         /// <summary>
         ///     [0] = Benutze Kartentyp,
         ///     [1] = Benutze Kartennamen,
@@ -41,26 +41,26 @@ namespace Hanafuda
         public static void DistinctYakus(List<KeyValuePair<Yaku, int>> list)
         {
             for (var i = 5; i > 2; i--)
-                if (list.Exists(x => x.Key.name.Contains((i == 5 ? "Go" : i == 4 ? "Shi" : "San") + "kou")))
+                if (list.Exists(x => x.Key.Name.Contains((i == 5 ? "Go" : i == 4 ? "Shi" : "San") + "kou")))
                     list.RemoveAll(x =>
-                        x.Key.name.Contains("kou") &&
-                        !x.Key.name.Contains((i == 5 ? "Go" : i == 4 ? "Shi" : "San") + "kou"));
-                else if (i == 4 && list.Exists(x => x.Key.name.Contains("Ameshikou")))
-                    list.RemoveAll(x => x.Key.name.Contains("kou") && !x.Key.name.Contains("Ameshikou"));
-            if (list.Exists(x => x.Key.name == "Aka Ao Kasane"))
-                list.RemoveAll(x => x.Key.name.Contains("tan") && x.Key.name != "Aka Ao Kasane");
+                        x.Key.Name.Contains("kou") &&
+                        !x.Key.Name.Contains((i == 5 ? "Go" : i == 4 ? "Shi" : "San") + "kou"));
+                else if (i == 4 && list.Exists(x => x.Key.Name.Contains("Ameshikou")))
+                    list.RemoveAll(x => x.Key.Name.Contains("kou") && !x.Key.Name.Contains("Ameshikou"));
+            if (list.Exists(x => x.Key.Name == "Aka Ao Kasane"))
+                list.RemoveAll(x => x.Key.Name.Contains("tan") && x.Key.Name != "Aka Ao Kasane");
         }
 
         public static void DistinctYakus(List<Yaku> list)
         {
             for (var i = 5; i > 2; i--)
-                if (list.Exists(x => x.name.Contains((i == 5 ? "Go" : i == 4 ? "Shi" : "San") + "kou")))
+                if (list.Exists(x => x.Name.Contains((i == 5 ? "Go" : i == 4 ? "Shi" : "San") + "kou")))
                     list.RemoveAll(x =>
-                        x.name.Contains("kou") && !x.name.Contains((i == 5 ? "Go" : i == 4 ? "Shi" : "San") + "kou"));
-                else if (i == 4 && list.Exists(x => x.name.Contains("Ameshikou")))
-                    list.RemoveAll(x => x.name.Contains("kou") && !x.name.Contains("Ameshikou"));
-            if (list.Exists(x => x.name == "Aka Ao Kasane"))
-                list.RemoveAll(x => x.name.Contains("tan") && x.name != "Aka Ao Kasane");
+                        x.Name.Contains("kou") && !x.Name.Contains((i == 5 ? "Go" : i == 4 ? "Shi" : "San") + "kou"));
+                else if (i == 4 && list.Exists(x => x.Name.Contains("Ameshikou")))
+                    list.RemoveAll(x => x.Name.Contains("kou") && !x.Name.Contains("Ameshikou"));
+            if (list.Exists(x => x.Name == "Aka Ao Kasane"))
+                list.RemoveAll(x => x.Name.Contains("tan") && x.Name != "Aka Ao Kasane");
         }
 
         public static List<Yaku> GetYaku(List<Card> Hand)
@@ -98,7 +98,7 @@ namespace Hanafuda
                     {
                         if (Right[i].Typ == Left.TypPref)
                             temp++;
-                        if (Left.Namen.Contains(Right[i].name) && Left.Mask[1] != 0)
+                        if (Left.Namen.Contains(Right[i].Name) && Left.Mask[1] != 0)
                             contains = true;
                     }
 
@@ -112,8 +112,8 @@ namespace Hanafuda
                 {
                     var names = new List<string>(Left.Namen);
                     for (var i = 0; i < Right.Count; i++)
-                        if (names.Contains(Right[i].name))
-                            names.Remove(Right[i].name);
+                        if (names.Contains(Right[i].Name))
+                            names.Remove(Right[i].Name);
                     if (names.Count == 0)
                         return true;
                     return false;
@@ -155,7 +155,7 @@ namespace Hanafuda
 
         public bool Contains(Card card)
         {
-            if (Namen.Contains(card.name) && Mask[1] == 1 || TypPref == card.Typ && Mask[0] == 1)
+            if (Namen.Contains(card.Name) && Mask[1] == 1 || TypPref == card.Typ && Mask[0] == 1)
                 return true;
             return false;
         }

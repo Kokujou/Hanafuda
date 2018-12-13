@@ -7,8 +7,10 @@ using Hanafuda;
 
 namespace ExtensionMethods
 {
-    public static partial class Animation
+    public static partial class Animations
     {
+        private const float minBlinkAlpha = 0.5f;
+        private const float maxBlinkAlpha = .75f;
         /// <summary>
         /// Korrigiert den Kamera-Aspekt zu Portrait(mobil) oder Landscape (PC)
         /// </summary>
@@ -41,9 +43,9 @@ namespace ExtensionMethods
                 var renderer = obj.GetComponent<SpriteRenderer>();
                 while (renderer.color.a == 0)
                     yield return null;
-                var alpha = Time.time * 3f % 5f / 10f + 0.5f;
+                var alpha = Time.time * 3f % 5f / 10f + minBlinkAlpha;
                 renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b,
-                    alpha > .75f ? .75f - (alpha - .75f) : alpha);
+                    alpha > maxBlinkAlpha ? maxBlinkAlpha - (alpha - maxBlinkAlpha) : alpha);
                 yield return null;
             }
         }
@@ -53,6 +55,7 @@ namespace ExtensionMethods
         /// <param name="unhover">Rückgängigmachen des Hovers</param>
         public static void HoverCard(this BoxCollider col, bool unhover = false)
         {
+            if (!col) return;
             int factor = unhover ? -1 : 1;
             if (Global.Settings.mobile)
             {
@@ -79,8 +82,8 @@ namespace ExtensionMethods
         public static IEnumerator KoikoiAnimation(this GameObject toInstantiate, Action append)
         {
             GameObject koi = GameObject.Instantiate(toInstantiate);
-            koi.transform.position = new Vector3(0, 0, 0);
-            koi.transform.localScale = new Vector3(0, 0, 0);
+            koi.transform.position = Vector3.zero;
+            koi.transform.localScale = Vector3.zero;
             yield return koi.transform.StandardAnimation(koi.transform.position, koi.transform.eulerAngles, new Vector3(9.6f, 2.4f, 2.4f));
             yield return koi.transform.StandardAnimation(koi.transform.position, koi.transform.eulerAngles, Vector3.zero, 1.5f, AddFunc: () =>
             {

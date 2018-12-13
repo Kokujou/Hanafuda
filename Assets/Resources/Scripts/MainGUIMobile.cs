@@ -13,7 +13,8 @@ namespace Hanafuda
 {
     public partial class Main : NetworkBehaviour
     {
-        private float _mobileContainerX = -23.1f;
+        private const float maxMobileContainerX = 23.1f;
+        private float _mobileContainerX = -maxMobileContainerX;
         private bool expand;
         public Vector2 scrollPos;
         public int tab;
@@ -24,10 +25,10 @@ namespace Hanafuda
             get { return _mobileContainerX; }
             set
             {
-                if (value > 23.1f)
-                    _mobileContainerX = 23.1f;
-                else if (value < -23.1f)
-                    _mobileContainerX = -23.1f;
+                if (value > maxMobileContainerX)
+                    _mobileContainerX = maxMobileContainerX;
+                else if (value < -maxMobileContainerX)
+                    _mobileContainerX = -maxMobileContainerX;
                 else _mobileContainerX = value;
                 var ExCol = MainSceneVariables.variableCollection.ExCol;
                 ExCol.position = new Vector3(_mobileContainerX, ExCol.position.y, 5);
@@ -44,13 +45,13 @@ namespace Hanafuda
                 {
                     var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                     RaycastHit hit;
-                    if (ExCol.position.x != -23.1f && ExCol.position.x != 23.1f ||
+                    if (ExCol.position.x != -maxMobileContainerX && ExCol.position.x != maxMobileContainerX ||
                         Physics.Raycast(ray, out hit) && hit.collider.name == "ExCol")
                         mobileContainerX = Camera.main.ScreenPointToRay(Input.mousePosition).origin.x;
                 }
                 else if (Input.GetMouseButtonUp(0))
                 {
-                    if (expand && ExCol.position.x < 23.1f * 0.5f || !expand && ExCol.position.x > -23.1f * 0.5f)
+                    if (expand && ExCol.position.x < maxMobileContainerX * 0.5f || !expand && ExCol.position.x > -maxMobileContainerX * 0.5f)
                         expand = !expand;
                     mobileContainerX = Mathf.Infinity * (expand ? 1 : -1);
                     ExCol.GetComponent<SpriteRenderer>().flipX = expand;
@@ -70,13 +71,13 @@ namespace Hanafuda
         {
             GUI.skin = Global.prefabCollection.MGUISkin;
             if (GUI.Button(new Rect(0, 0, 10, 10), "X")) ((Player) Board.players[0]).CollectedCards = Global.allCards;
-            if (mobileContainerX > -23.1f)
+            if (mobileContainerX > -maxMobileContainerX)
             {
                 GUI.skin.GetStyle("Label").fontSize = Screen.height / 35;
                 GUI.skin.GetStyle("sTab").fontSize = Screen.height / 25;
                 GUI.skin.GetStyle("sTab").overflow.top = -Screen.height / 25;
                 GUI.skin.GetStyle("Tab").fontSize = Screen.height / 25;
-                if (mobileContainerX == 23.1f)
+                if (mobileContainerX == maxMobileContainerX)
                 {
                     if (Input.GetMouseButtonDown(0))
                         yStart = Input.mousePosition.y;
@@ -88,7 +89,7 @@ namespace Hanafuda
                     }
                 }
 
-                var GUI_X = (mobileContainerX - 23.1f) / 46.2f * Screen.width;
+                var GUI_X = (mobileContainerX - maxMobileContainerX) / (maxMobileContainerX * 2) * Screen.width;
                 GUILayout.BeginArea(new Rect(GUI_X, 10, Screen.width, Screen.height));
                 {
                     GUILayout.BeginHorizontal();
@@ -102,18 +103,18 @@ namespace Hanafuda
                     GUILayout.BeginVertical();
                     for (var yaku = 0; yaku < Global.allYaku.Count; yaku++)
                     {
-                        GUILayout.Label(Global.allYaku[yaku].JName + "\t" + Global.allYaku[yaku].name);
+                        GUILayout.Label(Global.allYaku[yaku].JName + "\t" + Global.allYaku[yaku].Name);
                         GUILayout.BeginHorizontal();
                         var shownCards = new List<Card>();
                         if (Global.allYaku[yaku].Mask[1] == 1)
                             shownCards.AddRange(
-                                Global.allCards.FindAll(x => Global.allYaku[yaku].Namen.Contains(x.name)));
+                                Global.allCards.FindAll(x => Global.allYaku[yaku].Namen.Contains(x.Name)));
                         if (Global.allYaku[yaku].Mask[0] == 1)
                             shownCards.AddRange(Global.allCards.FindAll(x =>
-                                !Global.allYaku[yaku].Namen.Contains(x.name) && x.Typ == Global.allYaku[yaku].TypPref));
+                                !Global.allYaku[yaku].Namen.Contains(x.Name) && x.Typ == Global.allYaku[yaku].TypPref));
                         var colCards = shownCards.FindAll(x =>
-                            ((Player) Board.players[tab]).CollectedCards.Exists(y => y.name == x.name));
-                        shownCards.RemoveAll(x => colCards.Exists(y => y.name == x.name));
+                            ((Player) Board.players[tab]).CollectedCards.Exists(y => y.Name == x.Name));
+                        shownCards.RemoveAll(x => colCards.Exists(y => y.Name == x.Name));
                         for (var card = 0; card < shownCards.Count && card < Global.allYaku[yaku].minSize; card++)
                         {
                             if (card % 6 == 5)
