@@ -258,7 +258,6 @@ namespace Hanafuda
         {
             Camera.main.SetCameraRect();
             //Global.SetCameraRect(EffectCam.GetComponent<Camera>());
-            Debug.Log(Global.MovingCards);
             if (Global.MovingCards == 0)
             {
                 if (allowInput)
@@ -300,29 +299,21 @@ namespace Hanafuda
             }
             Move = new[] { -1, -1, -1 };
         }
+        YakuManager yakuManager;
         public void YakuActions()
         {
             if (newYaku.Count > 0 && allowInput)
+            {
+                yakuManager = Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>();
+                yakuManager.Init(newYaku, Board);
                 allowInput = false;
-            else if(newYaku.Count > 0 && !allowInput)
-            {
-                YakuManager yakuManager = new GameObject("Yaku Manager").AddComponent<YakuManager>();
-                yakuManager.Init(newYaku, ((Player)Board.players[0]).CollectedCards);
             }
-            else if (newYaku.Count == 0 && !initKoikoi)
+            else if (newYaku.Count == 0 && _CherryBlossoms && yakuManager.Finished)
             {
-                if (_CherryBlossoms)
-                    Destroy(_CherryBlossoms);
-                initKoikoi = true;
-                return;
+                Destroy(yakuManager.gameObject);
+                allowInput = true;
+                Destroy(_CherryBlossoms);
             }
-            /*
-             * Koi Koi Abfrage:
-             *  - Animation bei Ja
-             *  - Weiterleitung zum Rundenende-Screen bei Nein
-             */
-            else if (newYaku.Count == 0 && initKoikoi)
-                AskKoikoi();
         }
 
         private void DrawSlide()
@@ -337,7 +328,7 @@ namespace Hanafuda
             }
         }
 
-        public void AskKoikoi()
+        /*public void AskKoikoi()
         {
             initKoikoi = false;
             Destroy(GameObject.FindGameObjectWithTag("oldYaku"));
@@ -373,7 +364,7 @@ namespace Hanafuda
                 SceneManager.LoadScene("Finish");
             });
             GameObject.Find("Koikoi/NoButton").GetComponent<EventTrigger>().triggers.Add(entry);
-        }
+        }*/
 
         private void AddYaku()
         {
@@ -488,6 +479,8 @@ namespace Hanafuda
         public void OnGUI()
         {
             GUI.skin = Skin;
+            if (GUI.Button(new Rect(0, 0, 30, 30), "X"))
+                ((Player)Board.players[0]).CollectedCards = Global.allCards;
             if (Global.Settings.mobile)
                 OnGUIMobile();
             else

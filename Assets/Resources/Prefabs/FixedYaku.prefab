@@ -71,6 +71,7 @@ GameObject:
   - component: {fileID: 223077979845834030}
   - component: {fileID: 114818997872900984}
   - component: {fileID: 114292247218772332}
+  - component: {fileID: 114931541459546234}
   m_Layer: 5
   m_Name: FixedYaku
   m_TagString: Yaku
@@ -370,6 +371,27 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u8D64"
+--- !u!114 &114931541459546234
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1171040927161368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d09c9b809cf32944b8b3d25ec36e6634, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SlideIn: {fileID: 224428117285707406}
+  Cards: {fileID: 224430032936272988}
+  Main: {fileID: 224470937159888226}
+  Title_Text: {fileID: 114825707313212010}
+  Title_Shadow: {fileID: 114508457122356584}
+  Subtitle_Text: {fileID: 114302358053765758}
+  Subtitle_Shadow: {fileID: 114727844378018128}
+  Lights: []
+  Captions: []
+  Caption: {fileID: 0}
 --- !u!222 &222207982066815424
 CanvasRenderer:
   m_ObjectHideFlags: 1

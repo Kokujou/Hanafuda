@@ -457,7 +457,8 @@ MonoBehaviour:
     PSlide: {fileID: 1997753205899480, guid: 18caf9b5642fa684bbd031e63ea80621, type: 2}
     CherryBlossoms: {fileID: 1475183275279244, guid: 1daf0a368c796db4c8861910b7911fd7,
       type: 2}
-    Koikoi: {fileID: 1989436160951648, guid: 77721b7f57a7c954a9d6e29231d4582e, type: 2}
+    YakuManager: {fileID: 1513290685769700, guid: 0f551dfd806d954418d130be7c782e45,
+      type: 2}
     KoikoiText: {fileID: 1850442605176848, guid: 4aaee95b445ec754baabb0fff1062919,
       type: 2}
     gAddYaku: {fileID: 1548852710554400, guid: af2648d715797584ea1c2088b83cf542, type: 2}

@@ -24,7 +24,6 @@ namespace Hanafuda
         public List<Image> Lights;
         public List<Sprite> Captions;
         public Image Caption;
-        public float cWidth;
         /*public void AskKoikoi()
         {
             initKoikoi = false;
@@ -65,8 +64,6 @@ namespace Hanafuda
 
         public void AddYaku(Yaku Yaku)
         {
-            GameObject yaku = Instantiate(Global.prefabCollection.gAddYaku);
-            yaku.name = Yaku.Name;
             SetupText(Yaku);
         }
 
@@ -77,7 +74,7 @@ namespace Hanafuda
                 Title_Shadow.font = Global.prefabCollection.EdoFont;
                 Title_Text.font = Global.prefabCollection.EdoFont;
             }
-            SlideIn.sizeDelta = new Vector2(cWidth / 0.2f, 500);
+            SlideIn.sizeDelta = new Vector2(1000, 500);
             Title_Shadow.text = Yaku.JName;
             Title_Text.text = Yaku.JName;
             Subtitle_Shadow.text = Yaku.Name;
@@ -86,8 +83,6 @@ namespace Hanafuda
 
         public void FixedYaku(Yaku Yaku, List<Card> Collection)
         {
-            GameObject yaku = Instantiate(Global.prefabCollection.gFixedYaku);
-            yaku.name = Yaku.Name;
             SetupText(Yaku);
             List<Card> temp = new List<Card>();
             if (Yaku.Mask[1] == 1)
@@ -121,9 +116,7 @@ namespace Hanafuda
 
         public void KouYaku(Yaku Yaku, List<Card> Collection)
         {
-            GameObject Kou = Instantiate(Global.prefabCollection.gKouYaku);
-            Kou.name = Yaku.Name;
-            Caption.sprite = Captions[(int)Enum.Parse(typeof(LightYaku), Yaku.name)];
+            Caption.sprite = Captions[(int)Enum.Parse(typeof(LightYaku), Yaku.Name)];
             List<Card> Matches = Global.allCards.FindAll(y => y.Typ == Card.Typen.Lichter);
             for (int cardID = 0; cardID < 5; cardID++)
             {

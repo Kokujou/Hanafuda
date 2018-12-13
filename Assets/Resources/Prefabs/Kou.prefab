@@ -122,6 +122,7 @@ GameObject:
   - component: {fileID: 223960517839119510}
   - component: {fileID: 114232431071045744}
   - component: {fileID: 114028824733490872}
+  - component: {fileID: 114500347097848388}
   m_Layer: 5
   m_Name: Kou
   m_TagString: Yaku
@@ -475,7 +476,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 400, y: 600}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 1
+  m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -507,6 +508,36 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114500347097848388
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1492468234595444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d09c9b809cf32944b8b3d25ec36e6634, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SlideIn: {fileID: 0}
+  Cards: {fileID: 0}
+  Main: {fileID: 224150708088844618}
+  Title_Text: {fileID: 0}
+  Title_Shadow: {fileID: 0}
+  Subtitle_Text: {fileID: 0}
+  Subtitle_Shadow: {fileID: 0}
+  Lights:
+  - {fileID: 114946954577065248}
+  - {fileID: 114743811107293904}
+  - {fileID: 114722793665952764}
+  - {fileID: 114494538984472664}
+  - {fileID: 114795672504264676}
+  Captions:
+  - {fileID: 21300000, guid: 696f82006c5f0da4bba8eb92e508c6a9, type: 3}
+  - {fileID: 21300000, guid: 6fc39a1ababa5c54ca7c106fba7aff2c, type: 3}
+  - {fileID: 21300000, guid: 5168d013b125c24498855f87bd5b6b16, type: 3}
+  - {fileID: 21300000, guid: acce0fc52b5a64b4880c7ab2d82fb156, type: 3}
+  Caption: {fileID: 114121967422071646}
 --- !u!114 &114537947892745188
 MonoBehaviour:
   m_ObjectHideFlags: 1
