@@ -34,6 +34,7 @@ using ExtensionMethods;
  * - Idee: Tutorial-Stage
  * - Kartenfächerung für wenige Karten überarbeiten
  * - Yaku erst nach Deck-Zug anzeigen
+ * - GUI durch GUILayout ersetzen
  */
 
 namespace Hanafuda
@@ -43,6 +44,12 @@ namespace Hanafuda
     /// </summary>
     public partial class Main : NetworkBehaviour
     {
+        private const int MoveSyncMsg = 131;
+        private const int DeckSyncMsg = 132;
+        private const int MaxDispersionPos = 5;
+        private const int MaxDispersionAngle = 60;
+        private const float CardWidth = 11f;
+
         // Use this for initialization
         public GUISkin Skin;
         public bool allowInput = true;
@@ -118,16 +125,16 @@ namespace Hanafuda
             PlayMode = 1;
             if (Global.Settings.Multiplayer)
             {
-                NetworkServer.RegisterHandler(131, SyncMove);
+                NetworkServer.RegisterHandler(MoveSyncMsg, SyncMove);
                 for (int i = 0; i < Global.Settings.playerClients.Count; i++)
                 {
-                    Global.Settings.playerClients[i].RegisterHandler(131, SyncMove);
-                    Global.Settings.playerClients[i].RegisterHandler(132, SyncDeck);
+                    Global.Settings.playerClients[i].RegisterHandler(MoveSyncMsg, SyncMove);
+                    Global.Settings.playerClients[i].RegisterHandler(DeckSyncMsg, SyncDeck);
                 }
                 if (NetworkServer.active)
                 {
                     int seed = UnityEngine.Random.Range(0, 1000);
-                    NetworkServer.SendToAll(132, new Global.Message() { message = seed.ToString() });
+                    NetworkServer.SendToAll(DeckSyncMsg, new Global.Message() { message = seed.ToString() });
                     GenerateDeck(seed);
                 }
                 return;
@@ -159,7 +166,9 @@ namespace Hanafuda
                 temp.transform.localPosition = new Vector3(0, 0, i * 0.015f);
                 Board.Deck[i].Objekt = temp;
             }
-            for (int i = Global.Settings.Name == Global.Settings.P1Name ? 0 : 1; Global.Settings.Name == Global.Settings.P1Name ? i < 2 : i >= 0; i += (Global.Settings.Name == Global.Settings.P1Name ? 1 : -1))
+            for (int i = Global.Settings.Name == Global.Settings.P1Name ? 0 : 1; 
+                Global.Settings.Name == Global.Settings.P1Name ? i < 2 : i >= 0; 
+                i += (Global.Settings.Name == Global.Settings.P1Name ? 1 : -1))
                 for (int j = 0; j < 8; j++)
                 {
                     ((Player)Board.players[i]).Hand.Add(Board.Deck[0]);
@@ -171,8 +180,14 @@ namespace Hanafuda
                     /* Zugedeckte Transformation mit anschließender Aufdeckrotation */
                     if (Global.Settings.mobile)
                     {
-                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3(UnityEngine.Random.Range(-5, 5), UnityEngine.Random.Range(-5, 5), -j), new Vector3(0, 0, (i == 0 ? 0 : 180) + UnityEngine.Random.Range(-60, 60)), temp.transform.localScale, (j + 8 * i) * 0.2f, .3f, () => { temp.transform.position += new Vector3(0, 0, 1); }));
-                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, new Vector3(0, 0, (i == 0 ? 0 : 180)), temp.transform.localScale, 18 * 0.2f, .3f, () =>
+                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + 
+                            new Vector3(UnityEngine.Random.Range(-MaxDispersionPos, MaxDispersionPos), 
+                            UnityEngine.Random.Range(-MaxDispersionPos, MaxDispersionPos), -j), 
+                            new Vector3(0, 0, (i == 0 ? 0 : 180) + UnityEngine.Random.Range(-MaxDispersionAngle, MaxDispersionAngle)), 
+                            temp.transform.localScale, (j + 8 * i) * 0.2f, .3f, 
+                            () => { temp.transform.position += new Vector3(0, 0, 1); }));
+                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, 
+                            new Vector3(0, 0, (i == 0 ? 0 : 180)), temp.transform.localScale, 18 * 0.2f, .3f, () =>
                        {
                            GameObject card = new GameObject();
                            card.transform.parent = temp.transform.parent;
@@ -183,7 +198,9 @@ namespace Hanafuda
                            List<Transform> hand = new List<Transform>(temp.transform.parent.parent.gameObject.GetComponentsInChildren<Transform>());
                            hand.RemoveAll(x => !x.name.Contains("New"));
                            int id = hand.IndexOf(temp.transform.parent);
-                           StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, id), temp.transform.parent.eulerAngles + new Vector3(0, 0, -60f + (120f / 7) * id), temp.transform.parent.localScale, .6f, .3f, () =>
+                           StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, id), 
+                               temp.transform.parent.eulerAngles + new Vector3(0, 0, -60f + (120f / 7) * id), 
+                               temp.transform.parent.localScale, .6f, .3f, () =>
                                  {
                                      GameObject oldParent = temp.transform.parent.gameObject;
                                      temp.transform.parent = temp.transform.parent.parent;
@@ -195,8 +212,9 @@ namespace Hanafuda
                     }
                     else
                     {
-                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((j) * 11f, 0, -j), Vector3.zero, temp.transform.localScale, (j + 8 * i) * 0.2f));
-                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((j) * 11f, 0, -j),
+                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((j) * CardWidth, 0, -j), 
+                            Vector3.zero, temp.transform.localScale, (j + 8 * i) * 0.2f));
+                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((j) * CardWidth, 0, -j),
                             temp.transform.parent == Hand1.transform ? new Vector3(0, 180, 0) : Vector3.zero, temp.transform.localScale, 18 * 0.2f));
                     }
                 }
@@ -208,9 +226,9 @@ namespace Hanafuda
                 temp.layer = LayerMask.NameToLayer("Feld");
                 temp.transform.parent = Platz.transform;
                 if (Global.Settings.mobile)
-                    StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + new Vector3(((i) / 3) * (11f / 1.5f), -9 + (18f / 1.5f) * (i % 3), -i), new Vector3(0, 180, 0), temp.transform.localScale / 1.5f, (i + 18) * 0.2f));
+                    StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + new Vector3(((i) / 3) * (CardWidth / 1.5f), -9 + (18f / 1.5f) * (i % 3), -i), new Vector3(0, 180, 0), temp.transform.localScale / 1.5f, (i + 18) * 0.2f));
                 else
-                    StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + new Vector3((i / 2) * 11f, -9 + 18 * (((i) + 1) % 2), -i), new Vector3(0, 180, 0), temp.transform.localScale, (i + 18) * 0.2f));
+                    StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + new Vector3((i / 2) * CardWidth, -9 + 18 * (((i) + 1) % 2), -i), new Vector3(0, 180, 0), temp.transform.localScale, (i + 18) * 0.2f));
                 //StartCoroutine(temp.transform.StandardAnimation( GameObject.Find("Feld").transform.position + new Vector3((int)(i/2), 0, 0), new Vector3(0, 180 * (1 - i), 0), temp.transform.localScale, 16 * 0.2f));
             }
         }
@@ -278,9 +296,9 @@ namespace Hanafuda
                 {
                     string move = Move[0].ToString() + "," + Move[1].ToString() + "," + Move[2].ToString();
                     if (NetworkServer.active)
-                        NetworkServer.SendToAll(131, new Global.Message() { message = move });
+                        NetworkServer.SendToAll(MoveSyncMsg, new Global.Message() { message = move });
                     else
-                        Global.Settings.playerClients[0].Send(131, new Global.Message() { message = move });
+                        Global.Settings.playerClients[0].Send(MoveSyncMsg, new Global.Message() { message = move });
                 }
             }
             Move = new[] { -1, -1, -1 };
