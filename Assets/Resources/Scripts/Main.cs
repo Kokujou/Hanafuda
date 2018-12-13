@@ -151,18 +151,34 @@ namespace Hanafuda
         /// </summary>
         void FieldSetup()
         {
-            for (int i = 0; i < Board.Deck.Count; i++)
+            BuildDeck();
+            BuildHands();
+            BuildField();
+        }
+
+        private void BuildField()
+        {
+            for (int i = 0; i < 8; i++)
             {
-                GameObject temp = Instantiate(Global.prefabCollection.PKarte);
-                temp.name = Board.Deck[i].Name;
-                temp.GetComponentsInChildren<MeshRenderer>()[0].material = Board.Deck[i].Image;
-                temp.transform.parent = Deck.transform;
-                temp.transform.localPosition = new Vector3(0, 0, i * 0.015f);
-                Board.Deck[i].Objekt = temp;
+                Board.Platz.Add(Board.Deck[0]);
+                GameObject temp = Board.Deck[0].Objekt;
+                Board.Deck.RemoveAt(0);
+                temp.layer = LayerMask.NameToLayer("Feld");
+                temp.transform.parent = Platz.transform;
+                if (Global.Settings.mobile)
+                    StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + new Vector3(((i) / 3) * (CardWidth / 1.5f), -9 + (18f / 1.5f) * (i % 3), -i), new Vector3(0, 180, 0), temp.transform.localScale / 1.5f, (i + 18) * 0.2f));
+                else
+                    StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + new Vector3((i / 2) * CardWidth, -9 + 18 * (((i) + 1) % 2), -i), new Vector3(0, 180, 0), temp.transform.localScale, (i + 18) * 0.2f));
+                //StartCoroutine(temp.transform.StandardAnimation( GameObject.Find("Feld").transform.position + new Vector3((int)(i/2), 0, 0), new Vector3(0, 180 * (1 - i), 0), temp.transform.localScale, 16 * 0.2f));
             }
+        }
+
+        private void BuildHands()
+        {
             for (int i = Global.Settings.Name == Global.Settings.P1Name ? 0 : 1;
-                Global.Settings.Name == Global.Settings.P1Name ? i < 2 : i >= 0;
-                i += (Global.Settings.Name == Global.Settings.P1Name ? 1 : -1))
+                            Global.Settings.Name == Global.Settings.P1Name ? i < 2 : i >= 0;
+                            i += (Global.Settings.Name == Global.Settings.P1Name ? 1 : -1))
+            {
                 for (int j = 0; j < 8; j++)
                 {
                     ((Player)Board.players[i]).Hand.Add(Board.Deck[0]);
@@ -176,54 +192,37 @@ namespace Hanafuda
                     {
                         StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position +
                             new Vector3(UnityEngine.Random.Range(-MaxDispersionPos, MaxDispersionPos),
-                            UnityEngine.Random.Range(-MaxDispersionPos, MaxDispersionPos), -j),
+                            UnityEngine.Random.Range(-MaxDispersionPos, MaxDispersionPos), -j / 10f),
                             new Vector3(0, 0, (i == 0 ? 0 : 180) + UnityEngine.Random.Range(-MaxDispersionAngle, MaxDispersionAngle)),
                             temp.transform.localScale, (j + 8 * i) * 0.2f, .3f,
                             () => { temp.transform.position += new Vector3(0, 0, 1); }));
-                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position,
-                            new Vector3(0, 0, (i == 0 ? 0 : 180)), temp.transform.localScale, 18 * 0.2f, .3f, () =>
-                       {
-                           GameObject card = new GameObject();
-                           card.transform.parent = temp.transform.parent;
-                           temp.transform.parent = card.transform;
-                           bool hand1 = temp.transform.parent.parent.name.Contains("1");
-                           card.transform.localPosition = new Vector3(0, hand1 ? -8 : 8);
-                           temp.transform.localPosition = new Vector3(0, hand1 ? 8 : -8, 0);
-                           List<Transform> hand = new List<Transform>(temp.transform.parent.parent.gameObject.GetComponentsInChildren<Transform>());
-                           hand.RemoveAll(x => !x.name.Contains("New"));
-                           int id = hand.IndexOf(temp.transform.parent);
-                           StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, id),
-                               temp.transform.parent.eulerAngles + new Vector3(0, 0, -60f + (120f / 7) * id),
-                               temp.transform.parent.localScale, .6f, .3f, () =>
-                                 {
-                                     GameObject oldParent = temp.transform.parent.gameObject;
-                                     temp.transform.parent = temp.transform.parent.parent;
-                                     Destroy(oldParent);
-                                     //temp.transform.localPosition = new Vector3(temp.transform.localPosition.x, temp.transform.localPosition.y, id / 10f);
-                                 }));
-                       }));
-                        StartCoroutine(Hand1.transform.StandardAnimation(Hand1.transform.position, new Vector3(0, 180, 0), Hand1.transform.localScale, 5f));
                     }
                     else
                     {
                         StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((j) * CardWidth, 0, -j),
                             Vector3.zero, temp.transform.localScale, (j + 8 * i) * 0.2f));
-                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((j) * CardWidth, 0, -j),
-                            temp.transform.parent == Hand1.transform ? new Vector3(0, 180, 0) : Vector3.zero, temp.transform.localScale, 18 * 0.2f));
+                        if (temp.transform.parent == Hand1.transform)
+                            StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((j) * CardWidth, 0, -j),
+                                new Vector3(0, 180, 0), temp.transform.localScale, 18 * 0.2f));
                     }
+
                 }
-            for (int i = 0; i < 8; i++)
+            }
+            StartCoroutine(Hand1.transform.StandardAnimation(Hand1.transform.position, new Vector3(0, 180, 0), Hand1.transform.localScale, 4f, AddFunc: () =>
+            { StartCoroutine(Board.ResortCardsMobile(((Player)Board.players[0]).Hand, Hand1.transform.position, 8, true)); }));
+            StartCoroutine(Board.ResortCardsMobile(((Player)Board.players[1]).Hand, Hand2.transform.position, 8, true, delay: 4f));
+        }
+
+        private void BuildDeck()
+        {
+            for (int i = 0; i < Board.Deck.Count; i++)
             {
-                Board.Platz.Add(Board.Deck[0]);
-                GameObject temp = Board.Deck[0].Objekt;
-                Board.Deck.RemoveAt(0);
-                temp.layer = LayerMask.NameToLayer("Feld");
-                temp.transform.parent = Platz.transform;
-                if (Global.Settings.mobile)
-                    StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + new Vector3(((i) / 3) * (CardWidth / 1.5f), -9 + (18f / 1.5f) * (i % 3), -i), new Vector3(0, 180, 0), temp.transform.localScale / 1.5f, (i + 18) * 0.2f));
-                else
-                    StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + new Vector3((i / 2) * CardWidth, -9 + 18 * (((i) + 1) % 2), -i), new Vector3(0, 180, 0), temp.transform.localScale, (i + 18) * 0.2f));
-                //StartCoroutine(temp.transform.StandardAnimation( GameObject.Find("Feld").transform.position + new Vector3((int)(i/2), 0, 0), new Vector3(0, 180 * (1 - i), 0), temp.transform.localScale, 16 * 0.2f));
+                GameObject temp = Instantiate(Global.prefabCollection.PKarte);
+                temp.name = Board.Deck[i].Name;
+                temp.GetComponentsInChildren<MeshRenderer>()[0].material = Board.Deck[i].Image;
+                temp.transform.parent = Deck.transform;
+                temp.transform.localPosition = new Vector3(0, 0, i * 0.015f);
+                Board.Deck[i].Objekt = temp;
             }
         }
 
@@ -259,12 +258,15 @@ namespace Hanafuda
         {
             Camera.main.SetCameraRect();
             //Global.SetCameraRect(EffectCam.GetComponent<Camera>());
-            if (allowInput)
-                ExecutePlaymode();
+            Debug.Log(Global.MovingCards);
             if (Global.MovingCards == 0)
+            {
+                if (allowInput)
+                    ExecutePlaymode();
                 YakuActions();
-            if (Global.Settings.mobile)
-                UpdateMobile();
+                if (Global.Settings.mobile)
+                    UpdateMobile();
+            }
         }
         private void CheckNewYaku()
         {
@@ -300,53 +302,19 @@ namespace Hanafuda
         }
         public void YakuActions()
         {
-            if (newYaku.Count > 0)
+            if (newYaku.Count > 0 && allowInput)
+                allowInput = false;
+            else if(newYaku.Count > 0 && !allowInput)
             {
-                if (animLeft != 0 && newYaku.Count != 0)
-                {
-                    allowInput = false;
-                    if (animLeft < 0)
-                        animLeft += 10;
-                    else if (animLeft != 0)
-                        animLeft = 0;
-                }
-                if (animLeft == 0 && !watch.IsRunning)
-                    watch.Start();
-                if (watch.ElapsedMilliseconds > 3000)
-                {
-                    float cWidth = 200;
-                    if (newYaku[0].Name.Contains("kou"))
-                    {
-                        Destroy(GameObject.FindGameObjectWithTag("Yaku"));
-                        cWidth /= 2;
-                    }
-                    else
-                        GameObject.FindGameObjectWithTag("Yaku").tag = "oldYaku";
-                    newYaku.RemoveAt(0);
-                    if (newYaku.Count == 0)
-                    {
-                        if (_CherryBlossoms)
-                            Destroy(_CherryBlossoms);
-                        initKoikoi = true;
-                        animLeft = 0;
-                        return;
-                    }
-                    watch.Reset();
-                    watch.Start();
-                    animLeft = -cWidth;
-                    shownYaku = false;
-                }
-                if (newYaku[0].Name.Contains("kou"))
-                    KouYaku();
-                else
-                {
-                    if (shownYaku)
-                        DrawSlide();
-                    else if (newYaku[0].addPoints == 0)
-                        FixedYaku();
-                    else
-                        AddYaku();
-                }
+                YakuManager yakuManager = new GameObject("Yaku Manager").AddComponent<YakuManager>();
+                yakuManager.Init(newYaku, ((Player)Board.players[0]).CollectedCards);
+            }
+            else if (newYaku.Count == 0 && !initKoikoi)
+            {
+                if (_CherryBlossoms)
+                    Destroy(_CherryBlossoms);
+                initKoikoi = true;
+                return;
             }
             /*
              * Koi Koi Abfrage:
@@ -520,10 +488,6 @@ namespace Hanafuda
         public void OnGUI()
         {
             GUI.skin = Skin;
-            if (GUI.Button(new Rect(0, 0, 20, 20), "X"))
-            {
-                ((Player)Board.players[0]).CollectedCards = Global.allCards;
-            }
             if (Global.Settings.mobile)
                 OnGUIMobile();
             else

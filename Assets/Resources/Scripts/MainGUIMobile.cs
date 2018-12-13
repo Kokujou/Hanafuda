@@ -70,7 +70,6 @@ namespace Hanafuda
         private void OnGUIMobile()
         {
             GUI.skin = Global.prefabCollection.MGUISkin;
-            if (GUI.Button(new Rect(0, 0, 10, 10), "X")) ((Player) Board.players[0]).CollectedCards = Global.allCards;
             if (mobileContainerX > -maxMobileContainerX)
             {
                 GUI.skin.GetStyle("Label").fontSize = Screen.height / 35;

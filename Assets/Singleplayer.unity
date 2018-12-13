@@ -499,6 +499,46 @@ Transform:
   m_Father: {fileID: 1701401424}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &951720649
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 951720650}
+  - component: {fileID: 951720651}
+  m_Layer: 0
+  m_Name: YakuManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &951720650
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 951720649}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 240, y: 400, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 16
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &951720651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 951720649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e9a9b0accda47e48ae5b97533060b08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1134398456
 GameObject:
   m_ObjectHideFlags: 0
@@ -748,6 +788,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obj: {fileID: 1548029184762330, guid: 490327d5dd35dbe42928486ce55d62c6, type: 2}
   singleton:
+    BoxX: -7.2
     ExCol: {fileID: 613758901}
     ExColBack: {fileID: 103193796}
     Hand1: {fileID: 1285482131}
@@ -759,7 +800,7 @@ MonoBehaviour:
     Deck: {fileID: 1162848706}
     MDeck: {fileID: 2082650902}
     EffectCamera: {fileID: 1980563094}
-    BoxX: -7.2
+    YakuManager: {fileID: 951720650}
     PCCollections:
     - {fileID: 1701401424}
     - {fileID: 3884326}

@@ -435,19 +435,19 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f64fb2bfb4b656c48a33c06d917e8d94, type: 2}
   - {fileID: 11400000, guid: 9e3890e789fd22447b0b839bcb4e1e0e, type: 2}
   AllYaku:
-  - {fileID: 11400000, guid: 421f047eec746a44593738da07c4a9b8, type: 2}
-  - {fileID: 11400000, guid: 2c2e582030bf64747b1d81d615cd1bc6, type: 2}
-  - {fileID: 11400000, guid: c46af3a7044516545a3ff2aea02f2d82, type: 2}
-  - {fileID: 11400000, guid: 14b5a4c10a118be40aa30cae8f9ae3f4, type: 2}
-  - {fileID: 11400000, guid: ece5d269eab5dd34794a5fc461096f7e, type: 2}
-  - {fileID: 11400000, guid: 289033c7a66233b4388338a98b6806b6, type: 2}
-  - {fileID: 11400000, guid: ba2e421c8a9595e47b072cfc486386e2, type: 2}
-  - {fileID: 11400000, guid: c0820c0bc6a716342a84bf8e1117b3a3, type: 2}
   - {fileID: 11400000, guid: d691fb0083a520342ae446d6aefbe413, type: 2}
   - {fileID: 11400000, guid: b927f6f19cbb9204b891ec5ec5f78bee, type: 2}
-  - {fileID: 11400000, guid: 6d9f586b4c2154945a6ad4e43b92ef71, type: 2}
-  - {fileID: 11400000, guid: 2f2e3f069d0949946a15750f66666234, type: 2}
+  - {fileID: 11400000, guid: c46af3a7044516545a3ff2aea02f2d82, type: 2}
+  - {fileID: 11400000, guid: ece5d269eab5dd34794a5fc461096f7e, type: 2}
+  - {fileID: 11400000, guid: 2c2e582030bf64747b1d81d615cd1bc6, type: 2}
+  - {fileID: 11400000, guid: 14b5a4c10a118be40aa30cae8f9ae3f4, type: 2}
+  - {fileID: 11400000, guid: 421f047eec746a44593738da07c4a9b8, type: 2}
+  - {fileID: 11400000, guid: 289033c7a66233b4388338a98b6806b6, type: 2}
   - {fileID: 11400000, guid: bb8047697f25d3241a0d8fc2b33325fc, type: 2}
+  - {fileID: 11400000, guid: ba2e421c8a9595e47b072cfc486386e2, type: 2}
+  - {fileID: 11400000, guid: 2f2e3f069d0949946a15750f66666234, type: 2}
+  - {fileID: 11400000, guid: 6d9f586b4c2154945a6ad4e43b92ef71, type: 2}
+  - {fileID: 11400000, guid: c0820c0bc6a716342a84bf8e1117b3a3, type: 2}
   singleton:
     EdoFont: {fileID: 12800000, guid: d5042aba50af22c4db76ff47f545d052, type: 3}
     MGUISkin: {fileID: 11400000, guid: 1b7138507e3f428418711c459723bb3e, type: 2}

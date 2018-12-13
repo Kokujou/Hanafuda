@@ -115,7 +115,7 @@ namespace Hanafuda
             for (var i = 0; i < Global.allCards.Count; i++)
             {
                 var rand = rnd.Next(0, Global.allCards.Count);
-                while (Deck.Contains(Global.allCards[rand]))
+                while (Deck.Exists(x=>x.Name == Global.allCards[rand].Name))
                     rand = rnd.Next(0, Global.allCards.Count);
                 Deck.Add(Global.allCards[rand]);
             }
@@ -207,7 +207,7 @@ namespace Hanafuda
                     toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
             }
         }
-        IEnumerator ResortCardsMobile(List<Card> toSort, Vector3 StartPos, int maxSize, bool isHand = false, bool rowWise = true, float delay = 0f)
+        public IEnumerator ResortCardsMobile(List<Card> toSort, Vector3 StartPos, int maxSize, bool isHand = false, bool rowWise = true, float delay = 0f)
         {
             yield return new WaitForSeconds(delay);
             int iterations = 1;
