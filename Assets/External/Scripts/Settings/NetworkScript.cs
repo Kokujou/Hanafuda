@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
@@ -35,6 +36,7 @@ namespace Hanafuda
         private bool Running;
         private readonly Global.GridLayout SinglePlayer = new Global.GridLayout();
         public GUISkin skin;
+        public ObservableCollection<Card> test = new ObservableCollection<Card>();
 
         private void Update()
         {

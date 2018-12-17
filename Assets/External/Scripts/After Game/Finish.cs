@@ -47,7 +47,7 @@ public class Finish : MonoBehaviour
             foreach (var yaku in Global.players[0].CollectedYaku)
             {
                 GUI.Label(new Rect(0, 100 + maxCount * 30, Screen.width / 3 - 33, 30),
-                    yaku.Key.Name + " - +" + yaku.Value);
+                    yaku.Key.Title + " - +" + yaku.Value);
                 maxCount++;
             }
 
@@ -55,7 +55,7 @@ public class Finish : MonoBehaviour
             foreach (var yaku in Global.players[1].CollectedYaku)
             {
                 GUI.Label(new Rect(Screen.width / 2 - 50, 100 + tCount * 30, Screen.width / 3 - 33, 30),
-                    yaku.Key.Name + " - +" + yaku.Value);
+                    yaku.Key.Title + " - +" + yaku.Value);
                 tCount++;
             }
 

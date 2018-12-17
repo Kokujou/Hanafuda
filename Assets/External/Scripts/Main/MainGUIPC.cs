@@ -97,7 +97,7 @@ namespace Hanafuda
                                 GUI.BeginGroup(new Rect(new Rect(
                                     Screen.width / 4 * (int) (yaku / (Global.allYaku.Count / 3f)),
                                     50 + 100 * (int) (yaku % (Global.allYaku.Count / 3f)), Screen.width / 4, 1000)));
-                                GUI.Label(new Rect(0, 0, Screen.width / 4, 20), Global.allYaku[yaku].Name);
+                                GUI.Label(new Rect(0, 0, Screen.width / 4, 20), Global.allYaku[yaku].Title);
                                 //OPTIMIEREN!
                                 for (var card = 0; card < Global.allYaku[yaku].minSize; card++)
                                 {
@@ -105,7 +105,7 @@ namespace Hanafuda
                                     if (mask[1] == 1)
                                     {
                                         if (card < Global.allYaku[yaku].Namen.Count &&
-                                            Sets.Exists(x => x.Name == Global.allYaku[yaku].Namen[card]))
+                                            Sets.Exists(x => x.Title == Global.allYaku[yaku].Namen[card]))
                                         {
                                             var t = GameObject.Find(Global.allYaku[yaku].Namen[card] + "/Foreground")
                                                 .GetComponent<MeshRenderer>().material.mainTexture;
@@ -115,7 +115,7 @@ namespace Hanafuda
                                         {
                                             var cards = Sets.FindAll(x =>
                                                 x.Typ == Global.allYaku[yaku].TypPref &&
-                                                !Global.allYaku[yaku].Namen.Contains(x.Name));
+                                                !Global.allYaku[yaku].Namen.Contains(x.Title));
                                             if (card - Global.allYaku[yaku].Namen.Count < cards.Count)
                                             {
                                                 var t = cards[card - Global.allYaku[yaku].Namen.Count].Image
@@ -126,8 +126,8 @@ namespace Hanafuda
                                             {
                                                 var aCards = Global.allCards.FindAll(x =>
                                                     x.Typ == Global.allYaku[yaku].TypPref &&
-                                                    !Global.allYaku[yaku].Namen.Contains(x.Name) &&
-                                                    !Sets.Exists(y => y.Name == x.Name));
+                                                    !Global.allYaku[yaku].Namen.Contains(x.Title) &&
+                                                    !Sets.Exists(y => y.Title == x.Title));
                                                 var t = aCards[card - Global.allYaku[yaku].Namen.Count - cards.Count]
                                                     .Image.mainTexture;
                                                 GUI.DrawTexture(
@@ -159,7 +159,7 @@ namespace Hanafuda
                                         {
                                             var aCards = Global.allCards.FindAll(x =>
                                                 x.Typ == Global.allYaku[yaku].TypPref &&
-                                                !Sets.Exists(y => y.Name == x.Name));
+                                                !Sets.Exists(y => y.Title == x.Title));
                                             var t = aCards[card - cards.Count].Image.mainTexture;
                                             GUI.DrawTexture(
                                                 new Rect((card - cards.Count) % 5 * 55, 20 + card / 5 * 85, 50, 80), t);

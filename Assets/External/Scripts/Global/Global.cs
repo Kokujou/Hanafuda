@@ -45,15 +45,15 @@ namespace Hanafuda
                 CardSkins[i] = Sprite.Create(skins[0], new Rect(0, 0, skins[i].width, skins[i].height),
                     new Vector2(.5f, .5f));
             prefabCollection = singleton;
-            /*for (int i = 0; i < AllCards.Count; i++)
+            for (int i = 0; i < AllCards.Count; i++)
             {
-                AllCards[i].Name = AllCards[i].name;
+                AllCards[i].Title = AllCards[i].name;
             }
             for (int i = 0; i < allYaku.Count; i++)
             {
-                allYaku[i].Name = allYaku[i].name;
+                allYaku[i].Title = allYaku[i].name;
             }
-            AssetDatabase.SaveAssets();*/
+            AssetDatabase.SaveAssets();
         }
 
         public class Message : MessageBase

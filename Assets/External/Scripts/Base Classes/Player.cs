@@ -10,9 +10,7 @@ using UnityEngine.Networking;
 - Animationen!
 - Koikoi Ansagen synchronisieren
 */
-/// <summary>
-/// veraltet
-/// </summary>
+
 namespace Hanafuda
 {
     public class Player

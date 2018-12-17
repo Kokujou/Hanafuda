@@ -72,7 +72,7 @@ namespace Hanafuda
                 all.RemoveAll(x => x.Monat == all[rnd].Monat);
                 var go = Instantiate(Global.prefabCollection.PKarte, Kartenziehen.transform);
                 go.GetComponentsInChildren<MeshRenderer>()[0].material = tempDeck[i].Image;
-                go.name = tempDeck[i].Name;
+                go.name = tempDeck[i].Title;
                 if (Camera.main.aspect < 1)
                 {
                     go.transform.localPosition = new Vector3(0, 0, i * 0.1f);
@@ -171,7 +171,7 @@ namespace Hanafuda
         private IEnumerator GetResult(string P1Sel, string P2Sel)
         {
             var tempTurn = false;
-            if (Global.allCards.Find(x => x.Name == P2Sel).Monat < Global.allCards.Find(x => x.Name == P1Sel).Monat)
+            if (Global.allCards.Find(x => x.Title == P2Sel).Monat < Global.allCards.Find(x => x.Title == P1Sel).Monat)
             {
                 Info1.GetComponent<TextMesh>().color = new Color(165, 28, 28, 255) / 255;
                 Info2.GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255;

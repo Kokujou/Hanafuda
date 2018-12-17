@@ -7,31 +7,10 @@ using Hanafuda;
 
 namespace ExtensionMethods
 {
-    public static partial class Animations
+    public static class Animations
     {
         private const float minBlinkAlpha = 0.5f;
         private const float maxBlinkAlpha = .75f;
-        /// <summary>
-        /// Korrigiert den Kamera-Aspekt zu Portrait(mobil) oder Landscape (PC)
-        /// </summary>
-        public static void SetCameraRect(this Camera cam)
-        {
-            if (Screen.width >= Screen.height)
-                cam.aspect = 16f / 9f;
-            else
-                cam.aspect = .6f;
-        }
-        /// <summary>
-        /// Generiert eine 1x1 Textur einer Farbe
-        /// </summary>
-        /// <returns></returns>
-        public static Texture2D CreateTexture(this Color color)
-        {
-            var result = new Texture2D(1, 1);
-            result.SetPixel(0, 0, color);
-            result.Apply();
-            return result;
-        }
         /// <summary>
         /// Transparenz-Animation des Hilfs-Pfeils für die mobile Handkarten-Animation
         /// </summary>
@@ -68,9 +47,8 @@ namespace ExtensionMethods
             {
                 col.gameObject.transform.position -= factor * new Vector3(0, 0, 5);
                 col.gameObject.transform.localScale *= Mathf.Pow(2, factor);
-                col.size /= 2;
+                col.size /= Mathf.Pow(2, factor);
             }
-            if (Global.prev == col) return;
             Global.prev = unhover ? null : col;
         }
 
@@ -90,7 +68,7 @@ namespace ExtensionMethods
                 GameObject.Destroy(koi);
                 append();
             });
-            
+
         }
         /// <summary>
         ///     Standardmäßige Animation von Objekten durch Interpolation
@@ -143,6 +121,67 @@ namespace ExtensionMethods
         /// <param name="maxCols">Maximale Anzahl von Spalten</param>
         /// <returns></returns>
         /// 
+        public static IEnumerator ResortCards(this List<Card> toSort, int maxSize, bool isMobileHand = false, bool rowWise = true, float delay = 0f)
+        {
+            Vector3 StartPos = toSort[0].Objekt.transform.parent.position;
+            yield return new WaitForSeconds(delay);
+            int iterations = 1;
+            if (isMobileHand)
+                yield return SortHand(toSort);
+            else
+                yield return SortCollection(toSort, maxSize, rowWise, StartPos, iterations);
+        }
 
+        private static IEnumerator SortCollection(List<Card> toSort, int maxSize, bool rowWise, Vector3 StartPos, int iterations)
+        {
+            iterations = maxSize;
+            for (int i = 0; i < toSort.Count; i++)
+            {
+                float offsetX = toSort[i].Objekt.transform.localScale.x;
+                float offsetY = toSort[i].Objekt.transform.localScale.y;
+                float cardWidth = toSort[i].Objekt.GetComponentInChildren<MeshRenderer>().bounds.size.x;
+                float cardHeight = toSort[i].Objekt.GetComponentInChildren<MeshRenderer>().bounds.size.y;
+                float alignY = (cardHeight + offsetY) * ((maxSize - 1) * 0.5f);
+                if (rowWise)
+                    Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
+                        new Vector3((i % iterations) * (cardWidth + offsetX), -alignY + (i / iterations) * (cardHeight + offsetY), 0),
+                        toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
+                else
+                    Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
+                    new Vector3((i / iterations) * (cardWidth + offsetX), -alignY + (i % iterations) * (cardHeight + offsetY), 0),
+                    toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
+                yield return null;
+            }
+        }
+
+        private static IEnumerator SortHand(List<Card> toSort)
+        {
+            for (int card = 0; card < toSort.Count; card++)
+            {
+                GameObject temp = toSort[card].Objekt;
+                bool hand1 = temp.transform.parent.name.Contains("1");
+                Global.global.StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, new Vector3(0, temp.transform.rotation.eulerAngles.y, hand1 ? 0 : 180), temp.transform.localScale, 0, .3f, () =>
+                {
+                    GameObject Card = new GameObject();
+                    Card.transform.parent = temp.transform.parent;
+                    temp.transform.parent = Card.transform;
+                    Card.transform.localPosition = new Vector3(0, hand1 ? -8 : 8);
+                    temp.transform.localPosition = new Vector3(0, hand1 ? 8 : -8, 0);
+                    List<Transform> hand = new List<Transform>(temp.transform.parent.parent.gameObject.GetComponentsInChildren<Transform>());
+                    hand.RemoveAll(x => !x.name.Contains("New"));
+                    int id = hand.IndexOf(temp.transform.parent);
+                    float max = toSort.Count - 1;
+                    if (max == 0) max = 0.5f;
+                    Global.global.StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, -id), temp.transform.parent.eulerAngles + new Vector3(0, 0, -60f + (120f / max) * (max - id)), temp.transform.parent.localScale, .6f, .3f, () =>
+                    {
+                        GameObject oldParent = temp.transform.parent.gameObject;
+                        temp.transform.parent = temp.transform.parent.parent;
+                        GameObject.Destroy(oldParent);
+                        //temp.transform.localPosition = new Vector3(temp.transform.localPosition.x, temp.transform.localPosition.y, id/10f);
+                    }));
+                }));
+                yield return null;
+            }
+        }
     }
 }

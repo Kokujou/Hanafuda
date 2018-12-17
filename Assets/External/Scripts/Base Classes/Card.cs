@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -12,9 +13,7 @@ using UnityEngine;
 - Animationen!
 - Koikoi Ansagen synchronisieren
 */
-/// <summary>
-/// veraltet
-/// </summary>
+
 namespace Hanafuda
 {
     public class CardRef : MonoBehaviour
@@ -50,7 +49,7 @@ namespace Hanafuda
             Tiere,
             Lichter
         }
-        public string Name;
+        public string Title;
         public Material Image;
         public Monate Monat;
         GameObject _Objekt;
@@ -81,16 +80,10 @@ namespace Hanafuda
                 yield return null;
             }
         }
-
         public override bool Equals(object obj)
         {
             if (obj.GetType() == typeof(Card))
-            {
-                if (((Card)obj).Name == Name)
-                    return true;
-                return false;
-            }
-
+                return ((Card)obj).Title == Title;
             return false;
         }
     }

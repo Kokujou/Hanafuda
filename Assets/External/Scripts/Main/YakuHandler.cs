@@ -69,7 +69,7 @@ namespace Hanafuda
 
         private void SetupText(Yaku Yaku)
         {
-            if (Yaku.Name == "Ino Shika Chou")
+            if (Yaku.Title == "Ino Shika Chou")
             {
                 Title_Shadow.font = Global.prefabCollection.EdoFont;
                 Title_Text.font = Global.prefabCollection.EdoFont;
@@ -77,8 +77,8 @@ namespace Hanafuda
             SlideIn.sizeDelta = new Vector2(1000, 500);
             Title_Shadow.text = Yaku.JName;
             Title_Text.text = Yaku.JName;
-            Subtitle_Shadow.text = Yaku.Name;
-            Subtitle_Text.text = Yaku.Name;
+            Subtitle_Shadow.text = Yaku.Title;
+            Subtitle_Text.text = Yaku.Title;
         }
 
         public void FixedYaku(Yaku Yaku, List<Card> Collection)
@@ -86,7 +86,7 @@ namespace Hanafuda
             SetupText(Yaku);
             List<Card> temp = new List<Card>();
             if (Yaku.Mask[1] == 1)
-                temp.AddRange(Collection.FindAll(x => Yaku.Namen.Contains(x.Name)));
+                temp.AddRange(Collection.FindAll(x => Yaku.Namen.Contains(x.Title)));
             if (Yaku.Mask[0] == 1)
                 temp.AddRange(Collection.FindAll(x => x.Typ == Yaku.TypPref));
             Transform parent = Cards.transform;
@@ -116,11 +116,11 @@ namespace Hanafuda
 
         public void KouYaku(Yaku Yaku, List<Card> Collection)
         {
-            Caption.sprite = Captions[(int)Enum.Parse(typeof(LightYaku), Yaku.Name)];
+            Caption.sprite = Captions[(int)Enum.Parse(typeof(LightYaku), Yaku.Title)];
             List<Card> Matches = Global.allCards.FindAll(y => y.Typ == Card.Typen.Lichter);
             for (int cardID = 0; cardID < 5; cardID++)
             {
-                if (Collection.Exists(x => x.Name == Matches[cardID].Name))
+                if (Collection.Exists(x => x.Title == Matches[cardID].Title))
                 {
                     Texture2D tex = (Texture2D)Matches[cardID].Image.mainTexture;
                     Lights[cardID].sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f));

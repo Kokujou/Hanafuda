@@ -12,6 +12,7 @@ using ExtensionMethods;
 
 /*
  * Todo-Liste:
+ * - !IMPORTANT PC-HAND FIXEN!
  * - Künstliche Intelligenz
  * - Cast<object/Player> überdenken
  * - Feature: Spielverlauf visualisieren
@@ -47,12 +48,11 @@ namespace Hanafuda
         private const int MaxDispersionPos = 5;
         private const int MaxDispersionAngle = 60;
         private const float CardWidth = 11f;
+
         public GUISkin Skin;
         public bool allowInput = true;
         internal GameObject Slide, _CherryBlossoms;
         Transform EffectCam, Hand1, Hand2, Platz, Deck;
-        public Vector3 test;
-        readonly System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
         internal Spielfeld Board;
         KI Opponent;
         List<Card> matches = new List<Card>();
@@ -71,20 +71,7 @@ namespace Hanafuda
         /// <summary>
         /// Vereinbarung von Aktionen beim Rundenwechsel
         /// </summary>
-        void SyncDeck(NetworkMessage msg)
-        {
-            int seed = Convert.ToInt32(msg.ReadMessage<Global.Message>().message);
-            GenerateDeck(seed);
-        }
-        void SyncMove(NetworkMessage msg)
-        {
-            string[] splitted = msg.ReadMessage<Global.Message>().message.Split(',');
-            int[] move = new int[3];
-            for (int i = 0; i < splitted.Length && i < 3; i++)
-                move[i] = Convert.ToInt32(splitted[i]);
-            Debug.Log(move[0] + "," + move[1] + "," + move[2]);
-            DrawTurn(move);
-        }
+
         void GenerateDeck(int seed)
         {
             if (Global.players.Count == 0)
@@ -118,20 +105,10 @@ namespace Hanafuda
                 Deck = MainSceneVariables.variableCollection.Deck;
             }
             PlayMode = 1;
+
             if (Global.Settings.Multiplayer)
             {
-                NetworkServer.RegisterHandler(MoveSyncMsg, SyncMove);
-                for (int i = 0; i < Global.Settings.playerClients.Count; i++)
-                {
-                    Global.Settings.playerClients[i].RegisterHandler(MoveSyncMsg, SyncMove);
-                    Global.Settings.playerClients[i].RegisterHandler(DeckSyncMsg, SyncDeck);
-                }
-                if (NetworkServer.active)
-                {
-                    int seed = UnityEngine.Random.Range(0, 1000);
-                    NetworkServer.SendToAll(DeckSyncMsg, new Global.Message() { message = seed.ToString() });
-                    GenerateDeck(seed);
-                }
+                RegisterHandlers();
                 return;
             }
             if (Global.players.Count == 0)
@@ -147,6 +124,7 @@ namespace Hanafuda
             }
             FieldSetup();
         }
+
         /// <summary>
         /// Erstellung des Decks, sowie Austeilen von Händen und Spielfeld
         /// </summary>
@@ -166,10 +144,21 @@ namespace Hanafuda
                 Board.Deck.RemoveAt(0);
                 temp.layer = LayerMask.NameToLayer("Feld");
                 temp.transform.parent = Platz.transform;
+                int rows = 2;
+                float factor = 1;
                 if (Global.Settings.mobile)
-                    StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + new Vector3(((i) / 3) * (CardWidth / 1.5f), -9 + (18f / 1.5f) * (i % 3), -i), new Vector3(0, 180, 0), temp.transform.localScale / 1.5f, (i + 18) * 0.2f));
-                else
-                    StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + new Vector3((i / 2) * CardWidth, -9 + 18 * (((i) + 1) % 2), -i), new Vector3(0, 180, 0), temp.transform.localScale, (i + 18) * 0.2f));
+                {
+                    rows = 3;
+                    factor = 1.5f;
+                }
+                float offsetX = temp.transform.localScale.x / factor;
+                float offsetY = temp.transform.localScale.y / factor;
+                float cardWidth = temp.GetComponentInChildren<MeshRenderer>().bounds.size.x / factor;
+                float cardHeight = temp.GetComponentInChildren<MeshRenderer>().bounds.size.y / factor;
+                float alignY = (cardHeight + offsetY) * ((rows - 1) * 0.5f);
+                StartCoroutine(temp.transform.StandardAnimation(Platz.transform.position + 
+                    new Vector3((i / rows) * (cardWidth + offsetX), -alignY + (i % rows) * (cardHeight + offsetY), 0), 
+                    new Vector3(0, 180, 0), temp.transform.localScale / factor, (i + 18) * 0.2f));
                 //StartCoroutine(temp.transform.StandardAnimation( GameObject.Find("Feld").transform.position + new Vector3((int)(i/2), 0, 0), new Vector3(0, 180 * (1 - i), 0), temp.transform.localScale, 16 * 0.2f));
             }
         }
@@ -177,8 +166,8 @@ namespace Hanafuda
         private void BuildHands()
         {
             for (int i = Global.Settings.Name == Global.Settings.P1Name ? 0 : 1;
-                            Global.Settings.Name == Global.Settings.P1Name ? i < 2 : i >= 0;
-                            i += (Global.Settings.Name == Global.Settings.P1Name ? 1 : -1))
+                Global.Settings.Name == Global.Settings.P1Name ? i < 2 : i >= 0;
+                i += (Global.Settings.Name == Global.Settings.P1Name ? 1 : -1))
             {
                 for (int j = 0; j < 8; j++)
                 {
@@ -209,9 +198,12 @@ namespace Hanafuda
 
                 }
             }
-            StartCoroutine(Hand1.transform.StandardAnimation(Hand1.transform.position, new Vector3(0, 180, 0), Hand1.transform.localScale, 4f, AddFunc: () =>
-            { StartCoroutine(Board.ResortCardsMobile(((Player)Board.players[0]).Hand, Hand1.transform.position, 8, true)); }));
-            StartCoroutine(Board.ResortCardsMobile(((Player)Board.players[1]).Hand, Hand2.transform.position, 8, true, delay: 4f));
+            if (Global.Settings.mobile)
+            {
+                StartCoroutine(Hand1.transform.StandardAnimation(Hand1.transform.position, new Vector3(0, 180, 0), Hand1.transform.localScale, 4f, AddFunc: () =>
+                { StartCoroutine(((Player)Board.players[0]).Hand.ResortCards(8, true)); }));
+                StartCoroutine(((Player)Board.players[1]).Hand.ResortCards(8, true, delay: 4f));
+            }
         }
 
         private void BuildDeck()
@@ -219,7 +211,7 @@ namespace Hanafuda
             for (int i = 0; i < Board.Deck.Count; i++)
             {
                 GameObject temp = Instantiate(Global.prefabCollection.PKarte);
-                temp.name = Board.Deck[i].Name;
+                temp.name = Board.Deck[i].Title;
                 temp.GetComponentsInChildren<MeshRenderer>()[0].material = Board.Deck[i].Image;
                 temp.transform.parent = Deck.transform;
                 temp.transform.localPosition = new Vector3(0, 0, i * 0.015f);
@@ -229,32 +221,6 @@ namespace Hanafuda
 
         // Update is called once per frame
         public Card selected;
-        /// <summary>
-        /// Animation des KoiKoi Schriftzugs (Vergrößerung)
-        /// </summary>
-        /// <param name="append">Aktion bei Vollendung der Animation</param>
-        /// <returns></returns>
-        public void DrawTurn(int[] move)
-        {
-            Card hCard = ((Player)Board.players[Board.Turn ? 0 : 1]).Hand[move[0]];
-            Card fCard = move[1] >= 0 ? Board.Platz[move[1]] : null;
-            List<Card> Matches = Board.Platz.FindAll(x => x.Monat == hCard.Monat);
-            switch (Matches.Count)
-            {
-                case 0:
-                    Board.PlayCard(hCard);
-                    break;
-                case 1:
-                case 3:
-                    Board.PlayCard(hCard, Matches);
-                    break;
-                case 2:
-                    Board.PlayCard(hCard, new List<Card>() { fCard });
-                    break;
-            }
-            Board.Turn = !Board.Turn;
-        }
-
         void Update()
         {
             Camera.main.SetCameraRect();
@@ -278,7 +244,7 @@ namespace Hanafuda
             {
                 for (int i = 0; i < ((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku.Count; i++)
                 {
-                    if (!oYaku.Exists(x => x.Key.Name == ((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku[i].Key.Name && x.Value == ((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku[i].Value))
+                    if (!oYaku.Exists(x => x.Key.Title == ((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku[i].Key.Title && x.Value == ((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku[i].Value))
                     {
                         newYaku.Add(((Player)(Board.players[Board.Turn ? 0 : 1])).CollectedYaku[i].Key);
                     }
@@ -371,37 +337,37 @@ namespace Hanafuda
         {
             shownYaku = true;
             GameObject yaku = Instantiate(Global.prefabCollection.gAddYaku);
-            yaku.name = newYaku[0].Name;
+            yaku.name = newYaku[0].Title;
             float cWidth = FindObjectOfType<Canvas>().GetComponent<RectTransform>().rect.width;
-            GameObject.Find(newYaku[0].Name + "Yaku/SlideIn").GetComponent<RectTransform>().sizeDelta = new Vector2(cWidth / 0.2f, 500);
-            GameObject.Find(newYaku[0].Name + "Yaku/Title/Shadow").GetComponent<Text>().text = newYaku[0].JName;
-            GameObject.Find(newYaku[0].Name + "Yaku/Title/Text").GetComponent<Text>().text = newYaku[0].JName;
-            GameObject.Find(newYaku[0].Name + "Yaku/Subtitle/Shadow").GetComponent<Text>().text = newYaku[0].Name;
-            GameObject.Find(newYaku[0].Name + "Yaku/Subtitle/Text").GetComponent<Text>().text = newYaku[0].Name;
+            GameObject.Find(newYaku[0].Title + "Yaku/SlideIn").GetComponent<RectTransform>().sizeDelta = new Vector2(cWidth / 0.2f, 500);
+            GameObject.Find(newYaku[0].Title + "Yaku/Title/Shadow").GetComponent<Text>().text = newYaku[0].JName;
+            GameObject.Find(newYaku[0].Title + "Yaku/Title/Text").GetComponent<Text>().text = newYaku[0].JName;
+            GameObject.Find(newYaku[0].Title + "Yaku/Subtitle/Shadow").GetComponent<Text>().text = newYaku[0].Title;
+            GameObject.Find(newYaku[0].Title + "Yaku/Subtitle/Text").GetComponent<Text>().text = newYaku[0].Title;
         }
 
         private void FixedYaku()
         {
             shownYaku = true;
             GameObject yaku = Instantiate(Global.prefabCollection.gFixedYaku);
-            yaku.name = newYaku[0].Name;
+            yaku.name = newYaku[0].Title;
             float cWidth = FindObjectOfType<Canvas>().GetComponent<RectTransform>().rect.width;
-            GameObject.Find(newYaku[0].Name + "Yaku/SlideIn").GetComponent<RectTransform>().sizeDelta = new Vector2(cWidth / 0.2f, 500);
-            if (newYaku[0].Name == "Ino Shika Chou")
+            GameObject.Find(newYaku[0].Title + "Yaku/SlideIn").GetComponent<RectTransform>().sizeDelta = new Vector2(cWidth / 0.2f, 500);
+            if (newYaku[0].Title == "Ino Shika Chou")
             {
-                GameObject.Find(newYaku[0].Name + "Yaku/Title/Shadow").GetComponent<Text>().font = Global.prefabCollection.EdoFont;
-                GameObject.Find(newYaku[0].Name + "Yaku/Title/Text").GetComponent<Text>().font = Global.prefabCollection.EdoFont;
+                GameObject.Find(newYaku[0].Title + "Yaku/Title/Shadow").GetComponent<Text>().font = Global.prefabCollection.EdoFont;
+                GameObject.Find(newYaku[0].Title + "Yaku/Title/Text").GetComponent<Text>().font = Global.prefabCollection.EdoFont;
             }
-            GameObject.Find(newYaku[0].Name + "Yaku/Title/Shadow").GetComponent<Text>().text = newYaku[0].JName;
-            GameObject.Find(newYaku[0].Name + "Yaku/Title/Text").GetComponent<Text>().text = newYaku[0].JName;
-            GameObject.Find(newYaku[0].Name + "Yaku/Subtitle/Shadow").GetComponent<Text>().text = newYaku[0].Name;
-            GameObject.Find(newYaku[0].Name + "Yaku/Subtitle/Text").GetComponent<Text>().text = newYaku[0].Name;
+            GameObject.Find(newYaku[0].Title + "Yaku/Title/Shadow").GetComponent<Text>().text = newYaku[0].JName;
+            GameObject.Find(newYaku[0].Title + "Yaku/Title/Text").GetComponent<Text>().text = newYaku[0].JName;
+            GameObject.Find(newYaku[0].Title + "Yaku/Subtitle/Shadow").GetComponent<Text>().text = newYaku[0].Title;
+            GameObject.Find(newYaku[0].Title + "Yaku/Subtitle/Text").GetComponent<Text>().text = newYaku[0].Title;
             List<Card> temp = new List<Card>();
             if (newYaku[0].Mask[1] == 1)
-                temp.AddRange(((Player)Board.players[0]).CollectedCards.FindAll(x => newYaku[0].Namen.Contains(x.Name)));
+                temp.AddRange(((Player)Board.players[0]).CollectedCards.FindAll(x => newYaku[0].Namen.Contains(x.Title)));
             if (newYaku[0].Mask[0] == 1)
                 temp.AddRange((((Player)Board.players[0]).CollectedCards.FindAll(x => x.Typ == newYaku[0].TypPref)));
-            Transform parent = GameObject.Find(newYaku[0].Name + "Yaku/Cards").transform;
+            Transform parent = GameObject.Find(newYaku[0].Title + "Yaku/Cards").transform;
             for (int yakuCard = 0; yakuCard < newYaku[0].minSize; yakuCard++)
             {
                 GameObject card = new GameObject(yakuCard.ToString());
@@ -432,14 +398,14 @@ namespace Hanafuda
             {
                 shownYaku = true;
                 GameObject Kou = Instantiate(Global.prefabCollection.gKouYaku);
-                Kou.name = newYaku[0].Name;
-                Image Text = GameObject.Find(newYaku[0].Name + "/Text").GetComponent<Image>();
-                Text.sprite = Resources.Load<Sprite>("Images/" + newYaku[0].Name);
+                Kou.name = newYaku[0].Title;
+                Image Text = GameObject.Find(newYaku[0].Title + "/Text").GetComponent<Image>();
+                Text.sprite = Resources.Load<Sprite>("Images/" + newYaku[0].Title);
                 List<Card> Matches = Global.allCards.FindAll(y => y.Typ == Card.Typen.Lichter);
                 for (int cardID = 0; cardID < 5; cardID++)
                 {
-                    Image card = GameObject.Find(newYaku[0].Name + "/" + cardID.ToString() + "/Card").GetComponent<Image>();
-                    if (((Player)Board.players[0]).CollectedCards.Exists(x => x.Name == Matches[cardID].Name))
+                    Image card = GameObject.Find(newYaku[0].Title + "/" + cardID.ToString() + "/Card").GetComponent<Image>();
+                    if (((Player)Board.players[0]).CollectedCards.Exists(x => x.Title == Matches[cardID].Title))
                     {
                         Texture2D tex = (Texture2D)Matches[cardID].Image.mainTexture;
                         card.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f));
@@ -465,7 +431,7 @@ namespace Hanafuda
                     {
                         for (int i = 0; i < Board.Platz.Count; i++)
                         {
-                            Color col = matches.Exists(x => x.Name == Board.Platz[i].Name) ? new Color(.3f, .3f, .3f) : new Color(.5f, .5f, .5f);
+                            Color col = matches.Exists(x => x.Title == Board.Platz[i].Title) ? new Color(.3f, .3f, .3f) : new Color(.5f, .5f, .5f);
                             Board.Platz[i].Objekt.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Foreground").material.SetColor("_TintColor", col);
                         }
                     }

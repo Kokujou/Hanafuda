@@ -12,9 +12,7 @@ using UnityEngine;
 - Animationen!
 - Koikoi Ansagen synchronisieren
 */
-/// <summary>
-/// veraltet
-/// </summary>
+
 namespace Hanafuda
 {
 
@@ -186,7 +184,7 @@ namespace Hanafuda
                     Global.allCards.Count(x => x.Typ == ((Player)State.players[1]).CollectedYaku[i].Key.TypPref))
                     addPossible = false;
                 pPossibleYaku.RemoveAll(x =>
-                    x.Name == ((Player)State.players[1]).CollectedYaku[i].Key.Name && !addPossible);
+                    x.Title == ((Player)State.players[1]).CollectedYaku[i].Key.Title && !addPossible);
             }
 
             oPossibleYaku.AddRange(Yaku.GetYaku(oReachableCards));
@@ -198,7 +196,7 @@ namespace Hanafuda
                     Global.allCards.Count(x => x.Typ == ((Player)State.players[0]).CollectedYaku[i].Key.TypPref))
                     addPossible = false;
                 oPossibleYaku.RemoveAll(x =>
-                    x.Name == ((Player)State.players[0]).CollectedYaku[i].Key.Name && !addPossible);
+                    x.Title == ((Player)State.players[0]).CollectedYaku[i].Key.Title && !addPossible);
             }
 
             return result;
@@ -229,10 +227,10 @@ namespace Hanafuda
                 }
             }
 
-            var hCard = ((Player)cRoot.players[1]).Hand.FindIndex(x => x.Name == selectedMove.hCard.Name);
+            var hCard = ((Player)cRoot.players[1]).Hand.FindIndex(x => x.Title == selectedMove.hCard.Title);
             result = new[]
             {
-                hCard, selectedMove.fCard == null ? -1 : cRoot.Platz.FindIndex(x => x.Name == selectedMove.fCard.Name)
+                hCard, selectedMove.fCard == null ? -1 : cRoot.Platz.FindIndex(x => x.Title == selectedMove.fCard.Title)
             };
             return result;
         }

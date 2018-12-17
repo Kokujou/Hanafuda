@@ -80,6 +80,8 @@ namespace Hanafuda
                     GameObject sel = selected.Objekt;
                     selected = null;
                     Global.prev?.HoverCard(true);
+                    StopAllCoroutines();
+                    Board.RefillCards();
                     if (FieldSelect)
                         SelectFieldCard(sel);
                     else
@@ -100,17 +102,19 @@ namespace Hanafuda
                     HoverMatches(FieldSelect ? "Feld" : "P1Hand", () =>
                     {
                         if (!FieldSelect)
-                {
+                        {
                             Global.prev?.HoverCard(true);
-                            StopAllCoroutines();
-                            Board.RefillCards();
-                            selected = Hit.collider.gameObject.GetComponent<CardRef>().card;
                             ((BoxCollider)Hit.collider)?.HoverCard();
-                            Card selCard = selected;
-                            matches = Board.Platz.FindAll(x => x.Monat == selCard.Monat);
-                            for (int i = 0; i < matches.Count; i++)
+                            if (!selected || selected.Title != Hit.collider.name)
                             {
-                                StartCoroutine(matches[i].BlinkCard());
+                                StopAllCoroutines();
+                                Board.RefillCards();
+                                selected = Hit.collider.gameObject.GetComponent<CardRef>().card;
+                                matches = Board.Platz.FindAll(x => x.Monat == selected.Monat);
+                                for (int i = 0; i < matches.Count; i++)
+                                {
+                                    StartCoroutine(matches[i].BlinkCard());
+                                }
                             }
                         }
                     });
@@ -118,7 +122,7 @@ namespace Hanafuda
             else if (!Board.Turn && Global.MovingCards == 0)
             {
                 if (!Global.Settings.Multiplayer)
-                    DrawTurn(((KI)Board.players[Board.Turn ? 0 : 1]).MakeTurn(Board));
+                    Board.DrawTurn(((KI)Board.players[Board.Turn ? 0 : 1]).MakeTurn(Board));
             }
         }
         private void HoverMatches(string layer, Action insert = null)
@@ -129,7 +133,7 @@ namespace Hanafuda
             {
                 Global.prev?.HoverCard(true);
                 insert?.Invoke();
-                if (matches.Exists(x => x.Name == hit.collider.gameObject.name))
+                if (matches.Exists(x => x.Title == hit.collider.gameObject.name))
                 {
                     selected = hit.collider.gameObject.GetComponent<CardRef>().card;
                     ((BoxCollider)hit.collider)?.HoverCard();

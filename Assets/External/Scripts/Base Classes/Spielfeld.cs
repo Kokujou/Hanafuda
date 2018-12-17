@@ -14,9 +14,7 @@ using Random = System.Random;
 - Animationen!
 - Koikoi Ansagen synchronisieren
 */
-/// <summary>
-/// veraltet
-/// </summary>
+
 namespace Hanafuda
 {
     public class Spielfeld
@@ -38,19 +36,20 @@ namespace Hanafuda
         {
             Transform tPlatz = Global.Settings.mobile ? MainSceneVariables.variableCollection.MFeld :
                 MainSceneVariables.variableCollection.Feld;
+            List<Card> activeHand = ((Player)players[Turn ? 0 : 1]).Hand;
             bool fromHand = true;
             if (Matches == null) Matches = new List<Card>();
-            if (source == null) source = ((Player)players[Turn ? 0 : 1]).Hand;
+            if (source == null) source = activeHand;
             else fromHand = false;
             string action = " und sammelt ";
             int j = 0;
             for (j = 0; j < Matches.Count; j++)
             {
-                action += Matches[j].Name + ", ";
+                action += Matches[j].Title + ", ";
             }
             if (j == 0) action = " und legt sie aufs Spielfeld.";
             else action = action.Remove(action.Length - 2, 1) + "ein.";
-            Global.Spielverlauf.Add(Global.Settings.Name + " wählt " + handCard.Name + action);
+            Global.Spielverlauf.Add(Global.Settings.Name + " wählt " + handCard.Title + action);
             Global.global.StopAllCoroutines();
             RefillCards();
             source.Remove(handCard);
@@ -79,8 +78,7 @@ namespace Hanafuda
                 }
                 else
                 {
-                    Transform collection = MainSceneVariables.variableCollection.PCCollections[
-                        ("Collection" + (Turn ? "1" : "2") + Matches[i].Typ.ToString()).GetHashCode()];
+                    Transform collection = MainSceneVariables.variableCollection.PCCollections[(Turn?0:1)*4 +(int)Matches[i].Typ];
                     Matches[i].Objekt.transform.parent = collection;
                     ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(Matches[i]);
                     if (i < Matches.Count - 1)
@@ -93,17 +91,15 @@ namespace Hanafuda
             }
             if (Global.Settings.mobile)
             {
-                Transform Hand = Turn ? MainSceneVariables.variableCollection.Hand1M : MainSceneVariables.variableCollection.Hand2M;
                 if (fromHand)
-                    Global.global.StartCoroutine(ResortCardsMobile(((Player)players[Turn ? 0 : 1]).Hand, Hand.position, 8, isHand: true, delay: 1));
-                Global.global.StartCoroutine(ResortCardsMobile(Platz, tPlatz.position, 3, rowWise: false, delay: 1));
+                    Global.global.StartCoroutine(activeHand.ResortCards(8, isMobileHand: true, delay: 1));
+                Global.global.StartCoroutine(Platz.ResortCards(3, rowWise: false, delay: 1));
             }
             else
             {
-                Transform Hand = Turn ? MainSceneVariables.variableCollection.Hand1 : MainSceneVariables.variableCollection.Hand2;
                 if (fromHand)
-                    Global.global.StartCoroutine(ResortCards(((Player)players[Turn ? 0 : 1]).Hand, Hand.transform.position, delay: 1));
-                Global.global.StartCoroutine(ResortCards(Platz, tPlatz.position, 2, delay: 1));
+                    Global.global.StartCoroutine(activeHand.ResortCards(8, delay: 1));
+                Global.global.StartCoroutine(Platz.ResortCards(2,rowWise:false, delay: 1));
             }
         }
 
@@ -115,12 +111,17 @@ namespace Hanafuda
             for (var i = 0; i < Global.allCards.Count; i++)
             {
                 var rand = rnd.Next(0, Global.allCards.Count);
-                while (Deck.Exists(x=>x.Name == Global.allCards[rand].Name))
+                while (Deck.Exists(x=>x.Title == Global.allCards[rand].Title))
                     rand = rnd.Next(0, Global.allCards.Count);
                 Deck.Add(Global.allCards[rand]);
             }
         }
-
+        /// <summary>
+        /// KI-Konstruktor
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="move"></param>
+        /// <param name="Turn"></param>
         public Spielfeld(Spielfeld parent, KI.Move move, bool Turn)
         {
             //WICHTIG! Einsammeln bei Kartenzug!
@@ -180,88 +181,38 @@ namespace Hanafuda
         public void RefillCards()
         {
             for (var i = 0; i < Platz.Count; i++)
+            {
                 foreach (Transform side in Platz[i].Objekt.transform)
                 {
                     var mat = side.gameObject.GetComponent<MeshRenderer>().material;
                     mat.SetColor("_TintColor", new Color(0.5f, 0.5f, 0.5f, .5f));
                 }
+            }
         }
         /// <summary>
-        /// Sortieren von Eltern-Objekten der Karten-Sammlungen
+        /// Animation des KoiKoi Schriftzugs (Vergrößerung)
         /// </summary>
-        /// <param name="toSort">zu sortierende Sammlung</param>
-        /// <param name="StartPos">Startposition der Sammlung</param>
-        /// <param name="rows">Anzahl der Zeilen, auf die die Karten aufgeteilt werden sollen</param>
-        /// <param name="maxCols">Maximale Anzahl von Spalten</param>
+        /// <param name="append">Aktion bei Vollendung der Animation</param>
         /// <returns></returns>
-        /// 
-        IEnumerator ResortCards(List<Card> toSort, Vector3 StartPos, int rows = 1, int maxCols = int.MaxValue, float delay = 0f)
+        public void DrawTurn(int[] move)
         {
-            yield return new WaitForSeconds(delay);
-            while ((float)toSort.Count / rows > maxCols)
-                rows++;
-            for (int i = 0; i < toSort.Count; i++)
+            Card hCard = ((Player)players[Turn ? 0 : 1]).Hand[move[0]];
+            Card fCard = move[1] >= 0 ? Platz[move[1]] : null;
+            List<Card> Matches = Platz.FindAll(x => x.Monat == hCard.Monat);
+            switch (Matches.Count)
             {
-                Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
-                    new Vector3((i / rows) * 11f, -9 * (rows - 1) + ((i + 1) % rows) * 18, 0),
-                    toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
+                case 0:
+                    PlayCard(hCard);
+                    break;
+                case 1:
+                case 3:
+                    PlayCard(hCard, Matches);
+                    break;
+                case 2:
+                    PlayCard(hCard, new List<Card>() { fCard });
+                    break;
             }
-        }
-        public IEnumerator ResortCardsMobile(List<Card> toSort, Vector3 StartPos, int maxSize, bool isHand = false, bool rowWise = true, float delay = 0f)
-        {
-            yield return new WaitForSeconds(delay);
-            int iterations = 1;
-            if (isHand)
-            {
-                for (int card = 0; card < toSort.Count; card++)
-                {
-                    GameObject temp = toSort[card].Objekt;
-                    bool hand1 = temp.transform.parent.name.Contains("1");
-                    Global.global.StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, new Vector3(0, temp.transform.rotation.eulerAngles.y, hand1 ? 0 : 180), temp.transform.localScale, 0, .3f, () =>
-                    {
-                        GameObject Card = new GameObject();
-                        Card.transform.parent = temp.transform.parent;
-                        temp.transform.parent = Card.transform;
-                        Card.transform.localPosition = new Vector3(0, hand1 ? -8 : 8);
-                        temp.transform.localPosition = new Vector3(0, hand1 ? 8 : -8, 0);
-                        List<Transform> hand = new List<Transform>(temp.transform.parent.parent.gameObject.GetComponentsInChildren<Transform>());
-                        hand.RemoveAll(x => !x.name.Contains("New"));
-                        int id = hand.IndexOf(temp.transform.parent);
-                        float max = ((Player)players[Turn ? 0 : 1]).Hand.Count - 1;
-                        if (max == 0) max = 0.5f;
-                        Global.global.StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, -id), temp.transform.parent.eulerAngles + new Vector3(0, 0, -60f + (120f / max) * (max - id)), temp.transform.parent.localScale, .6f, .3f, () =>
-                        {
-                            GameObject oldParent = temp.transform.parent.gameObject;
-                            temp.transform.parent = temp.transform.parent.parent;
-                            GameObject.Destroy(oldParent);
-                            //temp.transform.localPosition = new Vector3(temp.transform.localPosition.x, temp.transform.localPosition.y, id/10f);
-                        }));
-                    }));
-                }
-            }
-            else
-            {
-                if (rowWise)
-                {
-                    iterations = maxSize;
-                    for (int i = 0; i < toSort.Count; i++)
-                    {
-                        Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
-                            new Vector3((i % iterations) * (11f / 1.5f), -9 + (i / iterations) * (18f / 1.5f), 0),
-                            toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
-                    }
-                }
-                else
-                {
-                    iterations = maxSize;
-                    for (int i = 0; i < toSort.Count; i++)
-                    {
-                        Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
-                            new Vector3((i / iterations) * (11f / 1.5f), -9 + (i % iterations) * (18f / 1.5f), 0),
-                            toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
-                    }
-                }
-            }
+            Turn = !Turn;
         }
     }
 }
