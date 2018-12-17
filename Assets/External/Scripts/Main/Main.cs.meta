@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: f6670d26620857b42b749af130e4bb67
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - skin: {fileID: 11400000, guid: 67144345a0f2a594aa854480d2cd3cf7, type: 2}
+  - PKarte: {fileID: 105438, guid: 2efd8c4b2892b1f48bcef93565567ed4, type: 2}
+  - PSlide: {fileID: 1997753205899480, guid: 18caf9b5642fa684bbd031e63ea80621, type: 2}
+  - CherryBlossoms: {fileID: 1475183275279244, guid: 1daf0a368c796db4c8861910b7911fd7,
+      type: 2}
+  - KoikoiSlide: {fileID: 1989436160951648, guid: 77721b7f57a7c954a9d6e29231d4582e,
+      type: 2}
+  - Koikoi: {fileID: 1850442605176848, guid: 4aaee95b445ec754baabb0fff1062919, type: 2}
+  - gAddYaku: {fileID: 1548852710554400, guid: af2648d715797584ea1c2088b83cf542, type: 2}
+  - gFixedYaku: {fileID: 1171040927161368, guid: 236d7715b57f19d48b6f4469ea7dc214,
+      type: 2}
+  - gKouYaku: {fileID: 1492468234595444, guid: 57ced8d467e3074449a907fb971bc79a, type: 2}
+  - EdoFont: {fileID: 12800000, guid: d5042aba50af22c4db76ff47f545d052, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

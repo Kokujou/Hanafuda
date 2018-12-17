@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 456c1062521d26b4abbcdcf368a4ef1a
+timeCreated: 1522172552
+licenseType: Pro
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: HakusyuKaisyoExtraBold_kk
+  fontNames:
+  - HakusyuKaisyoExtraBold_kk
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 347abbc7421f22d4ebac9b36a0d54996
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - PText: {fileID: 1771767747600700, guid: 823b7f92431231843a1db4ba516a913c, type: 2}
+  - PKarte: {fileID: 105438, guid: 2efd8c4b2892b1f48bcef93565567ed4, type: 2}
+  - PSlide: {fileID: 1997753205899480, guid: 18caf9b5642fa684bbd031e63ea80621, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

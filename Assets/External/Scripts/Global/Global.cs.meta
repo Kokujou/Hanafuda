@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 5256904d077997e4ea56f68e6907ec7e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - jFont: {fileID: 12800000, guid: 456c1062521d26b4abbcdcf368a4ef1a, type: 3}
+  - boxSprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
