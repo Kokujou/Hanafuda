@@ -14,6 +14,7 @@ MonoBehaviour:
   addPoints: 0
   basePoints: 5
   JName: "\u6708\u898B\u9152"
+  Title: Tsukimizake
   Mask: 0000000001000000
   minSize: 2
   Namen:

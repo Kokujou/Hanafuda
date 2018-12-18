@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26e17bce524bbe498fef0587a241978, type: 3}
   m_Name: "Pflaumenbl\xFCten mit Spruch-Band"
   m_EditorClassIdentifier: 
+  Title: "Pflaumenbl\xFCten mit Spruch-Band"
   Image: {fileID: 2100000, guid: 79015eee12323cd499965c23737c74a4, type: 2}
   Monat: 1
-  Objekt: {fileID: 0}
   Typ: 1

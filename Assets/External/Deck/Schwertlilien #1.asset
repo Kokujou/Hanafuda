@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26e17bce524bbe498fef0587a241978, type: 3}
   m_Name: 'Schwertlilien #1'
   m_EditorClassIdentifier: 
+  Title: 'Schwertlilien #1'
   Image: {fileID: 2100000, guid: 0ca3830ff274c8649af0e081af74dc7d, type: 2}
   Monat: 4
-  Objekt: {fileID: 0}
   Typ: 0

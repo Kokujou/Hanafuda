@@ -14,6 +14,7 @@ MonoBehaviour:
   addPoints: 0
   basePoints: 8
   JName: "\u56DB\u5149"
+  Title: Shikou
   Mask: 01000000ffffffff
   minSize: 4
   Namen:

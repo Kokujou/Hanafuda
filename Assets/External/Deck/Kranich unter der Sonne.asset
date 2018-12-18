@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26e17bce524bbe498fef0587a241978, type: 3}
   m_Name: Kranich unter der Sonne
   m_EditorClassIdentifier: 
+  Title: Kranich unter der Sonne
   Image: {fileID: 2100000, guid: e6a7f9c13698fd64c9cc8c177c6cb205, type: 2}
   Monat: 0
-  Objekt: {fileID: 0}
   Typ: 3

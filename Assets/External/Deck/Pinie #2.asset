@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26e17bce524bbe498fef0587a241978, type: 3}
   m_Name: 'Pinie #2'
   m_EditorClassIdentifier: 
+  Title: 'Pinie #2'
   Image: {fileID: 2100000, guid: 32699ccfcf4517146b4aae2cacdce06d, type: 2}
   Monat: 0
-  Objekt: {fileID: 0}
   Typ: 0

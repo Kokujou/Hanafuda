@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26e17bce524bbe498fef0587a241978, type: 3}
   m_Name: "G\xE4nse"
   m_EditorClassIdentifier: 
+  Title: "G\xE4nse"
   Image: {fileID: 2100000, guid: d3436573fbb0c7c48aad9588b69706d1, type: 2}
   Monat: 7
-  Objekt: {fileID: 0}
   Typ: 2

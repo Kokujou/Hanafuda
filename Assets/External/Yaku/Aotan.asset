@@ -14,6 +14,7 @@ MonoBehaviour:
   addPoints: 0
   basePoints: 5
   JName: "\u9752\u77ED"
+  Title: Aotan
   Mask: 0000000001000000
   minSize: 3
   Namen:

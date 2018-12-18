@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26e17bce524bbe498fef0587a241978, type: 3}
   m_Name: Hirsch
   m_EditorClassIdentifier: 
+  Title: Hirsch
   Image: {fileID: 2100000, guid: 01b6f68eead56394aa480b51192a750c, type: 2}
   Monat: 9
-  Objekt: {fileID: 0}
   Typ: 2
