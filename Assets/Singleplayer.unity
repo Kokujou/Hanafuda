@@ -746,9 +746,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f641c11f7c32eef4483a9b584d3a39df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obj: {fileID: 1548029184762330, guid: 490327d5dd35dbe42928486ce55d62c6, type: 2}
+  obj: {fileID: 0}
   singleton:
     BoxX: -7.2
+    Main: {fileID: 0}
     ExCol: {fileID: 613758901}
     ExColBack: {fileID: 103193796}
     Hand1: {fileID: 1285482131}

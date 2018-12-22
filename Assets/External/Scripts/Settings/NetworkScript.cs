@@ -109,7 +109,7 @@ namespace Hanafuda
             Debug.Log("Test");
             if (Global.Settings.P2Name != "")
             {
-                client.Send(131, new Global.Message {message = Global.Settings.Name});
+                client.Send(131, new Message {message = Global.Settings.Name});
                 client.UnregisterHandler(131);
                 client.UnregisterHandler(MsgType.Connect);
                 SceneManager.LoadScene("OyaNegotiation");
@@ -118,7 +118,7 @@ namespace Hanafuda
 
         private void AddPlayer(NetworkMessage msg)
         {
-            Global.Settings.P2Name = msg.ReadMessage<Global.Message>().message;
+            Global.Settings.P2Name = msg.ReadMessage<Message>().message;
             NetworkServer.UnregisterHandler(131);
             NetworkServer.UnregisterHandler(MsgType.Connect);
             SceneManager.LoadScene("OyaNegotiation");

@@ -122,7 +122,7 @@ namespace Hanafuda
             else if (!Board.Turn && Global.MovingCards == 0)
             {
                 if (!Global.Settings.Multiplayer)
-                    Board.DrawTurn(((KI)Board.players[Board.Turn ? 0 : 1]).MakeTurn(Board));
+                    ((KI)Board.players[Board.Turn ? 0 : 1]).MakeTurn(Board).Apply();
             }
         }
         private void HoverMatches(string layer, Action insert = null)
@@ -177,7 +177,7 @@ namespace Hanafuda
         {
             if (!Slide)
             {
-                Slide = Instantiate(Global.prefabCollection.PSlide, Hand1.transform);
+                Slide = Instantiate(Global.prefabCollection.PSlide);
                 Slide.transform.localPosition = new Vector3(0, -8, 10);
                 SlideHand SlideScript = Slide.AddComponent<SlideHand>();
                 SlideScript.toHover = Board.Platz;

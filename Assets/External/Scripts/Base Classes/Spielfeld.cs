@@ -17,11 +17,11 @@ using Random = System.Random;
 
 namespace Hanafuda
 {
-    public class Spielfeld
+    public partial class Spielfeld : MonoBehaviour
     {
         public List<Card> Deck = new List<Card>();
         public bool isFinal;
-        public KI.Move LastMove;
+        public PlayerAction LastMove;
         public List<Card> Platz = new List<Card>();
         public List<object> players = new List<object>();
         public float Value;
@@ -69,16 +69,15 @@ namespace Hanafuda
             {
                 if (Global.Settings.mobile)
                 {
-                    GameObject match = Matches[i].Objekt;
                     ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(Matches[i]);
                     if (i < Matches.Count - 1)
                         Platz.Remove(Matches[i]);
                     Global.global.StartCoroutine(Matches[i].Objekt.transform.StandardAnimation(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Turn ? 0 : Screen.height)),
-                        Vector3.zero, Vector3.zero, 0, AddFunc: () => { GameObject.Destroy(match); }));
+                        Vector3.zero, Vector3.zero, 0, AddFunc: () => { GameObject.Destroy(Matches[i].Objekt); }));
                 }
                 else
                 {
-                    Transform collection = MainSceneVariables.variableCollection.PCCollections[(Turn?0:1)*4 +(int)Matches[i].Typ];
+                    Transform collection = MainSceneVariables.variableCollection.PCCollections[(Turn ? 0 : 1) * 4 + (int)Matches[i].Typ];
                     Matches[i].Objekt.transform.parent = collection;
                     ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(Matches[i]);
                     if (i < Matches.Count - 1)
@@ -98,12 +97,12 @@ namespace Hanafuda
             else
             {
                 if (fromHand)
-                    Global.global.StartCoroutine(activeHand.ResortCards(8, delay: 1));
-                Global.global.StartCoroutine(Platz.ResortCards(2,rowWise:false, delay: 1));
+                    Global.global.StartCoroutine(activeHand.ResortCards(1, rowWise: false, delay: 1));
+                Global.global.StartCoroutine(Platz.ResortCards(2, rowWise: false, delay: 1));
             }
         }
 
-        public Spielfeld(List<object> Players, Action<bool> turnCallback, int seed = -1)
+        public void Init(List<object> Players, Action<bool> turnCallback, int seed = -1)
         {
             players = Players;
             TurnCallback = turnCallback;
@@ -111,7 +110,7 @@ namespace Hanafuda
             for (var i = 0; i < Global.allCards.Count; i++)
             {
                 var rand = rnd.Next(0, Global.allCards.Count);
-                while (Deck.Exists(x=>x.Title == Global.allCards[rand].Title))
+                while (Deck.Exists(x => x.Title == Global.allCards[rand].Title))
                     rand = rnd.Next(0, Global.allCards.Count);
                 Deck.Add(Global.allCards[rand]);
             }
@@ -122,7 +121,7 @@ namespace Hanafuda
         /// <param name="parent"></param>
         /// <param name="move"></param>
         /// <param name="Turn"></param>
-        public Spielfeld(Spielfeld parent, KI.Move move, bool Turn)
+        public Spielfeld(Spielfeld parent, PlayerAction move, bool Turn)
         {
             //WICHTIG! Einsammeln bei Kartenzug!
             Deck.AddRange(parent.Deck);
@@ -138,30 +137,30 @@ namespace Hanafuda
             ((Player)players[1]).CollectedCards.AddRange(((Player)parent.players[1]).CollectedCards);
             ((Player)players[1]).Koikoi = ((Player)parent.players[1]).Koikoi;
             ((Player)players[1]).tempPoints = ((Player)parent.players[1]).tempPoints;
-            isFinal = !move.Koikoi;
-            var matches = Platz.FindAll(x => move.hCard.Monat == x.Monat);
+            isFinal = move.isFinal();
+            move.Apply();
+            /*var matches = Platz.FindAll(x => move.HandSelection.Monat == x.Monat);
             switch (matches.Count)
             {
                 case 0:
-                    Platz.Add(move.hCard);
+                    Platz.Add(move.HandSelection);
                     break;
                 case 1:
                 case 3:
                     for (var i = 0; i < matches.Count; i++)
                         Platz.Remove(matches[i]);
-                    matches.Add(move.hCard);
+                    matches.Add(move.HandSelection);
                     ((Player)players[Turn ? 0 : 1]).CollectedCards.AddRange(matches);
                     break;
                 case 2:
                     Platz.Remove(move.fCard);
                     ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(move.fCard);
-                    ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(move.hCard);
+                    ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(move.HandSelection);
                     break;
             }
-
-            ((Player)players[Turn ? 0 : 1]).Hand.Remove(move.hCard);
+            ((Player)players[Turn ? 0 : 1]).Hand.Remove(move.HandSelection);
             Platz.Add(Deck[0]);
-            Deck.RemoveAt(0);
+            Deck.RemoveAt(0);*/
             var Yakus = new List<Yaku>();
             Yakus = Yaku.GetYaku(((Player)players[Turn ? 0 : 1]).CollectedCards.ToList());
             var nPoints = 0;
@@ -188,31 +187,6 @@ namespace Hanafuda
                     mat.SetColor("_TintColor", new Color(0.5f, 0.5f, 0.5f, .5f));
                 }
             }
-        }
-        /// <summary>
-        /// Animation des KoiKoi Schriftzugs (Vergrößerung)
-        /// </summary>
-        /// <param name="append">Aktion bei Vollendung der Animation</param>
-        /// <returns></returns>
-        public void DrawTurn(int[] move)
-        {
-            Card hCard = ((Player)players[Turn ? 0 : 1]).Hand[move[0]];
-            Card fCard = move[1] >= 0 ? Platz[move[1]] : null;
-            List<Card> Matches = Platz.FindAll(x => x.Monat == hCard.Monat);
-            switch (Matches.Count)
-            {
-                case 0:
-                    PlayCard(hCard);
-                    break;
-                case 1:
-                case 3:
-                    PlayCard(hCard, Matches);
-                    break;
-                case 2:
-                    PlayCard(hCard, new List<Card>() { fCard });
-                    break;
-            }
-            Turn = !Turn;
         }
     }
 }

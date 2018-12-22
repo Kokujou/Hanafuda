@@ -50,13 +50,13 @@ namespace Hanafuda
             {
                 var seed = Random.Range(0, 100);
                 LoadDeck(seed);
-                NetworkServer.SendToAll(132, new Global.Message { message = seed.ToString() });
+                NetworkServer.SendToAll(132, new Message { message = seed.ToString() });
             }
         }
 
         private void SyncDeck(NetworkMessage msg)
         {
-            LoadDeck(Convert.ToInt32(msg.ReadMessage<Global.Message>().message));
+            LoadDeck(Convert.ToInt32(msg.ReadMessage<Message>().message));
         }
 
         private void LoadDeck(int seed)
@@ -129,12 +129,12 @@ namespace Hanafuda
                 if (P2)
                 {
                     P2Selection = sel.name;
-                    Global.Settings.playerClients[0].Send(131, new Global.Message { message = sel.name });
+                    Global.Settings.playerClients[0].Send(131, new Message { message = sel.name });
                 }
                 else
                 {
                     P1Selection = sel.name;
-                    NetworkServer.SendToAll(131, new Global.Message { message = sel.name });
+                    NetworkServer.SendToAll(131, new Message { message = sel.name });
                 }
 
                 if (P1Selection != "" && P2Selection != "")
@@ -144,7 +144,7 @@ namespace Hanafuda
 
         private void OpponentChoice(NetworkMessage msg)
         {
-            var card = msg.ReadMessage<Global.Message>().message;
+            var card = msg.ReadMessage<Message>().message;
             if (P2) P1Selection = card;
             else P2Selection = card;
             var col = GameObject.Find(card).GetComponent<BoxCollider>();
@@ -269,12 +269,12 @@ namespace Hanafuda
                             if (P2)
                             {
                                 P2Selection = sel.name;
-                                Global.Settings.playerClients[0].Send(131, new Global.Message { message = sel.name });
+                                Global.Settings.playerClients[0].Send(131, new Message { message = sel.name });
                             }
                             else
                             {
                                 P1Selection = sel.name;
-                                NetworkServer.SendToAll(131, new Global.Message { message = sel.name });
+                                NetworkServer.SendToAll(131, new Message { message = sel.name });
                             }
 
                             if (P1Selection != "" && P2Selection != "")

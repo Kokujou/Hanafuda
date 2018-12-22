@@ -25,7 +25,7 @@ namespace Hanafuda
             Omniscient
         }
 
-        public Func<Spielfeld, int[]> MakeTurn;
+        public Func<Spielfeld, PlayerAction> MakeTurn;
         public Mode mode;
         public Spielfeld root;
         public List<List<Spielfeld>> StateTree = new List<List<Spielfeld>>();
@@ -84,7 +84,7 @@ namespace Hanafuda
             var parent = StateTree[level][node];
             if (!parent.isFinal)
             {
-                var aHand = ((Player)parent.players[Turn ? 0 : 1]).Hand.ToList();
+                var aHand = ((Player)parent.players[Turn ? 0 : 1]).Hand;
                 for (var i = 0; i < aHand.Count; i++)
                 {
                     var matches = new List<Card>();
@@ -95,7 +95,10 @@ namespace Hanafuda
                     {
                         for (var choice = 0; choice < 2; choice++)
                         {
-                            var move = new Move(matches[choice], aHand[i]);
+                            var move = new PlayerAction();
+                            move.Init(parent);
+                            move.SelectFromHand(aHand[i]);
+                            move.SelectHandMatch(matches[choice]);
                             var child = new Spielfeld(parent, move, Turn);
                             child.LastMove = move;
                             StateTree[level + 1].Add(child);
@@ -103,7 +106,9 @@ namespace Hanafuda
                     }
                     else
                     {
-                        var move = new Move(null, aHand[i]);
+                        var move = new PlayerAction();
+                        move.Init(parent);
+                        move.SelectHandMatch(aHand[i]);
                         var child = new Spielfeld(parent, move, Turn);
                         child.LastMove = move;
                         StateTree[level + 1].Add(child);
@@ -207,16 +212,15 @@ namespace Hanafuda
             return 0;
         }
 
-        public int[] OmniscientCalcTurn(Spielfeld cRoot)
+        public PlayerAction OmniscientCalcTurn(Spielfeld cRoot)
         {
-            int[] result;
             Turn = false;
             root = cRoot;
             BuildStateTree(1);
             Debug.Log(StateTree.Count + "|" + StateTree[StateTree.Count - 1].Count);
             //Bewertung möglicherweise in Threads?
             var maxValue = -100f;
-            Move selectedMove = null;
+            PlayerAction selectedMove = null;
             for (var i = 0; i < StateTree[1].Count; i++)
             {
                 StateTree[1][i].Value = OmniscientRateState(StateTree[1][i]);
@@ -226,13 +230,7 @@ namespace Hanafuda
                     selectedMove = StateTree[1][i].LastMove;
                 }
             }
-
-            var hCard = ((Player)cRoot.players[1]).Hand.FindIndex(x => x.Title == selectedMove.hCard.Title);
-            result = new[]
-            {
-                hCard, selectedMove.fCard == null ? -1 : cRoot.Platz.FindIndex(x => x.Title == selectedMove.fCard.Title)
-            };
-            return result;
+            return selectedMove;
         }
 
         public int[] StatisticCalcTurn(Spielfeld root)
@@ -245,23 +243,6 @@ namespace Hanafuda
         {
             int[] result = { };
             return result;
-        }
-
-        //Memo: Statt mit ganzen Klassen mit Indizes arbeiten?
-        public class Move
-        {
-            public Card fCard;
-            public Card fCard2;
-            public Card hCard;
-            public bool Koikoi;
-
-            public Move(Card fieldCard, Card handCard, Card fieldCard2 = null, bool koikoi = false)
-            {
-                fCard = fieldCard;
-                hCard = handCard;
-                fCard2 = fieldCard2;
-                Koikoi = koikoi;
-            }
         }
     }
 }

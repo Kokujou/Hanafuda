@@ -16,10 +16,6 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public class CardRef : MonoBehaviour
-    {
-        public Card card;
-    }
 
     [Serializable, CreateAssetMenu(menuName = "Card")]
     public class Card : ScriptableObject
@@ -85,6 +81,11 @@ namespace Hanafuda
             if (obj.GetType() == typeof(Card))
                 return ((Card)obj).Title == Title;
             return false;
+        }
+
+        public override string ToString()
+        {
+            return Title;
         }
     }
 }

@@ -20,9 +20,10 @@ namespace Hanafuda
                 }
             }
         }
-        private List<Yaku> NewYaku = new List<Yaku>();
+        public readonly List<Yaku> NewYaku = new List<Yaku>();
         private bool Koikoi = false;
         private Spielfeld Board;
+
         public bool isFinal()
         {
             return !Koikoi;
@@ -31,6 +32,7 @@ namespace Hanafuda
         {
             Koikoi = true;
         }
+
         public void Init(Spielfeld board)
         {
             Board = board;
@@ -53,6 +55,7 @@ namespace Hanafuda
         {
             DeckMatches = new List<Card>() { fieldSelection };
         }
+
         public override string ToString()
         {
             string handAction;
