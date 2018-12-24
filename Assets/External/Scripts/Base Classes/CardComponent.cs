@@ -12,9 +12,11 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public class CardRef : MonoBehaviour
+    public class CardComponent : MonoBehaviour
     {
         public Card card;
+        public GameObject Foreground;
+        public GameObject Background;
         private Action CardInteraction = () => { };
         private void HandInteraction()
         {

@@ -24,12 +24,13 @@ namespace Hanafuda
         private string selected = "";
         private string sTurn = Global.Settings.P1Name;
         private bool Turn = true;
-
+        private Card[] Hovered;
         /// <summary>
         ///     Platzierung der repräsentativen Deck-Karten im Kreis und Initialisierung von Startpositionen
         /// </summary>
         private void Start()
         {
+            Hovered = new Card[] { };
             if (Global.Settings.Multiplayer)
             {
                 NetworkServer.RegisterHandler(131, OpponentChoice);
@@ -99,16 +100,22 @@ namespace Hanafuda
                 var Slide = Instantiate(Global.prefabCollection.PSlide);
                 Slide.transform.SetParent(Kartenziehen.transform, true);
                 var SlideScript = Slide.AddComponent<SlideHand>();
-                SlideScript.onComplete = OnSelectItem;
-                SlideScript.cParent = tempDeck;
+                SlideScript.Init(tempDeck.Count, x=> HoverCards(x >= 0 ? tempDeck[x] : null) , x => { OnSelectItem(tempDeck[x]); });
             }
         }
-
-        private void OnSelectItem(Card selected)
+        public void HoverCards(params Card[] cards)
+        {
+            for (int card = 0; card < Hovered.Length; card++)
+                Hovered[card]?.HoverCard(true);
+            for (int card = 0; card < cards.Length; card++)
+                cards[card]?.HoverCard();
+            Hovered = cards;
+        }
+        private void OnSelectItem(Card Selection)
         {
             Global.prev = null;
             Turn = !Turn;
-            var sel = selected.Objekt;
+            var sel = Selection.Objekt;
             sel.transform.parent = null;
             sel.layer = 0;
             //!

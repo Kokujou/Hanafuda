@@ -14,76 +14,59 @@ namespace Hanafuda
          * - Hover klären
          */
         // Use this for initialization
-        public List<Card> cParent = new List<Card>();
-        public Action<Card> onComplete = null;
-        public Card selected;
-        private int selectedCard;
-        public List<Card> toHover = new List<Card>();
-        private bool valid;
+        private int ToHover;
+        private Action<int> OnSelect = null;
+        private Action<int> OnHover = null;
+        private int SelectedCard;
+        private bool IsValid;
+        private bool Initialized;
 
         private void Start()
         {
             StartCoroutine(gameObject.BlinkSlide());
         }
 
+        public void Init(int toHover, Action<int> onHover, Action<int> onSelect)
+        {
+            ToHover = toHover;
+            OnHover = onHover;
+            OnSelect = onSelect;
+            Initialized = true;
+        }
         // Update is called once per frame
         private void Update()
         {
-            if (cParent.Count != 0)
+            if (!Initialized) return;
+            if (ToHover != 0)
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
-                var Parent = gameObject.transform.parent.gameObject;
-                if (Input.GetMouseButtonDown(0) && Physics.Raycast(ray, out hit) &&
-                    hit.collider.name.StartsWith("Slide") &&
-                    (int)((hit.point.x + 15f) / (30f / cParent.Count)) != selectedCard) valid = true;
-                if (Input.GetMouseButton(0) && valid)
+                RaycastHit hit = new RaycastHit();
+                if (Input.GetMouseButtonDown(0) && Physics.Raycast(ray, out hit) && hit.collider.name.StartsWith("Slide"))
+                    IsValid = true;
+                if (Input.GetMouseButton(0) && IsValid)
                 {
-                    // Visualisierung der hover-Bounds
-                    //GameObject.Find("Slide(Clone)").GetComponent<SpriteRenderer>().color *= new Color(1, 1, 1, 0);
-                    Global.prev?.HoverCard(true);
-                    selectedCard = (int)((Camera.main.ScreenToWorldPoint(Input.mousePosition).x + 15f) /
-                                          (30f / cParent.Count));
-                    if (selectedCard < 0) selectedCard = 0;
-                    else if (selectedCard >= cParent.Count) selectedCard = cParent.Count - 1;
-                    cParent[selectedCard].Objekt.GetComponent<BoxCollider>().HoverCard();
-                    for (var i = 0; i < toHover.Count; i++)
-                    {
-                        Color col;
-                        if (toHover[i].Monat != cParent[selectedCard].Monat)
-                            col = new Color(.3f, .3f, .3f);
-                        else
-                            col = new Color(.5f, .5f, .5f);
-                        toHover[i].Objekt.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Foreground")
-                            .material.SetColor("_TintColor", col);
-                    }
+                    int tempSelection = (int)((Camera.main.ScreenToWorldPoint(Input.mousePosition).x + 15f) / (30f / ToHover));
+                    if (tempSelection == SelectedCard) return;
+                    else SelectedCard = tempSelection;
+                    if (SelectedCard < 0) SelectedCard = 0;
+                    else if (SelectedCard >= ToHover) SelectedCard = ToHover - 1;
+                    OnHover(SelectedCard);
                 }
                 else if (Input.GetMouseButtonUp(0))
                 {
+                    /*
+                     * Toleranzerhöhung durch Entschärfung der Bedingung
+                     */
                     if (Physics.Raycast(ray, out hit) && hit.collider.name.StartsWith("Slide"))
                     {
-                        selected = cParent[selectedCard];
-                        if (toHover.Count(x => x.Monat == cParent[selectedCard].Monat) != 2)
-                            for (var i = 0; i < toHover.Count; i++)
-                                toHover[i].Objekt.GetComponentsInChildren<MeshRenderer>()
-                                    .First(x => x.name == "Foreground").material
-                                    .SetColor("_TintColor", new Color(.5f, .5f, .5f));
-                        onComplete(selected);
+                        OnSelect(SelectedCard);
                         Destroy(gameObject);
                     }
                     else
                     {
                         gameObject.GetComponent<SpriteRenderer>().color += new Color(0, 0, 0, 0.6f);
-                        Global.prev?.HoverCard(true);
-
-                        for (var i = 0; i < toHover.Count; i++)
-                        {
-                            var col = new Color(.5f, .5f, .5f);
-                            toHover[i].Objekt.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Foreground")
-                                .material.SetColor("_TintColor", col);
-                        }
-
-                        valid = false;
+                        IsValid = false;
+                        OnHover(-1);
                     }
                 }
             }

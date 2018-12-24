@@ -23,7 +23,6 @@ namespace Hanafuda
         public List<int> pTotalPoints = new List<int>();
         public int tempPoints;
         public int TotalPoints;
-
         public Player(string name)
         {
             Name = name;
@@ -33,7 +32,6 @@ namespace Hanafuda
             CollectedYaku = new List<KeyValuePair<Yaku, int>>();
             TotalPoints = 0;
         }
-
         public List<KeyValuePair<Yaku, int>> CollectedYaku
         {
             get { return _CollectedYaku; }

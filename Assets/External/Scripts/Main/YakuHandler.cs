@@ -117,7 +117,7 @@ namespace Hanafuda
         public void KouYaku(Yaku Yaku, List<Card> Collection)
         {
             Caption.sprite = Captions[(int)Enum.Parse(typeof(LightYaku), Yaku.Title)];
-            List<Card> Matches = Global.allCards.FindAll(y => y.Typ == Card.Typen.Lichter);
+            List<Card> Matches = Global.allCards.FindAll(y => y.Typ == Card.Type.Lichter);
             for (int cardID = 0; cardID < 5; cardID++)
             {
                 if (Collection.Exists(x => x.Title == Matches[cardID].Title))

@@ -39,7 +39,7 @@ namespace Hanafuda
                         Card sel = selected;
                         selected = null;
                         Global.prev?.HoverCard(true);
-                        Move[2] = Board.Platz.IndexOf(sel);
+                        Move[2] = Board.Field.IndexOf(sel);
                         Board.PlayCard(tHandCard, new List<Card>() { sel }, Board.Deck);
                         CheckNewYaku();
                     }
@@ -109,11 +109,11 @@ namespace Hanafuda
                             {
                                 StopAllCoroutines();
                                 Board.RefillCards();
-                                selected = Hit.collider.gameObject.GetComponent<CardRef>().card;
-                                matches = Board.Platz.FindAll(x => x.Monat == selected.Monat);
+                                selected = Hit.collider.gameObject.GetComponent<CardComponent>().card;
+                                //matches = Board.Field.FindAll(x => x.Monat == selected.Monat);
                                 for (int i = 0; i < matches.Count; i++)
                                 {
-                                    StartCoroutine(matches[i].BlinkCard());
+                                    //StartCoroutine(matches[i].BlinkCard());
                                 }
                             }
                         }
@@ -135,7 +135,7 @@ namespace Hanafuda
                 insert?.Invoke();
                 if (matches.Exists(x => x.Title == hit.collider.gameObject.name))
                 {
-                    selected = hit.collider.gameObject.GetComponent<CardRef>().card;
+                    selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
                     ((BoxCollider)hit.collider)?.HoverCard();
                 }
             }
@@ -148,9 +148,9 @@ namespace Hanafuda
         }
         private void MatchCard(GameObject sel)
         {
-            Card selCard = sel.GetComponent<CardRef>().card;
+            Card selCard = sel.GetComponent<CardComponent>().card;
             Move[0] = ((Player)Board.players[Board.Turn ? 0 : 1]).Hand.IndexOf(selCard);
-            List<Card> Matches = Board.Platz.FindAll(x => x.Monat == selCard.Monat);
+            List<Card> Matches = Board.Field.FindAll(x => x.Monat == selCard.Monat);
             if (Matches.Count == 2)
             {
                 FieldSelect = true;
@@ -166,8 +166,8 @@ namespace Hanafuda
         {
             StopAllCoroutines();
             Board.RefillCards();
-            Card selCard = sel.GetComponent<CardRef>().card;
-            Move[1] = Board.Platz.IndexOf(selCard);
+            Card selCard = sel.GetComponent<CardComponent>().card;
+            Move[1] = Board.Field.IndexOf(selCard);
             Board.PlayCard(tHandCard, new List<Card>() { selCard });
             FieldSelect = false;
             Board.Turn = !Board.Turn;
@@ -177,14 +177,15 @@ namespace Hanafuda
         {
             if (!Slide)
             {
+                /*
                 Slide = Instantiate(Global.prefabCollection.PSlide);
                 Slide.transform.localPosition = new Vector3(0, -8, 10);
                 SlideHand SlideScript = Slide.AddComponent<SlideHand>();
                 SlideScript.toHover = Board.Platz;
-                SlideScript.cParent = ((Player)Board.players[Board.Turn ? 0 : 1]).Hand;
-                SlideScript.onComplete = x => { selected = x; allowInput = true; };
+                SlideScript.ControlledCards = ((Player)Board.players[Board.Turn ? 0 : 1]).Hand;
+                SlideScript.onSelect = x => { selected = x; allowInput = true; };
                 allowInput = false;
-                time = 0f;
+                time = 0f;*/
             }
         }
     }

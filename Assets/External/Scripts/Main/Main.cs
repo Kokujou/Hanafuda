@@ -152,23 +152,23 @@ namespace Hanafuda
             {
                 // Einsammeln bei Kartenzug? //
                 matches = new List<Card>();
-                if (Board.Platz.Exists(x => x.Monat == Board.Deck[0].Monat))
-                    matches.AddRange(Board.Platz.FindAll(x => x.Monat == Board.Deck[0].Monat));
+                //if (Board.Field.Exists(x => x.Monat == Board.Deck[0].Monat))
+                    //matches.AddRange(Board.Field.FindAll(x => x.Monat == Board.Deck[0].Monat));
                 selected = Board.Deck[0];
                 tHandCard = Board.Deck[0];
                 if (matches.Count == 2)
                 {
                     if (Global.Settings.mobile)
                     {
-                        for (int i = 0; i < Board.Platz.Count; i++)
+                        for (int i = 0; i < Board.Field.Count; i++)
                         {
-                            Color col = matches.Exists(x => x.Title == Board.Platz[i].Title) ? new Color(.3f, .3f, .3f) : new Color(.5f, .5f, .5f);
-                            Board.Platz[i].Objekt.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Foreground").material.SetColor("_TintColor", col);
+                            Color col = matches.Exists(x => x.Title == Board.Field[i].Title) ? new Color(.3f, .3f, .3f) : new Color(.5f, .5f, .5f);
+                            Board.Field[i].Objekt.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Foreground").material.SetColor("_TintColor", col);
                         }
                     }
-                    else
-                        for (int i = 0; i < 2; i++)
-                            StartCoroutine(matches[i].BlinkCard());
+                    //else
+                        //for (int i = 0; i < 2; i++)
+                            //StartCoroutine(matches[i].BlinkCard());
                 }
                 PlayMode = 2;
             }

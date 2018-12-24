@@ -188,12 +188,12 @@ namespace Hanafuda
                             GUI.BeginGroup(new Rect(Screen.width / 8, 0, Screen.width, Screen.height));
                             GUI.EndGroup();
                             var Sets = ((Player) main.Board.players[0]).CollectedCards;
-                            foreach (int type in Enum.GetValues(typeof(Card.Typen)))
+                            foreach (int type in Enum.GetValues(typeof(Card.Type)))
                             {
                                 GUI.Label(new Rect(0, 50 + 104 * (type > 0 ? type + 1 : type), Screen.width - 40, 40),
-                                    Enum.GetName(typeof(Card.Typen), type),
+                                    Enum.GetName(typeof(Card.Type), type),
                                     new GUIStyle(GUI.skin.GetStyle("Label")) {alignment = TextAnchor.MiddleCenter});
-                                var content = Global.allCards.FindAll(x => x.Typ == (Card.Typen) type);
+                                var content = Global.allCards.FindAll(x => x.Typ == (Card.Type) type);
                                 for (var card = 0; card < content.Count; card++)
                                 {
                                     GUI.DrawTexture(new Rect(

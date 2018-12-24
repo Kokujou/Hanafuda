@@ -22,7 +22,7 @@ namespace Hanafuda
         public List<Card> Deck = new List<Card>();
         public bool isFinal;
         public PlayerAction LastMove;
-        public List<Card> Platz = new List<Card>();
+        public List<Card> Field = new List<Card>();
         public List<object> players = new List<object>();
         public float Value;
         public bool _Turn = true;
@@ -59,10 +59,10 @@ namespace Hanafuda
                 Matches.Add(handCard);
             else
             {
-                Platz.Add(handCard);
+                Field.Add(handCard);
                 Global.global.StartCoroutine(handCard.Objekt.transform.StandardAnimation(tPlatz.position +
-                    (Global.Settings.mobile ? new Vector3(((Platz.Count - 1) / 3) * (11f / 1.5f), -9 + (18f / 1.5f) * ((Platz.Count - 1) % 3))
-                    : new Vector3(((Platz.Count - 1) / 2) * 11f, -9 + 18 * ((Platz.Count - 1) % 2))),
+                    (Global.Settings.mobile ? new Vector3(((Field.Count - 1) / 3) * (11f / 1.5f), -9 + (18f / 1.5f) * ((Field.Count - 1) % 3))
+                    : new Vector3(((Field.Count - 1) / 2) * 11f, -9 + 18 * ((Field.Count - 1) % 2))),
                     new Vector3(0, 180, 0), handCard.Objekt.transform.localScale / (Global.Settings.mobile ? 1.5f : 1f)));
             }
             for (int i = 0; i < Matches.Count; i++)
@@ -71,7 +71,7 @@ namespace Hanafuda
                 {
                     ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(Matches[i]);
                     if (i < Matches.Count - 1)
-                        Platz.Remove(Matches[i]);
+                        Field.Remove(Matches[i]);
                     Global.global.StartCoroutine(Matches[i].Objekt.transform.StandardAnimation(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Turn ? 0 : Screen.height)),
                         Vector3.zero, Vector3.zero, 0, AddFunc: () => { GameObject.Destroy(Matches[i].Objekt); }));
                 }
@@ -81,7 +81,7 @@ namespace Hanafuda
                     Matches[i].Objekt.transform.parent = collection;
                     ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(Matches[i]);
                     if (i < Matches.Count - 1)
-                        Platz.Remove(Matches[i]);
+                        Field.Remove(Matches[i]);
                     Matches[i].Objekt.layer = LayerMask.NameToLayer("Collected");
                     Global.global.StartCoroutine(Matches[i].Objekt.transform.StandardAnimation(Matches[i].Objekt.transform.parent.position +
                         new Vector3(5.5f * ((collection.childCount - 1) % 5), -((collection.childCount - 1) / 5) * 2f, -((collection.childCount - 1) / 5)),
@@ -92,19 +92,20 @@ namespace Hanafuda
             {
                 if (fromHand)
                     Global.global.StartCoroutine(activeHand.ResortCards(8, isMobileHand: true, delay: 1));
-                Global.global.StartCoroutine(Platz.ResortCards(3, rowWise: false, delay: 1));
+                Global.global.StartCoroutine(Field.ResortCards(3, rowWise: false, delay: 1));
             }
             else
             {
                 if (fromHand)
                     Global.global.StartCoroutine(activeHand.ResortCards(1, rowWise: false, delay: 1));
-                Global.global.StartCoroutine(Platz.ResortCards(2, rowWise: false, delay: 1));
+                Global.global.StartCoroutine(Field.ResortCards(2, rowWise: false, delay: 1));
             }
         }
-
         public void Init(List<object> Players, Action<bool> turnCallback, int seed = -1)
         {
             players = Players;
+            for (int i = 0; i < players.Count; i++)
+                gameObject.AddComponent<PlayerComponent>().Init((Player)players[i]);
             TurnCallback = turnCallback;
             var rnd = seed == -1 ? new Random() : new Random(seed);
             for (var i = 0; i < Global.allCards.Count; i++)
@@ -125,7 +126,7 @@ namespace Hanafuda
         {
             //WICHTIG! Einsammeln bei Kartenzug!
             Deck.AddRange(parent.Deck);
-            Platz.AddRange(parent.Platz);
+            Field.AddRange(parent.Field);
             Value = 0f;
             players = new List<object>
                 {new Player(((Player) parent.players[0]).Name), new Player(((Player) parent.players[1]).Name)};
@@ -179,9 +180,9 @@ namespace Hanafuda
 
         public void RefillCards()
         {
-            for (var i = 0; i < Platz.Count; i++)
+            for (var i = 0; i < Field.Count; i++)
             {
-                foreach (Transform side in Platz[i].Objekt.transform)
+                foreach (Transform side in Field[i].Objekt.transform)
                 {
                     var mat = side.gameObject.GetComponent<MeshRenderer>().material;
                     mat.SetColor("_TintColor", new Color(0.5f, 0.5f, 0.5f, .5f));

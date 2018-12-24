@@ -42,9 +42,9 @@ namespace Hanafuda
             action.Init(Board);
             action.SelectFromHand(((Player)Board.players[1]).Hand[move[0]]);
             if (move[1] >= 0)
-                action.SelectHandMatch(Board.Platz[move[1]]);
+                action.SelectHandMatch(Board.Field[move[1]]);
             if (move[2] >= 0)
-                action.SelectDeckMatch(Board.Platz[move[2]]);
+                action.SelectDeckMatch(Board.Field[move[2]]);
             action.Apply();
         }
         private void RegisterHandlers()

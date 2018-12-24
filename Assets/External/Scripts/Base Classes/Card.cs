@@ -20,7 +20,7 @@ namespace Hanafuda
     [Serializable, CreateAssetMenu(menuName = "Card")]
     public class Card : ScriptableObject
     {
-        public enum Monate
+        public enum Months
         {
             Januar,
             Febraur,
@@ -37,7 +37,7 @@ namespace Hanafuda
             Null
         }
 
-        public enum Typen
+        public enum Type
         {
             None = -1,
             Landschaft,
@@ -47,33 +47,33 @@ namespace Hanafuda
         }
         public string Title;
         public Material Image;
-        public Monate Monat;
+        public Months Monat;
         GameObject _Objekt;
-        public GameObject Objekt { get { return _Objekt; } set { _Objekt = value; _Objekt.AddComponent<CardRef>().card = this; } }
-        public Typen Typ;
-        public IEnumerator BlinkCard()
+        public GameObject Objekt { get { return _Objekt; } set { _Objekt = value; _Objekt.GetComponent<CardComponent>().card = this; } }
+        public Type Typ;
+        public void FadeCard(bool hide = true)
         {
-            var faktor = 1;
-            while (true)
+            var mat = Objekt.GetComponent<CardComponent>().Foreground.GetComponent<MeshRenderer>().material;
+            float color = hide ? .2f : .5f;
+            mat.SetColor("_TintColor", new Color(color,color,color));
+        }
+        public void HoverCard(bool unhover = false)
+        {
+            BoxCollider col = Objekt.GetComponent<BoxCollider>();
+            if (!col) return;
+            int factor = unhover ? -1 : 1;
+            if (Global.Settings.mobile)
             {
-                foreach (Transform side in Objekt.transform)
-                {
-                    var mat = side.gameObject.GetComponent<MeshRenderer>().material;
-                    if (side.gameObject.name == "Background")
-                    {
-                        mat.SetColor("_TintColor", new Color(0, 0, 0, 0));
-                    }
-                    else
-                    {
-                        if (mat.GetColor("_TintColor").a + faktor * 0.01f <= 0.5f &&
-                            mat.GetColor("_TintColor").a + faktor * 0.01f >= 0)
-                            mat.SetColor("_TintColor", mat.GetColor("_TintColor") + new Color(0, 0, 0, faktor * 0.01f));
-                        else
-                            faktor *= -1;
-                    }
-                }
-
-                yield return null;
+                var tempZ = col.gameObject.transform.position.z;
+                col.gameObject.transform.Translate(0, factor * 10, 0);
+                col.gameObject.transform.position = new Vector3(col.gameObject.transform.position.x,
+                    col.gameObject.transform.position.y, tempZ);
+            }
+            else
+            {
+                col.gameObject.transform.position -= factor * new Vector3(0, 0, 5);
+                col.gameObject.transform.localScale *= Mathf.Pow(2, factor);
+                col.size /= Mathf.Pow(2, factor);
             }
         }
         public override bool Equals(object obj)

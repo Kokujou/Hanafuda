@@ -15,8 +15,10 @@ namespace Hanafuda
         Transform EffectCam, Hand1, Hand2, Platz3D, Deck3D;
         void Start()
         {
+            Hovered = new Card[] { };
             Deck = new List<Card>();
-            Platz = new List<Card>();
+            Field = new List<Card>();
+            _Turn = true;
             EffectCam = MainSceneVariables.variableCollection.EffectCamera;
             if (Global.Settings.mobile)
             {
@@ -65,7 +67,7 @@ namespace Hanafuda
         {
             for (int i = 0; i < 8; i++)
             {
-                Platz.Add(Deck[0]);
+                Field.Add(Deck[0]);
                 GameObject temp = Deck[0].Objekt;
                 Deck.RemoveAt(0);
                 temp.layer = LayerMask.NameToLayer("Feld");

@@ -40,7 +40,7 @@ namespace Hanafuda
         public void SelectFromHand(Card selection)
         {
             HandSelection = selection;
-            HandMatches = Board.Platz.FindAll(x => x.Monat == selection.Monat);
+            HandMatches = Board.Field.FindAll(x => x.Monat == selection.Monat);
         }
         public void SelectHandMatch(Card selection)
         {
@@ -49,7 +49,7 @@ namespace Hanafuda
         public void DrawCard()
         {
             DeckSelection = Board.Deck[0];
-            DeckMatches = Board.Platz.FindAll(x => x.Monat == DeckSelection.Monat);
+            DeckMatches = Board.Field.FindAll(x => x.Monat == DeckSelection.Monat);
         }
         public void SelectDeckMatch(Card fieldSelection)
         {
@@ -113,7 +113,7 @@ namespace Hanafuda
             }
             else
             {
-                Board.Platz.Add(HandSelection);
+                Board.Field.Add(HandSelection);
             }
         }
         private void ApplyDeckSelection()
@@ -127,7 +127,7 @@ namespace Hanafuda
             }
             else
             {
-                Board.Platz.Add(DeckSelection);
+                Board.Field.Add(DeckSelection);
             }
         }
 

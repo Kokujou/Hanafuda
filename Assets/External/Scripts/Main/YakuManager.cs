@@ -52,7 +52,7 @@ namespace Hanafuda
             if (Queue?.Count > 0)
             {
                 Debug.Log(Queue[0].TypPref);
-                if (Queue[0].TypPref == Card.Typen.Lichter) return;
+                if (Queue[0].TypPref == Card.Type.Lichter) return;
             }
             Yaku.localPosition = new Vector3(animLeft, 0, 0);
             if (oldYaku)
@@ -79,7 +79,7 @@ namespace Hanafuda
                     return;
                 }
                 YakuHandler handler;
-                if (Queue[0].TypPref == Card.Typen.Lichter)
+                if (Queue[0].TypPref == Card.Type.Lichter)
                 {
                     handler = Instantiate(Global.prefabCollection.gKouYaku, transform).GetComponent<YakuHandler>();
                     handler.KouYaku(Queue[0], ((Player)Board.players[0]).CollectedCards);

@@ -29,7 +29,7 @@ namespace Hanafuda
 
         public int minSize;
         public List<string> Namen = new List<string>();
-        public Card.Typen TypPref;
+        public Card.Type TypPref;
         
         public int CompareTo(Yaku other)
         {

@@ -88,9 +88,9 @@ namespace Hanafuda
                 for (var i = 0; i < aHand.Count; i++)
                 {
                     var matches = new List<Card>();
-                    for (var j = 0; j < parent.Platz.Count; j++)
-                        if (parent.Platz[j].Monat == aHand[i].Monat)
-                            matches.Add(parent.Platz[j]);
+                    for (var j = 0; j < parent.Field.Count; j++)
+                        if (parent.Field[j].Monat == aHand[i].Monat)
+                            matches.Add(parent.Field[j]);
                     if (matches.Count == 2)
                     {
                         for (var choice = 0; choice < 2; choice++)
@@ -174,11 +174,11 @@ namespace Hanafuda
             var pCardsToYaku = 0;
             oReachableCards.AddRange(State.Deck);
             oReachableCards.AddRange(((Player)State.players[0]).Hand);
-            oReachableCards.AddRange(State.Platz);
+            oReachableCards.AddRange(State.Field);
             oReachableCards.AddRange(((Player)State.players[0]).CollectedCards);
             pReachableCards.AddRange(State.Deck.FindAll(x => State.Deck.IndexOf(x) % 2 == 0));
             pReachableCards.AddRange(((Player)State.players[1]).Hand);
-            pReachableCards.AddRange(State.Platz);
+            pReachableCards.AddRange(State.Field);
             pReachableCards.AddRange(((Player)State.players[1]).CollectedCards);
             pPossibleYaku.AddRange(Yaku.GetYaku(pReachableCards));
             Yaku.DistinctYakus(pPossibleYaku);
