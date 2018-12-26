@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /* To-Do:
@@ -14,7 +16,7 @@ namespace Hanafuda
 {
     public class PlayerComponent : MonoBehaviour
     {
-        public Player player;
+        public List<Player> Players;
         private Spielfeld Board;
         private Action InputRoutine;
         private bool isActive;
@@ -29,9 +31,11 @@ namespace Hanafuda
             Board = gameObject.GetComponent<Spielfeld>();
             InputRoutine = HandInteraction;
         }
-        public void Init(Player reference)
+        public void Init(List<object> players)
         {
-            player = reference;
+            Players = new List<Player>();
+            for (int i = 0; i < players.Count; i++)
+                Players.Add((Player)players[0]);
             isActive = true;
         }
         public void Update()
@@ -64,21 +68,29 @@ namespace Hanafuda
             Slide = Instantiate(Global.prefabCollection.PSlide, MainSceneVariables.variableCollection.Hand1M);
             Slide.transform.localPosition = new Vector3(0, -8, 10);
             SlideHand SlideScript = Slide.AddComponent<SlideHand>();
-            SlideScript.Init(player.Hand.Count,
-                x => Board.HoverHand(x >= 0 ? player.Hand[x] : null),
-                x => Board.SelectCard(x >= 0 ? player.Hand[x] : null));
+            SlideScript.Init(Players[0].Hand.Count,
+                x => Board.HoverHand(x >= 0 ? Players[0].Hand[x] : null),
+                x => Board.SelectCard(x >= 0 ? Players[0].Hand[x] : null));
             //SlideScript.onSelect = x => { Selection = x; Activate(true); };
             Activate(false);
         }
 
-        public void FieldInteraction()
+        public void FieldInteraction(Card card, bool fromDeck)
         {
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit = new RaycastHit();
+            if (Input.GetMouseButtonDown(0) && Physics.Raycast(ray, out hit, 1 << LayerMask.NameToLayer("Feld")) && 
+                hit.collider.gameObject.name != card.Title)
+            {
+                Card selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
+                Board.SelectCard(selected, fromDeck);
+            }
 
         }
 
-        public void RequestFieldSelection()
+        public void RequestFieldSelection(Card card, bool fromDeck)
         {
-            InputRoutine = FieldInteraction;
+            InputRoutine = () => { FieldInteraction(card, fromDeck); };
             isActive = true;
         }
 

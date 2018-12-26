@@ -9,8 +9,12 @@ namespace ExtensionMethods
 {
     public static class Animations
     {
-        private const float minBlinkAlpha = 0.5f;
-        private const float maxBlinkAlpha = .75f;
+        public const float minBlinkAlpha = 0.5f;
+        public const float maxBlinkAlpha = .75f;
+        public const float OrthoCamSize = 41f;
+        public const float PlaneSize = 5f;
+        public const float OrthoPlaneSize = (OrthoCamSize * 2f) / PlaneSize;
+        public static float CardSize { get { return OrthoPlaneSize * Camera.main.aspect; } }
         /// <summary>
         /// Transparenz-Animation des Hilfs-Pfeils für die mobile Handkarten-Animation
         /// </summary>
@@ -107,7 +111,9 @@ namespace ExtensionMethods
                         obj.localScale = startScale + (destScale - startScale) / (duration / elapsed);
                 yield return new WaitForSeconds(.0f);
             }
-
+            obj.position = destPos;
+            obj.rotation = Quaternion.Euler(destRot);
+            obj.localScale = destScale;
             for (var i = 0; i < AddFunc.Length; i++)
                 AddFunc[i]();
             Global.MovingCards--;
@@ -139,8 +145,8 @@ namespace ExtensionMethods
             {
                 float offsetX = toSort[i].Objekt.transform.localScale.x;
                 float offsetY = toSort[i].Objekt.transform.localScale.y;
-                float cardWidth = toSort[i].Objekt.GetComponentInChildren<MeshRenderer>().bounds.size.x;
-                float cardHeight = toSort[i].Objekt.GetComponentInChildren<MeshRenderer>().bounds.size.y;
+                float cardWidth = CardSize * offsetX;
+                float cardHeight = CardSize * offsetY;
                 float alignY = (cardHeight + offsetY) * ((maxSize - 1) * 0.5f);
                 if (rowWise)
                     Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +

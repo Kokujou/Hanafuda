@@ -104,8 +104,7 @@ namespace Hanafuda
         public void Init(List<object> Players, Action<bool> turnCallback, int seed = -1)
         {
             players = Players;
-            for (int i = 0; i < players.Count; i++)
-                gameObject.AddComponent<PlayerComponent>().Init((Player)players[i]);
+            gameObject.AddComponent<PlayerComponent>().Init(players);
             TurnCallback = turnCallback;
             var rnd = seed == -1 ? new Random() : new Random(seed);
             for (var i = 0; i < Global.allCards.Count; i++)

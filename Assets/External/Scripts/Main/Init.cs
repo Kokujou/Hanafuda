@@ -12,9 +12,10 @@ namespace Hanafuda
         private const int MaxDispersionAngle = 60;
         private const float CardWidth = 11f;
 
-        Transform EffectCam, Hand1, Hand2, Platz3D, Deck3D;
+        Transform EffectCam, Hand1, Hand2, Field3D, Deck3D;
         void Start()
         {
+            ToCollect = new List<Card>();
             Hovered = new Card[] { };
             Deck = new List<Card>();
             Field = new List<Card>();
@@ -24,7 +25,7 @@ namespace Hanafuda
             {
                 Hand1 = MainSceneVariables.variableCollection.Hand1M;
                 Hand2 = MainSceneVariables.variableCollection.Hand2M;
-                Platz3D = MainSceneVariables.variableCollection.MFeld;
+                Field3D = MainSceneVariables.variableCollection.MFeld;
                 Deck3D = MainSceneVariables.variableCollection.MDeck;
             }
             else
@@ -32,7 +33,7 @@ namespace Hanafuda
                 MainSceneVariables.variableCollection.ExCol.gameObject.SetActive(false);
                 Hand1 = MainSceneVariables.variableCollection.Hand1;
                 Hand2 = MainSceneVariables.variableCollection.Hand2;
-                Platz3D = MainSceneVariables.variableCollection.Feld;
+                Field3D = MainSceneVariables.variableCollection.Feld;
                 Deck3D = MainSceneVariables.variableCollection.Deck;
             }
             /*
@@ -71,7 +72,7 @@ namespace Hanafuda
                 GameObject temp = Deck[0].Objekt;
                 Deck.RemoveAt(0);
                 temp.layer = LayerMask.NameToLayer("Feld");
-                temp.transform.parent = Platz3D.transform;
+                temp.transform.parent = Field3D.transform;
                 int rows = 2;
                 float factor = 1;
                 if (Global.Settings.mobile)
@@ -84,7 +85,7 @@ namespace Hanafuda
                 float cardWidth = temp.GetComponentInChildren<MeshRenderer>().bounds.size.x / factor;
                 float cardHeight = temp.GetComponentInChildren<MeshRenderer>().bounds.size.y / factor;
                 float alignY = (cardHeight + offsetY) * ((rows - 1) * 0.5f);
-                StartCoroutine(temp.transform.StandardAnimation(Platz3D.transform.position +
+                StartCoroutine(temp.transform.StandardAnimation(Field3D.transform.position +
                     new Vector3((i / rows) * (cardWidth + offsetX), -alignY + (i % rows) * (cardHeight + offsetY), 0),
                     new Vector3(0, 180, 0), temp.transform.localScale / factor, (i + 18) * 0.2f));
                 //StartCoroutine(temp.transform.StandardAnimation( GameObject.Find("Feld").transform.position + new Vector3((int)(i/2), 0, 0), new Vector3(0, 180 * (1 - i), 0), temp.transform.localScale, 16 * 0.2f));

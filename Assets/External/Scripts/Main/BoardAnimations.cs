@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using ExtensionMethods;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,6 +27,35 @@ namespace Hanafuda
                 else
                     Field[card].FadeCard(month != Field[card].Monat);
             }
+        }
+
+        private void CollectCards()
+        {
+            HoverMatches(Card.Months.Null);
+            for (int card = 0; card < ToCollect.Count; card++)
+            {
+                StartCoroutine(ToCollect[card].Objekt.transform.StandardAnimation(
+                    Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Turn ? 0 : Screen.height)),
+                    Vector3.zero, Vector3.zero));
+                ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(ToCollect[card]);
+                Field.Remove(ToCollect[card]);
+            }
+            ToCollect.Clear();
+        }
+
+        private IEnumerator AfterAnimation(Action action)
+        {
+            while (Global.MovingCards > 0)
+            {
+                //Debug.Log(Global.MovingCards);
+                yield return null;
+            }
+            action();
+        }
+
+        private void DrawFromDeck()
+        {
+            ToCollect.Add(Deck[0]);
         }
     }
 }
