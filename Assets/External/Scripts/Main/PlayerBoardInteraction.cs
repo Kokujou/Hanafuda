@@ -60,7 +60,11 @@ namespace Hanafuda
         }
         private void OpponentTurn()
         {
-            _Turn = !false;
+            _Turn = !_Turn;
+            if(!Global.Settings.Multiplayer)
+            {
+                PlayerAction action = ((KI)players[1]).MakeTurn(this);
+            }
         }
         public void SelectCard(Card card, bool fromDeck = false)
         {

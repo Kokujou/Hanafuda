@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
+using Random = System.Random;
 
 namespace Hanafuda
 {
@@ -13,6 +15,21 @@ namespace Hanafuda
         private const float CardWidth = 11f;
 
         Transform EffectCam, Hand1, Hand2, Field3D, Deck3D;
+        public void Init(List<object> Players, Action<bool> turnCallback, int seed = -1)
+        {
+            players = Players;
+            gameObject.AddComponent<PlayerComponent>().Init(players);
+            gameObject.AddComponent<GameUI>();
+            TurnCallback = turnCallback;
+            var rnd = seed == -1 ? new Random() : new Random(seed);
+            for (var i = 0; i < Global.allCards.Count; i++)
+            {
+                var rand = rnd.Next(0, Global.allCards.Count);
+                while (Deck.Exists(x => x.Title == Global.allCards[rand].Title))
+                    rand = rnd.Next(0, Global.allCards.Count);
+                Deck.Add(Global.allCards[rand]);
+            }
+        }
         void Start()
         {
             ToCollect = new List<Card>();

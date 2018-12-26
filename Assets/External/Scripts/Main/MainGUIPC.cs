@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 namespace Hanafuda
 {
-    public partial class Main : NetworkBehaviour
+    public partial class GameUI
     {
         // Use this for initialization
         private int _overviewMode;

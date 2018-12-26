@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Random = System.Random;
 
 /* To-Do:
 - Anfangsspieler ermitteln
@@ -99,20 +98,6 @@ namespace Hanafuda
                 if (fromHand)
                     Global.global.StartCoroutine(activeHand.ResortCards(1, rowWise: false, delay: 1));
                 Global.global.StartCoroutine(Field.ResortCards(2, rowWise: false, delay: 1));
-            }
-        }
-        public void Init(List<object> Players, Action<bool> turnCallback, int seed = -1)
-        {
-            players = Players;
-            gameObject.AddComponent<PlayerComponent>().Init(players);
-            TurnCallback = turnCallback;
-            var rnd = seed == -1 ? new Random() : new Random(seed);
-            for (var i = 0; i < Global.allCards.Count; i++)
-            {
-                var rand = rnd.Next(0, Global.allCards.Count);
-                while (Deck.Exists(x => x.Title == Global.allCards[rand].Title))
-                    rand = rnd.Next(0, Global.allCards.Count);
-                Deck.Add(Global.allCards[rand]);
             }
         }
         /// <summary>

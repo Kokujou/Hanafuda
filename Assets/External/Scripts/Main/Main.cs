@@ -94,8 +94,8 @@ namespace Hanafuda
                 if (allowInput)
                     ExecutePlaymode();
                 YakuActions();
-                if (Global.Settings.mobile)
-                    UpdateMobile();
+                //if (Global.Settings.mobile)
+                    //UpdateMobile();
             }
         }
         private void CheckNewYaku()
@@ -179,10 +179,10 @@ namespace Hanafuda
             GUI.skin = Skin;
             if (GUI.Button(new Rect(0, 0, 30, 30), "X"))
                 ((Player)Board.players[0]).CollectedCards = Global.allCards;
-            if (Global.Settings.mobile)
-                OnGUIMobile();
-            else
-                OnGUIPC();
+            //if (Global.Settings.mobile)
+              //  OnGUIMobile();
+            //else
+              //  OnGUIPC();
         }
     }
 }
