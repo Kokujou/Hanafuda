@@ -9,7 +9,6 @@ namespace Hanafuda
     {
         // Use this for initialization
         private int _overviewMode;
-        public Main main;
         private bool ShowGUI, showOverview;
 
         private int OverviewMode
@@ -33,7 +32,6 @@ namespace Hanafuda
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 ShowGUI = !ShowGUI;
-                main.allowInput = !ShowGUI;
             }
 
             if (ShowGUI)
@@ -43,8 +41,8 @@ namespace Hanafuda
                 GUI.Box(new Rect(SettingsLeft, SettingsTop, SettingsWidth, SettingsHeight), "Einstellungen");
                 GUI.BeginGroup(new Rect(SettingsLeft, SettingsTop, SettingsWidth, SettingsHeight));
                 GUI.Label(new Rect(10, 50, SettingsWidth - 20, 20), "Kartenhintergrund:");
-                Global.Settings.CardSkin = GUI.SelectionGrid(new Rect(10, 80, SettingsWidth - 20, 192), Global.Settings.CardSkin, Global.CardSkins, 4);
-                main.PKarte.GetComponentsInChildren<MeshRenderer>().FirstOrDefault(x => x.gameObject.name == "Background").sharedMaterial.mainTexture = Global.CardSkins[Global.Settings.CardSkin];
+                Settings.CardSkin = GUI.SelectionGrid(new Rect(10, 80, SettingsWidth - 20, 192), Settings.CardSkin, Global.CardSkins, 4);
+                main.PKarte.GetComponentsInChildren<MeshRenderer>().FirstOrDefault(x => x.gameObject.name == "Background").sharedMaterial.mainTexture = Global.CardSkins[Settings.CardSkin];
                 GUI.EndGroup();*/
             }
             /*
@@ -91,7 +89,7 @@ namespace Hanafuda
                                     Color.gray.CreateTexture());
                             GUI.DrawTexture(new Rect(Screen.width * 0.5f - 20, 45, 2, Screen.height - 120),
                                 Color.gray.CreateTexture());
-                            var Sets = ((Player) main.Board.players[0]).CollectedCards;
+                            var Sets = ((Player) Players[0]).CollectedCards;
                             for (var yaku = 0; yaku < Global.allYaku.Count; yaku++)
                             {
                                 GUI.BeginGroup(new Rect(new Rect(
@@ -187,7 +185,7 @@ namespace Hanafuda
                         {
                             GUI.BeginGroup(new Rect(Screen.width / 8, 0, Screen.width, Screen.height));
                             GUI.EndGroup();
-                            var Sets = ((Player) main.Board.players[0]).CollectedCards;
+                            var Sets = ((Player) Players[0]).CollectedCards;
                             foreach (int type in Enum.GetValues(typeof(Card.Type)))
                             {
                                 GUI.Label(new Rect(0, 50 + 104 * (type > 0 ? type + 1 : type), Screen.width - 40, 40),

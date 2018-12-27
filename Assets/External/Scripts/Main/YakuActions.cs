@@ -8,7 +8,6 @@ namespace Hanafuda
     public partial class Spielfeld
     {
         List<Yaku> NewYaku;
-        GameObject _CherryBlossoms;
         private void CheckNewYaku()
         {
             int oPoints = ((Player)(players[Turn ? 0 : 1])).tempPoints;
@@ -24,7 +23,6 @@ namespace Hanafuda
                         NewYaku.Add(((Player)(players[Turn ? 0 : 1])).CollectedYaku[i].Key);
                     }
                 }
-                _CherryBlossoms = Instantiate(Global.prefabCollection.CherryBlossoms);
                 Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
             }
         }

@@ -62,7 +62,7 @@ namespace Hanafuda
             BoxCollider col = Object.GetComponent<BoxCollider>();
             if (!col) return;
             int factor = unhover ? -1 : 1;
-            if (Global.Settings.mobile)
+            if (Settings.Mobile)
             {
                 var tempZ = col.gameObject.transform.position.z;
                 col.gameObject.transform.Translate(0, factor * 10, 0);

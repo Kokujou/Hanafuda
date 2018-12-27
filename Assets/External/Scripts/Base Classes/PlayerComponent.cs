@@ -14,6 +14,7 @@ using UnityEngine;
 
 namespace Hanafuda
 {
+    [RequireComponent(typeof(Spielfeld))]
     public class PlayerComponent : MonoBehaviour
     {
         public List<Player> Players;
@@ -33,13 +34,11 @@ namespace Hanafuda
         public void Awake()
         {
             Board = gameObject.GetComponent<Spielfeld>();
+            Players = Board.players;
             InputRoutine = HandInteraction;
         }
-        public void Init(List<object> players)
+        public void Init(List<Player> players)
         {
-            Players = new List<Player>();
-            for (int i = 0; i < players.Count; i++)
-                Players.Add((Player)players[0]);
             isActive = true;
         }
         public void Update()
@@ -49,7 +48,7 @@ namespace Hanafuda
         }
         public void HandInteraction()
         {
-            if (Global.Settings.mobile)
+            if (Settings.Mobile)
                 CreateSlide();
             else
             {

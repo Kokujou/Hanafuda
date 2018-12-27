@@ -15,12 +15,11 @@ namespace Hanafuda
         private const float CardWidth = 11f;
 
         Transform EffectCam, Hand1, Hand2, Field3D, Deck3D;
-        public void Init(List<object> Players, Action<bool> turnCallback, int seed = -1)
+        public void Init(List<Player> Players, int seed = -1)
         {
             players = Players;
             gameObject.AddComponent<PlayerComponent>().Init(players);
             gameObject.AddComponent<GameUI>();
-            TurnCallback = turnCallback;
             var rnd = seed == -1 ? new Random() : new Random(seed);
             for (var i = 0; i < Global.allCards.Count; i++)
             {
@@ -40,7 +39,7 @@ namespace Hanafuda
             NewYaku = new List<Yaku>();
             _Turn = true;
             EffectCam = MainSceneVariables.variableCollection.EffectCamera;
-            if (Global.Settings.mobile)
+            if (Settings.Mobile)
             {
                 Hand1 = MainSceneVariables.variableCollection.Hand1M;
                 Hand2 = MainSceneVariables.variableCollection.Hand2M;
@@ -56,19 +55,19 @@ namespace Hanafuda
                 Deck3D = MainSceneVariables.variableCollection.Deck;
             }
             /*
-            if (Global.Settings.Multiplayer)
+            if (Settings.Multiplayer)
             {
                 RegisterHandlers();
                 return;
             }*/
             if (Global.players.Count == 0)
             {
-                Init(new List<object>() { new Player(Global.Settings.P1Name) }, x => TurnCallback(x));
-                players.Add(new KI((KI.Mode)Global.Settings.KIMode, this, Turn, "Computer"));
+                Init(Settings.Players);
+                players.Add(new KI((KI.Mode)Settings.KIMode, this, Turn, "Computer"));
             }
             else
             {
-                Init(Global.players.Cast<object>().ToList(), TurnCallback);
+                Init(Global.players);
                 for (int i = 0; i < players.Count; i++)
                     ((Player)players[0]).Reset();
             }
@@ -94,7 +93,7 @@ namespace Hanafuda
                 temp.transform.parent = Field3D.transform;
                 int rows = 2;
                 float factor = 1;
-                if (Global.Settings.mobile)
+                if (Settings.Mobile)
                 {
                     rows = 3;
                     factor = 1.5f;
@@ -113,9 +112,9 @@ namespace Hanafuda
 
         private void BuildHands()
         {
-            for (int i = Global.Settings.Name == Global.Settings.P1Name ? 0 : 1;
-                Global.Settings.Name == Global.Settings.P1Name ? i < 2 : i >= 0;
-                i += (Global.Settings.Name == Global.Settings.P1Name ? 1 : -1))
+            for (int i = Settings.GetName() == Settings.Players[0].Name ? 0 : 1;
+                Settings.GetName() == Settings.Players[0].Name ? i < 2 : i >= 0;
+                i += (Settings.GetName() == Settings.Players[0].Name ? 1 : -1))
             {
                 for (int j = 0; j < 8; j++)
                 {
@@ -123,10 +122,10 @@ namespace Hanafuda
                     GameObject temp = Deck[0].Object;
                     Deck.RemoveAt(0);
                     temp.transform.parent = i == 0 ? Hand1.transform : Hand2.transform;
-                    if (!Global.Settings.mobile)
+                    if (!Settings.Mobile)
                         temp.layer = LayerMask.NameToLayer("P" + (i + 1).ToString() + "Hand");
                     /* Zugedeckte Transformation mit anschließender Aufdeckrotation */
-                    if (Global.Settings.mobile)
+                    if (Settings.Mobile)
                     {
                         StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position +
                             new Vector3(UnityEngine.Random.Range(-MaxDispersionPos, MaxDispersionPos),
@@ -146,7 +145,7 @@ namespace Hanafuda
 
                 }
             }
-            if (Global.Settings.mobile)
+            if (Settings.Mobile)
             {
                 StartCoroutine(Hand1.transform.StandardAnimation(Hand1.transform.position, new Vector3(0, 180, 0), Hand1.transform.localScale, 4f, AddFunc: () =>
                 { StartCoroutine(((Player)players[0]).Hand.ResortCards(8, true)); }));

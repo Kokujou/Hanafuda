@@ -126,7 +126,7 @@ namespace Hanafuda
                     Lights[cardID].sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f));
                 }
                 else
-                    Lights[cardID].sprite = Global.CardSkins[Global.Settings.CardSkin];
+                    Lights[cardID].sprite = Global.CardSkins[Settings.CardSkin];
             }
         }
     }

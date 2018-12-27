@@ -38,15 +38,17 @@ namespace Hanafuda
         private readonly System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
         private List<Yaku> Queue = null;
         private Spielfeld Board;
-        public GameObject Main;
-        public RectTransform SlideIn;
-        public EventTrigger YesButton, NoButton;
+        private GameObject Main;
+        private RectTransform SlideIn;
+        private EventTrigger YesButton, NoButton;
         public bool Finished=false;
+        private GameObject _CherryBlossoms;
         public void Init(List<Yaku> queue, Spielfeld board)
         {
             Queue = queue;
             Board = board;
             board.gameObject.SetActive(false);
+            _CherryBlossoms = Instantiate(Global.prefabCollection.CherryBlossoms);
         }
         public void AlignYaku()
         {
@@ -116,6 +118,7 @@ namespace Hanafuda
                 ((Player)Board.players[0]).Koikoi++;
                 StartCoroutine(Global.prefabCollection.KoikoiText.KoikoiAnimation(() =>
                 {
+                    Destroy(gameObject);
                     Board.gameObject.SetActive(true);
                     Board.OpponentTurn();
                 }));

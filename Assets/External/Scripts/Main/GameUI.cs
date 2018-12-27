@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Hanafuda
 {
+    [RequireComponent(typeof(Spielfeld))]
     public partial class GameUI : MonoBehaviour
     {
         private List<Player> Players;
@@ -18,13 +19,13 @@ namespace Hanafuda
 
         private void Update()
         {
-            if (Global.Settings.mobile)
+            if (Settings.Mobile)
                 UpdateMobile();
         }
 
         private void OnGUI()
         {
-            if (Global.Settings.mobile)
+            if (Settings.Mobile)
                 OnGUIMobile();
             else
                 OnGUIPC();

@@ -79,5 +79,10 @@ namespace Hanafuda
         {
             Koikoi++;
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

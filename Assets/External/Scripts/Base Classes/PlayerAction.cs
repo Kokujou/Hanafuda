@@ -83,13 +83,13 @@ namespace Hanafuda
 
                 string koikoiAction = "";
                 if (Koikoi)
-                    koikoiAction = $"{Global.Settings.Name} hat 'Koi Koi' gesagt.";
+                    koikoiAction = $"{Settings.GetName()} hat 'Koi Koi' gesagt.";
                 else
-                    koikoiAction = $"{Global.Settings.Name} hat nicht 'Koi Koi' gesagt. Das Spiel ist beendet.";
+                    koikoiAction = $"{Settings.GetName()} hat nicht 'Koi Koi' gesagt. Das Spiel ist beendet.";
 
                 yakuAction = $"Damit erreicht er die Yaku {yaku}.\n{koikoiAction}\n";
             }
-            return $"{Global.Settings.Name} {handAction}.\n " +
+            return $"{Settings.GetName()} {handAction}.\n " +
                 $"Anschließend {deckAction}.\n" +
                 $"{yakuAction}";
         }

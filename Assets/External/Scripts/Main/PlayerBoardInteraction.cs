@@ -26,8 +26,8 @@ namespace Hanafuda
         private void SelectionToField(Card card, List<Card> source)
         {
             card.Object.transform.parent = Field3D.transform;
-            float scaleFactor = Global.Settings.mobile ? 1.5f : 1;
-            int maxSize = Global.Settings.mobile ? 3 : 2;
+            float scaleFactor = Settings.Mobile ? 1.5f : 1;
+            int maxSize = Settings.Mobile ? 3 : 2;
             float offsetX = Animations.StandardScale.x / scaleFactor;
             float offsetY = Animations.StandardScale.y / scaleFactor;
             float cardWidth = Animations.CardSize * offsetX;
@@ -63,7 +63,7 @@ namespace Hanafuda
         public void OpponentTurn()
         {
             _Turn = !_Turn;
-            if (!Global.Settings.Multiplayer)
+            if (!Settings.Multiplayer)
             {
                 PlayerAction action = ((KI)players[1]).MakeTurn(this);
                 gameObject.GetComponent<PlayerComponent>().Reset();
@@ -88,7 +88,7 @@ namespace Hanafuda
                 StartCoroutine(AfterAnimation(() =>
                 {
                     Global.MovingCards++;
-                    if (Global.Settings.mobile)
+                    if (Settings.Mobile)
                     {
                         StartCoroutine(((Player)players[Turn ? 0 : 1]).Hand.ResortCards(8, true));
                         StartCoroutine(Field.ResortCards(3, rowWise: false));
@@ -109,13 +109,13 @@ namespace Hanafuda
                 {
                     _Turn = !_Turn;
                     PlayMode = 1;
-                    if (Global.Settings.Multiplayer)
+                    if (Settings.Multiplayer)
                     {
                         string move = Move[0].ToString() + "," + Move[1].ToString() + "," + Move[2].ToString();
                         if (NetworkServer.active)
                             NetworkServer.SendToAll(MoveSyncMsg, new Message() { message = move });
                         else
-                            Global.Settings.playerClients[0].Send(MoveSyncMsg, new Message() { message = move });
+                            Settings.playerClients[0].Send(MoveSyncMsg, new Message() { message = move });
                     }
                 }
                 Move = new[] { -1, -1, -1 };*/

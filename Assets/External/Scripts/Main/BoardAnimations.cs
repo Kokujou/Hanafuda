@@ -35,7 +35,7 @@ namespace Hanafuda
             Vector3 destPos = Vector3.zero;
             Vector3 destRot = Vector3.zero;
             Vector3 destScale = Vector3.zero;
-            if (Global.Settings.mobile)
+            if (Settings.Mobile)
             {
                 destPos = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Turn ? 0 : Screen.height));
             }
@@ -48,7 +48,7 @@ namespace Hanafuda
             {
                 Debug.Log(ToCollect[card]);
                 Transform parent = null;
-                if (!Global.Settings.mobile)
+                if (!Settings.Mobile)
                 {
                     parent = MainSceneVariables.variableCollection.PCCollections[(Turn ? 0 : 1) * 4 + (int)ToCollect[card].Typ];
                     int inCollection = ((Player)players[Turn ? 0 : 1]).CollectedCards.FindAll(x => x.Typ == ToCollect[card].Typ).Count;
@@ -62,6 +62,7 @@ namespace Hanafuda
                 Field.Remove(ToCollect[card]);
             }
             ToCollect.Clear();
+            HoverHand(null);
         }
 
         private IEnumerator AfterAnimation(Action action)

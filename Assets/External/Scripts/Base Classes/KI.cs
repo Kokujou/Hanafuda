@@ -32,7 +32,6 @@ namespace Hanafuda
         public object thisLock;
         private readonly List<Thread> threads = new List<Thread>();
         public bool Turn;
-
         public KI(Mode Modus, Spielfeld board, bool turn, string name) : base(name)
         {
             mode = Modus;
@@ -99,9 +98,9 @@ namespace Hanafuda
                             move.Init(parent);
                             move.SelectFromHand(aHand[i]);
                             move.SelectHandMatch(matches[choice]);
-                            var child = new Spielfeld(parent, move, Turn);
-                            child.LastMove = move;
-                            StateTree[level + 1].Add(child);
+                            //var child = new Spielfeld(parent, move, Turn);
+                            //child.LastMove = move;
+                            //StateTree[level + 1].Add(child);
                         }
                     }
                     else
@@ -109,9 +108,9 @@ namespace Hanafuda
                         var move = new PlayerAction();
                         move.Init(parent);
                         move.SelectHandMatch(aHand[i]);
-                        var child = new Spielfeld(parent, move, Turn);
-                        child.LastMove = move;
-                        StateTree[level + 1].Add(child);
+                        //var child = new Spielfeld(parent, move, Turn);
+                        //child.LastMove = move;
+                        //StateTree[level + 1].Add(child);
                     }
                 }
             }

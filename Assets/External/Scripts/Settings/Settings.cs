@@ -4,45 +4,55 @@ using UnityEngine.Networking;
 
 namespace Hanafuda
 {
-    public partial class Global : MonoBehaviour
+    /// <summary>
+    ///     globale Spieleinstellungen
+    /// </summary>
+    public static class Settings
     {
         /// <summary>
-        ///     globale Spieleinstellungen
+        ///     Modus der KI: Normal, Schwer, Alptraum
         /// </summary>
-        public static class Settings
+        public static int KIMode = 0;
+
+        /// <summary>
+        ///     true: 6 Runden, false: 12 Runden
+        /// </summary>
+        public static bool Rounds6 = true;
+
+        /// <summary>
+        ///     true: Mehrspielermodus, false: Einspielermodus
+        /// </summary>
+        public static bool Multiplayer = false;
+
+        /// <summary>
+        ///     Mobiler o. Desktopmodus
+        /// </summary>
+        public static bool Mobile { get { return Camera.main.aspect < 1; } }
+
+        /// <summary>
+        /// Ausgewähltes Hintergrundbild für die Karten
+        /// </summary>
+        public static int CardSkin = 0;
+
+        /// <summary>
+        /// Am Match teilnehmende Spieler
+        /// </summary>
+        public static List<Player> Players = new List<Player>();
+
+        /// <summary>
+        /// ID des aktiven Spielers
+        /// </summary>
+        public static int PlayerID;
+
+        /// <summary>
+        /// Ruft den Namen des aktuellen Spielers ab
+        /// </summary>
+        /// <returns></returns>
+        public static string GetName()
         {
-            /// <summary>
-            ///     Modus der KI: Normal, Schwer, Alptraum
-            /// </summary>
-            public static int KIMode = 0;
-
-            /// <summary>
-            ///     true: 6 Runden, false: 12 Runden
-            /// </summary>
-            public static bool Rounds6 = true;
-
-            /// <summary>
-            ///     true: Mehrspielermodus, false: Einspielermodus
-            /// </summary>
-            public static bool Multiplayer = false;
-
-            /// <summary>
-            ///     Namen der Spieler
-            /// </summary>
-            public static string P1Name = "", P2Name = "";
-
-            /// <summary>
-            ///     Name des aktiven Spielers
-            /// </summary>
-            public static string Name = "";
-
-            /// <summary>
-            ///     Mobiler o. Desktopmodus
-            /// </summary>
-            public static bool mobile { get { return Camera.main.aspect < 1; } }
-
-            public static List<NetworkClient> playerClients = new List<NetworkClient>();
-            public static int CardSkin = 0;
+            return Players[PlayerID].Name;
         }
+
+        public static NetworkClient Client;
     }
 }

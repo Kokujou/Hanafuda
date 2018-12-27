@@ -69,9 +69,9 @@ public class Finish : MonoBehaviour
                 "Gesamt - " + Global.players[0].tempPoints);
             GUI.Label(new Rect(Screen.width / 2 - 50, 110 + maxCount * 30, Screen.width / 3 - 33, 30),
                 "Gesamt - " + Global.players[1].tempPoints);
-            for (var i = 0; i < (Global.Settings.Rounds6 ? 6 : 12); i++)
+            for (var i = 0; i < (Settings.Rounds6 ? 6 : 12); i++)
             {
-                var offsetX = Screen.width / 2 - 50 - 50 * (Global.Settings.Rounds6 ? 6 : 12) / 2;
+                var offsetX = Screen.width / 2 - 50 - 50 * (Settings.Rounds6 ? 6 : 12) / 2;
                 GUI.Label(new Rect(0, 160 + maxCount * 30, offsetX - 10, 50), Global.players[0].Name,
                     new GUIStyle(GUI.skin.GetStyle("Label")) {alignment = TextAnchor.MiddleCenter, fontSize = 40});
                 GUI.Label(new Rect(0, 210 + maxCount * 30, offsetX - 10, 50), Global.players[1].Name,
@@ -91,7 +91,7 @@ public class Finish : MonoBehaviour
 
             if (GUI.Button(new Rect(Screen.width / 2 - 150, 280 + maxCount * 30, 200, 50), "Weiter"))
             {
-                if (Global.players[0].pTotalPoints.Count < (Global.Settings.Rounds6 ? 6 : 12))
+                if (Global.players[0].pTotalPoints.Count < (Settings.Rounds6 ? 6 : 12))
                     SceneManager.LoadScene("Singleplayer");
                 else
                     showWindow = true;

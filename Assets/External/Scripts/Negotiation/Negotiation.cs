@@ -22,7 +22,7 @@ namespace Hanafuda
         private string P1Selection = "", P2Selection = "";
         private bool P2;
         private string selected = "";
-        private string sTurn = Global.Settings.P1Name;
+        private string sTurn;
         private bool Turn = true;
         private Card[] Hovered;
         /// <summary>
@@ -30,17 +30,18 @@ namespace Hanafuda
         /// </summary>
         private void Start()
         {
+            sTurn = Settings.Players[0].Name;
             Hovered = new Card[] { };
-            if (Global.Settings.Multiplayer)
+            if (Settings.Multiplayer)
             {
-                NetworkServer.RegisterHandler(131, OpponentChoice);
-                for (var i = 0; i < Global.Settings.playerClients.Count; i++)
+                if (NetworkServer.active)
+                    NetworkServer.RegisterHandler(131, OpponentChoice);
+                else
                 {
-                    Global.Settings.playerClients[i].RegisterHandler(131, OpponentChoice);
-                    Global.Settings.playerClients[i].RegisterHandler(132, SyncDeck);
+                    Settings.Client.RegisterHandler(131, OpponentChoice);
+                    Settings.Client.RegisterHandler(132, SyncDeck);
                 }
-
-                if (Global.Settings.Name == Global.Settings.P2Name)
+                if (Settings.GetName() == Settings.Players[1].Name)
                 {
                     Turn = false;
                     P2 = true;
@@ -126,7 +127,7 @@ namespace Hanafuda
             Info.GetComponentsInChildren<TextMesh>()[1].text = "Spieler " + (P2 ? "2" : "1");
             if (P2) Info2 = Info;
             else Info1 = Info;
-            if (!Global.Settings.Multiplayer)
+            if (!Settings.Multiplayer)
             {
                 StartCoroutine(AnimOponentChoice(sel, true));
             }
@@ -135,7 +136,7 @@ namespace Hanafuda
                 if (P2)
                 {
                     P2Selection = sel.name;
-                    Global.Settings.playerClients[0].Send(131, new Message { message = sel.name });
+                    Settings.Client.Send(131, new Message { message = sel.name });
                 }
                 else
                 {
@@ -157,11 +158,11 @@ namespace Hanafuda
             col.gameObject.transform.parent = null;
             col.gameObject.layer = 0;
             StartCoroutine(col.gameObject.transform.StandardAnimation(new Vector3(
-                    (P2 ? -1 : 1) * (Global.Settings.mobile ? 13 : 55),
-                    Global.Settings.mobile ? 18 : 0, 0), new Vector3(0, 180, 0),
-                Animations.StandardScale * (Global.Settings.mobile ? 1.5f : 2)));
+                    (P2 ? -1 : 1) * (Settings.Mobile ? 13 : 55),
+                    Settings.Mobile ? 18 : 0, 0), new Vector3(0, 180, 0),
+                Animations.StandardScale * (Settings.Mobile ? 1.5f : 2)));
             var Info = Instantiate(Global.prefabCollection.PText);
-            if (Global.Settings.mobile)
+            if (Settings.Mobile)
                 Info.transform.position = new Vector3(P2 ? -24 : 0, 41, 0);
             else
                 Info.transform.position = new Vector3(P2 ? -65 : 40, 30, 0);
@@ -266,7 +267,7 @@ namespace Hanafuda
                         Info.GetComponentsInChildren<TextMesh>()[1].text = "Spieler " + (P2 ? "2" : "1");
                         if (P2) Info2 = Info;
                         else Info1 = Info;
-                        if (!Global.Settings.Multiplayer)
+                        if (!Settings.Multiplayer)
                         {
                             StartCoroutine(AnimOponentChoice(sel));
                         }
@@ -275,7 +276,7 @@ namespace Hanafuda
                             if (P2)
                             {
                                 P2Selection = sel.name;
-                                Global.Settings.playerClients[0].Send(131, new Message { message = sel.name });
+                                Settings.Client.Send(131, new Message { message = sel.name });
                             }
                             else
                             {
