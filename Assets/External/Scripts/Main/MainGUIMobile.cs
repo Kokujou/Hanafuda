@@ -37,31 +37,28 @@ namespace Hanafuda
         private void UpdateMobile()
         {
             var ExCol = MainSceneVariables.variableCollection.ExCol;
-            if (isActiveAndEnabled)
+            if (Input.GetMouseButton(0))
             {
-                if (Input.GetMouseButton(0))
-                {
-                    var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    RaycastHit hit;
-                    if (ExCol.position.x != -maxMobileContainerX && ExCol.position.x != maxMobileContainerX ||
-                        Physics.Raycast(ray, out hit) && hit.collider.name == "ExCol")
-                        mobileContainerX = Camera.main.ScreenPointToRay(Input.mousePosition).origin.x;
-                }
-                else if (Input.GetMouseButtonUp(0))
-                {
-                    if (expand && ExCol.position.x < maxMobileContainerX * 0.5f || !expand && ExCol.position.x > -maxMobileContainerX * 0.5f)
-                        expand = !expand;
-                    mobileContainerX = Mathf.Infinity * (expand ? 1 : -1);
-                    ExCol.GetComponent<SpriteRenderer>().flipX = expand;
-                    ExCol.GetComponentInChildren<TextMesh>().text = expand ? "«" : "»";
-                    ExCol.GetComponentInChildren<TextMesh>().color =
-                        expand ? new Color(.75f, .75f, .75f) : new Color(.25f, .25f, .25f);
-                    ExCol.GetComponent<SpriteRenderer>().color =
-                        !expand ? new Color(.75f, .75f, .75f) : new Color(.25f, .25f, .25f);
-                    var excol = MainSceneVariables.variableCollection.ExColBack;
-                    excol.localPosition = new Vector3(MainSceneVariables.variableCollection.BoxX + (expand ? .8f : 0),
-                        excol.localPosition.y, excol.localPosition.z);
-                }
+                var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (ExCol.position.x != -maxMobileContainerX && ExCol.position.x != maxMobileContainerX ||
+                    Physics.Raycast(ray, out hit) && hit.collider.name == "ExCol")
+                    mobileContainerX = Camera.main.ScreenPointToRay(Input.mousePosition).origin.x;
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                if (expand && ExCol.position.x < maxMobileContainerX * 0.5f || !expand && ExCol.position.x > -maxMobileContainerX * 0.5f)
+                    expand = !expand;
+                mobileContainerX = Mathf.Infinity * (expand ? 1 : -1);
+                ExCol.GetComponent<SpriteRenderer>().flipX = expand;
+                ExCol.GetComponentInChildren<TextMesh>().text = expand ? "«" : "»";
+                ExCol.GetComponentInChildren<TextMesh>().color =
+                    expand ? new Color(.75f, .75f, .75f) : new Color(.25f, .25f, .25f);
+                ExCol.GetComponent<SpriteRenderer>().color =
+                    !expand ? new Color(.75f, .75f, .75f) : new Color(.25f, .25f, .25f);
+                var excol = MainSceneVariables.variableCollection.ExColBack;
+                excol.localPosition = new Vector3(MainSceneVariables.variableCollection.BoxX + (expand ? .8f : 0),
+                    excol.localPosition.y, excol.localPosition.z);
             }
         }
 
@@ -109,7 +106,7 @@ namespace Hanafuda
                             shownCards.AddRange(Global.allCards.FindAll(x =>
                                 !Global.allYaku[yaku].Namen.Contains(x.Title) && x.Typ == Global.allYaku[yaku].TypPref));
                         var colCards = shownCards.FindAll(x =>
-                            ((Player) Players[tab]).CollectedCards.Exists(y => y.Title == x.Title));
+                            ((Player)Players[tab]).CollectedCards.Exists(y => y.Title == x.Title));
                         shownCards.RemoveAll(x => colCards.Exists(y => y.Title == x.Title));
                         for (var card = 0; card < shownCards.Count && card < Global.allYaku[yaku].minSize; card++)
                         {

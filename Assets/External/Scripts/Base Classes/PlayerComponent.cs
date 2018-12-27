@@ -26,6 +26,10 @@ namespace Hanafuda
         {
             isActive = active;
         }
+        public void Reset()
+        {
+            InputRoutine = HandInteraction;
+        }
         public void Awake()
         {
             Board = gameObject.GetComponent<Spielfeld>();
@@ -51,11 +55,14 @@ namespace Hanafuda
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit = new RaycastHit();
-                if (Physics.Raycast(ray, out hit, 1 << LayerMask.NameToLayer("P1Hand")))
+                if (Physics.Raycast(ray, out hit, 500f, LayerMask.GetMask("P1Hand")))
                 {
                     Card selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
                     if (Input.GetMouseButtonDown(0))
+                    {
+                        Board.HoverHand(null);
                         Board.SelectCard(selected);
+                    }
                     else
                         Board.HoverHand(selected);
                 }

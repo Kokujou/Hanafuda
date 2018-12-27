@@ -77,7 +77,7 @@ namespace Hanafuda
                  */
                 if ((Input.GetMouseButton(0) || Global.Settings.mobile) && selected != null)
                 {
-                    GameObject sel = selected.Objekt;
+                    GameObject sel = selected.Object;
                     selected = null;
                     Global.prev?.HoverCard(true);
                     StopAllCoroutines();

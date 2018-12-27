@@ -32,10 +32,12 @@ namespace Hanafuda
         }
         void Start()
         {
+            Camera.main.SetCameraRect();
             ToCollect = new List<Card>();
             Hovered = new Card[] { };
             Deck = new List<Card>();
             Field = new List<Card>();
+            NewYaku = new List<Yaku>();
             _Turn = true;
             EffectCam = MainSceneVariables.variableCollection.EffectCamera;
             if (Global.Settings.mobile)
@@ -86,7 +88,7 @@ namespace Hanafuda
             for (int i = 0; i < 8; i++)
             {
                 Field.Add(Deck[0]);
-                GameObject temp = Deck[0].Objekt;
+                GameObject temp = Deck[0].Object;
                 Deck.RemoveAt(0);
                 temp.layer = LayerMask.NameToLayer("Feld");
                 temp.transform.parent = Field3D.transform;
@@ -104,7 +106,7 @@ namespace Hanafuda
                 float alignY = (cardHeight + offsetY) * ((rows - 1) * 0.5f);
                 StartCoroutine(temp.transform.StandardAnimation(Field3D.transform.position +
                     new Vector3((i / rows) * (cardWidth + offsetX), -alignY + (i % rows) * (cardHeight + offsetY), 0),
-                    new Vector3(0, 180, 0), temp.transform.localScale / factor, (i + 18) * 0.2f));
+                    new Vector3(0, 180, 0), Animations.StandardScale / factor, (i + 18) * 0.2f));
                 //StartCoroutine(temp.transform.StandardAnimation( GameObject.Find("Feld").transform.position + new Vector3((int)(i/2), 0, 0), new Vector3(0, 180 * (1 - i), 0), temp.transform.localScale, 16 * 0.2f));
             }
         }
@@ -118,7 +120,7 @@ namespace Hanafuda
                 for (int j = 0; j < 8; j++)
                 {
                     ((Player)players[i]).Hand.Add(Deck[0]);
-                    GameObject temp = Deck[0].Objekt;
+                    GameObject temp = Deck[0].Object;
                     Deck.RemoveAt(0);
                     temp.transform.parent = i == 0 ? Hand1.transform : Hand2.transform;
                     if (!Global.Settings.mobile)
@@ -161,7 +163,7 @@ namespace Hanafuda
                 temp.GetComponentsInChildren<MeshRenderer>()[0].material = Deck[i].Image;
                 temp.transform.parent = Deck3D.transform;
                 temp.transform.localPosition = new Vector3(0, 0, i * 0.015f);
-                Deck[i].Objekt = temp;
+                Deck[i].Object = temp;
             }
         }
     }

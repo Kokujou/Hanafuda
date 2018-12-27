@@ -77,8 +77,7 @@ namespace Hanafuda
                 if (Camera.main.aspect < 1)
                 {
                     go.transform.localPosition = new Vector3(0, 0, i * 0.1f);
-                    go.transform.localScale = new Vector3(go.transform.localScale.x * 1.5f,
-                        go.transform.localScale.y * 1.5f, 1f);
+                    go.transform.localScale = Animations.StandardScale * 1.5f;
                     go.transform.RotateAround(new Vector3(0, -12, 0), Vector3.forward, -60 + 10 * (11 - i));
                     go.layer = 0;
                 }
@@ -88,7 +87,7 @@ namespace Hanafuda
                     go.transform.Translate(0, 30, 0);
                 }
 
-                tempDeck[tempDeck.Count - 1].Objekt = go;
+                tempDeck[tempDeck.Count - 1].Object = go;
             }
 
             Order = Instantiate(Global.prefabCollection.PText);
@@ -115,7 +114,7 @@ namespace Hanafuda
         {
             Global.prev = null;
             Turn = !Turn;
-            var sel = Selection.Objekt;
+            var sel = Selection.Object;
             sel.transform.parent = null;
             sel.layer = 0;
             //!
@@ -160,7 +159,7 @@ namespace Hanafuda
             StartCoroutine(col.gameObject.transform.StandardAnimation(new Vector3(
                     (P2 ? -1 : 1) * (Global.Settings.mobile ? 13 : 55),
                     Global.Settings.mobile ? 18 : 0, 0), new Vector3(0, 180, 0),
-                col.gameObject.transform.localScale * (Global.Settings.mobile ? 1 : 2), 0));
+                Animations.StandardScale * (Global.Settings.mobile ? 1.5f : 2)));
             var Info = Instantiate(Global.prefabCollection.PText);
             if (Global.Settings.mobile)
                 Info.transform.position = new Vector3(P2 ? -24 : 0, 41, 0);
@@ -224,7 +223,7 @@ namespace Hanafuda
             Global.prev?.HoverCard(true);
             cols[i].gameObject.transform.parent = null;
             StartCoroutine(cols[i].gameObject.transform.StandardAnimation(new Vector3(mobile ? 13 : 55, mobile ? 18 : 0, 0), new Vector3(0, 180, 0),
-                cols[i].gameObject.transform.localScale * (mobile ? 1 : 2), 0));
+                Animations.StandardScale * (mobile ? 1.5f : 2), 0));
             Order.GetComponentsInChildren<TextMesh>()[0].text = "Spiel wird\ngestartet...";
             Order.GetComponentsInChildren<TextMesh>()[1].text = "Spiel wird\ngestartet...";
             Info2 = Instantiate(Global.prefabCollection.PText);
@@ -260,7 +259,7 @@ namespace Hanafuda
                         sel.transform.parent = null;
                         sel.layer = 0;
                         StartCoroutine(sel.transform.StandardAnimation(new Vector3(55 * (P2 ? 1 : -1), 0, 0),
-                            new Vector3(0, 180, 0), sel.transform.localScale * 2, 0));
+                            new Vector3(0, 180, 0), Animations.StandardScale * 2, 0));
                         var Info = Instantiate(Global.prefabCollection.PText);
                         Info.transform.position = new Vector3(P2 ? 40 : -65, 30, 0);
                         Info.GetComponent<TextMesh>().text = "Spieler " + (P2 ? "2" : "1");

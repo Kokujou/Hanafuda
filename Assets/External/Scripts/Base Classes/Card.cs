@@ -49,17 +49,17 @@ namespace Hanafuda
         public Material Image;
         public Months Monat;
         GameObject _Objekt;
-        public GameObject Objekt { get { return _Objekt; } set { _Objekt = value; _Objekt.GetComponent<CardComponent>().card = this; } }
+        public GameObject Object { get { return _Objekt; } set { _Objekt = value; _Objekt.GetComponent<CardComponent>().card = this; } }
         public Type Typ;
         public void FadeCard(bool hide = true)
         {
-            var mat = Objekt.GetComponent<CardComponent>().Foreground.GetComponent<MeshRenderer>().material;
+            var mat = Object.GetComponent<CardComponent>().Foreground.GetComponent<MeshRenderer>().material;
             float color = hide ? .2f : .5f;
             mat.SetColor("_TintColor", new Color(color,color,color));
         }
         public void HoverCard(bool unhover = false)
         {
-            BoxCollider col = Objekt.GetComponent<BoxCollider>();
+            BoxCollider col = Object.GetComponent<BoxCollider>();
             if (!col) return;
             int factor = unhover ? -1 : 1;
             if (Global.Settings.mobile)

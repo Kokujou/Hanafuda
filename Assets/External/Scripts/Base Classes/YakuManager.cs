@@ -46,6 +46,7 @@ namespace Hanafuda
         {
             Queue = queue;
             Board = board;
+            board.gameObject.SetActive(false);
         }
         public void AlignYaku()
         {
@@ -61,7 +62,6 @@ namespace Hanafuda
         private void Update()
         {
             if (Queue == null) return;
-            if (Global.MovingCards > 0) return;
             if (animLeft != 0)
             {
                 //allowInput = false;
@@ -116,8 +116,8 @@ namespace Hanafuda
                 ((Player)Board.players[0]).Koikoi++;
                 StartCoroutine(Global.prefabCollection.KoikoiText.KoikoiAnimation(() =>
                 {
-                    Board.Turn = !Board.Turn;
-                    Finished = true;
+                    Board.gameObject.SetActive(true);
+                    Board.OpponentTurn();
                 }));
                 Main.SetActive(false);
             });

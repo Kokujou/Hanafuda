@@ -163,7 +163,7 @@ namespace Hanafuda
                         for (int i = 0; i < Board.Field.Count; i++)
                         {
                             Color col = matches.Exists(x => x.Title == Board.Field[i].Title) ? new Color(.3f, .3f, .3f) : new Color(.5f, .5f, .5f);
-                            Board.Field[i].Objekt.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Foreground").material.SetColor("_TintColor", col);
+                            Board.Field[i].Object.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Foreground").material.SetColor("_TintColor", col);
                         }
                     }
                     //else

@@ -14,7 +14,8 @@ namespace ExtensionMethods
         public const float OrthoCamSize = 41f;
         public const float PlaneSize = 5f;
         public const float OrthoPlaneSize = (OrthoCamSize * 2f) / PlaneSize;
-        public static float CardSize { get { return OrthoPlaneSize * Camera.main.aspect; } }
+        public const float CardSize = OrthoPlaneSize / 1.6f;
+        public static readonly Vector3 StandardScale = new Vector3(1, 1.6f, 1);
         /// <summary>
         /// Transparenz-Animation des Hilfs-Pfeils für die mobile Handkarten-Animation
         /// </summary>
@@ -129,33 +130,32 @@ namespace ExtensionMethods
         /// 
         public static IEnumerator ResortCards(this List<Card> toSort, int maxSize, bool isMobileHand = false, bool rowWise = true, float delay = 0f)
         {
-            Vector3 StartPos = toSort[0].Objekt.transform.parent.position;
+            Vector3 StartPos = toSort[0].Object.transform.parent.position;
             yield return new WaitForSeconds(delay);
-            int iterations = 1;
             if (isMobileHand)
                 yield return SortHand(toSort);
             else
-                yield return SortCollection(toSort, maxSize, rowWise, StartPos, iterations);
+                yield return SortCollection(toSort, maxSize, rowWise, StartPos);
         }
 
-        private static IEnumerator SortCollection(List<Card> toSort, int maxSize, bool rowWise, Vector3 StartPos, int iterations)
+        private static IEnumerator SortCollection(List<Card> toSort, int maxSize, bool rowWise, Vector3 StartPos)
         {
-            iterations = maxSize;
+            int iterations = maxSize;
             for (int i = 0; i < toSort.Count; i++)
             {
-                float offsetX = toSort[i].Objekt.transform.localScale.x;
-                float offsetY = toSort[i].Objekt.transform.localScale.y;
+                float offsetX = toSort[i].Object.transform.localScale.x;
+                float offsetY = toSort[i].Object.transform.localScale.y;
                 float cardWidth = CardSize * offsetX;
                 float cardHeight = CardSize * offsetY;
                 float alignY = (cardHeight + offsetY) * ((maxSize - 1) * 0.5f);
                 if (rowWise)
-                    Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
+                    Global.global.StartCoroutine(toSort[i].Object.transform.StandardAnimation(StartPos +
                         new Vector3((i % iterations) * (cardWidth + offsetX), -alignY + (i / iterations) * (cardHeight + offsetY), 0),
-                        toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
+                        toSort[i].Object.transform.rotation.eulerAngles, toSort[i].Object.transform.localScale, 1f / toSort.Count, .5f));
                 else
-                    Global.global.StartCoroutine(toSort[i].Objekt.transform.StandardAnimation(StartPos +
+                    Global.global.StartCoroutine(toSort[i].Object.transform.StandardAnimation(StartPos +
                     new Vector3((i / iterations) * (cardWidth + offsetX), -alignY + (i % iterations) * (cardHeight + offsetY), 0),
-                    toSort[i].Objekt.transform.rotation.eulerAngles, toSort[i].Objekt.transform.localScale, 1f / toSort.Count, .5f));
+                    toSort[i].Object.transform.rotation.eulerAngles, toSort[i].Object.transform.localScale, 1f / toSort.Count, .5f));
                 yield return null;
             }
         }
@@ -164,7 +164,7 @@ namespace ExtensionMethods
         {
             for (int card = 0; card < toSort.Count; card++)
             {
-                GameObject temp = toSort[card].Objekt;
+                GameObject temp = toSort[card].Object;
                 bool hand1 = temp.transform.parent.name.Contains("1");
                 Global.global.StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, new Vector3(0, temp.transform.rotation.eulerAngles.y, hand1 ? 0 : 180), temp.transform.localScale, 0, .3f, () =>
                 {

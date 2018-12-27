@@ -52,17 +52,17 @@ namespace Hanafuda
             Global.global.StopAllCoroutines();
             RefillCards();
             source.Remove(handCard);
-            handCard.Objekt.transform.parent = tPlatz;
-            handCard.Objekt.layer = LayerMask.NameToLayer("Feld");
+            handCard.Object.transform.parent = tPlatz;
+            handCard.Object.layer = LayerMask.NameToLayer("Feld");
             if (Matches.Count > 0)
                 Matches.Add(handCard);
             else
             {
                 Field.Add(handCard);
-                Global.global.StartCoroutine(handCard.Objekt.transform.StandardAnimation(tPlatz.position +
+                Global.global.StartCoroutine(handCard.Object.transform.StandardAnimation(tPlatz.position +
                     (Global.Settings.mobile ? new Vector3(((Field.Count - 1) / 3) * (11f / 1.5f), -9 + (18f / 1.5f) * ((Field.Count - 1) % 3))
                     : new Vector3(((Field.Count - 1) / 2) * 11f, -9 + 18 * ((Field.Count - 1) % 2))),
-                    new Vector3(0, 180, 0), handCard.Objekt.transform.localScale / (Global.Settings.mobile ? 1.5f : 1f)));
+                    new Vector3(0, 180, 0), handCard.Object.transform.localScale / (Global.Settings.mobile ? 1.5f : 1f)));
             }
             for (int i = 0; i < Matches.Count; i++)
             {
@@ -71,20 +71,20 @@ namespace Hanafuda
                     ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(Matches[i]);
                     if (i < Matches.Count - 1)
                         Field.Remove(Matches[i]);
-                    Global.global.StartCoroutine(Matches[i].Objekt.transform.StandardAnimation(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Turn ? 0 : Screen.height)),
-                        Vector3.zero, Vector3.zero, 0, AddFunc: () => { GameObject.Destroy(Matches[i].Objekt); }));
+                    Global.global.StartCoroutine(Matches[i].Object.transform.StandardAnimation(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Turn ? 0 : Screen.height)),
+                        Vector3.zero, Vector3.zero, 0, AddFunc: () => { GameObject.Destroy(Matches[i].Object); }));
                 }
                 else
                 {
                     Transform collection = MainSceneVariables.variableCollection.PCCollections[(Turn ? 0 : 1) * 4 + (int)Matches[i].Typ];
-                    Matches[i].Objekt.transform.parent = collection;
+                    Matches[i].Object.transform.parent = collection;
                     ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(Matches[i]);
                     if (i < Matches.Count - 1)
                         Field.Remove(Matches[i]);
-                    Matches[i].Objekt.layer = LayerMask.NameToLayer("Collected");
-                    Global.global.StartCoroutine(Matches[i].Objekt.transform.StandardAnimation(Matches[i].Objekt.transform.parent.position +
+                    Matches[i].Object.layer = LayerMask.NameToLayer("Collected");
+                    Global.global.StartCoroutine(Matches[i].Object.transform.StandardAnimation(Matches[i].Object.transform.parent.position +
                         new Vector3(5.5f * ((collection.childCount - 1) % 5), -((collection.childCount - 1) / 5) * 2f, -((collection.childCount - 1) / 5)),
-                        new Vector3(0, 180, 0), Matches[i].Objekt.transform.localScale / 2));
+                        new Vector3(0, 180, 0), Matches[i].Object.transform.localScale / 2));
                 }
             }
             if (Global.Settings.mobile)
@@ -166,7 +166,7 @@ namespace Hanafuda
         {
             for (var i = 0; i < Field.Count; i++)
             {
-                foreach (Transform side in Field[i].Objekt.transform)
+                foreach (Transform side in Field[i].Object.transform)
                 {
                     var mat = side.gameObject.GetComponent<MeshRenderer>().material;
                     mat.SetColor("_TintColor", new Color(0.5f, 0.5f, 0.5f, .5f));
