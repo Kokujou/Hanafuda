@@ -33,8 +33,8 @@ namespace Hanafuda
         private readonly Global.GridLayout.Toggle rounds6 = new Global.GridLayout.Toggle(2, 0, 0, "6 Runden");
         private bool Running;
         private readonly Global.GridLayout SinglePlayer = new Global.GridLayout();
+        private GameObject Loading;
         public GUISkin skin;
-        public ObservableCollection<Card> test = new ObservableCollection<Card>();
 
         private void Update()
         {
@@ -77,13 +77,21 @@ namespace Hanafuda
             }, "Spiel Starten"));
             SinglePlayer.addToLine(new Global.GridLayout.Empty(1));
             MultiPlayer.addLine(new Global.GridLayout.Empty(1), 1);
-            MultiPlayer.addToLine(new Global.GridLayout.Button(4, () => { Global.global.gameObject.GetComponent<Communication>().CreateMatch(P1.Text); }, "Auf Mitspieler warten"));
+            MultiPlayer.addToLine(new Global.GridLayout.Button(4, () =>
+            {
+                Global.global.gameObject.GetComponent<Communication>().CreateMatch(P1.Text);
+                Running = true;
+            }, "Auf Mitspieler warten"));
             MultiPlayer.addToLine(new Global.GridLayout.Empty(1));
             MultiPlayer.addLine(new Global.GridLayout.Label(1, "Name des Mitspielers", true), 1);
             MultiPlayer.addToLine(P2);
             MultiPlayer.addLine(new Global.GridLayout.Empty(1), 1);
             MultiPlayer.addToLine(new Global.GridLayout.Button(4,
-                () => { Global.global.gameObject.GetComponent<Communication>().SearchMatch(P2.Text); },
+                () =>
+                {
+                    Global.global.gameObject.GetComponent<Communication>().SearchMatch(P2.Text);
+                    Running = true;
+                },
                 "Mitspieler suchen"));
             MultiPlayer.addToLine(new Global.GridLayout.Empty(1));
             PlayMode.Selected = 0;
@@ -94,7 +102,6 @@ namespace Hanafuda
         /// </summary>
         private void OnGUI()
         {
-
             if (!Running)
             {
                 GUI.skin = skin;
@@ -102,6 +109,10 @@ namespace Hanafuda
                 GUI.matrix = Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.identity,
                     new Vector3(Screen.width / resolution.x, Screen.height / resolution.y, 1));
                 layout.DrawLayout(true, "Einstellungen");
+            }
+            else if(Loading == null)
+            {
+                Loading = Instantiate(Global.prefabCollection.Loading);
             }
         }
     }

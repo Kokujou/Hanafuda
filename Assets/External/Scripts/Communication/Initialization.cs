@@ -10,12 +10,15 @@ namespace Hanafuda
     public partial class Communication
     {
         public const int MaxPlayer = 2;
+        /// <summary>
+        /// Erstellt ein Match auf den Namen des Hosts
+        /// </summary>
+        /// <param name="player">Name des Hosts</param>
         public void CreateMatch(string player)
         {
             NetworkManager.singleton.StartMatchMaker();
             NetworkManager.singleton.autoCreatePlayer = false;
             NetworkManager.singleton.matchMaker.CreateMatch(player.ToLower(), 2, true, "", "", "", 0, 0, WaitForPlayers);
-            Camera.main.name = player;
             Settings.Multiplayer = true;
             Settings.PlayerID = 0;
             Settings.Players = new List<Player>() { new Player(player) };

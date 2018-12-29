@@ -317,6 +317,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1233903757}
   - component: {fileID: 1233903756}
+  - component: {fileID: 1233903758}
   m_Layer: 0
   m_Name: Global
   m_TagString: Untagged
@@ -353,6 +354,7 @@ MonoBehaviour:
       type: 2}
     gKouYaku: {fileID: 1492468234595444, guid: 57ced8d467e3074449a907fb971bc79a, type: 2}
     PText: {fileID: 1771767747600700, guid: 823b7f92431231843a1db4ba516a913c, type: 2}
+    Loading: {fileID: 1625545950477116, guid: 84e30324208adb44eb15c4328e14d575, type: 2}
   AllCards:
   - {fileID: 11400000, guid: c5e3397eb63894048a8a3b9f9359f5e4, type: 2}
   - {fileID: 11400000, guid: 49502d594415026439c607ed3fdd2517, type: 2}
@@ -429,6 +431,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1233903758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1233903755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d6f5980792368c4eb98e78433148a0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1895822853
 GameObject:
   m_ObjectHideFlags: 0
