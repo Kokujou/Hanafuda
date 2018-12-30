@@ -19,9 +19,10 @@ namespace Hanafuda
 
         public void RegisterHandlers()
         {
-            NetworkServer.RegisterHandler(MoveSyncMsg, SyncMove);
-            if (!NetworkServer.active)
-                Settings.Client.RegisterHandler(DeckSyncMsg, SyncDeck);
+            Settings.Client.RegisterHandler(DeckSyncMsg, ReceiveSeed);
+            Settings.Client.RegisterHandler(MoveSyncMsg, ReceiveMove);
+            if (NetworkServer.active)
+                NetworkServer.RegisterHandler(MoveSyncMsg, BroadcastMove);
         }
 
         /// <summary>
@@ -71,9 +72,10 @@ namespace Hanafuda
         /// Matchsuche nach Namen
         /// </summary>
         /// <param name="partner">Partnername (=Matchname)</param>
-        public void SearchMatch(string partner, bool rounds6)
+        public void SearchMatch(string player, string partner, bool rounds6)
         {
-            Settings.Players = new List<Player>() { new Player(partner) };
+            Settings.Players = new List<Player>() { new Player(partner), new Player(player) };
+            Settings.PlayerID = 1;
             Settings.Rounds6 = rounds6;
             Settings.Multiplayer = true;
             NetworkManager.singleton.matchMaker.ListMatches(0, 20, Settings.GetMatchName(), false, 0, 0, JoinFirstMatch);
@@ -114,7 +116,7 @@ namespace Hanafuda
         {
             Settings.Client.UnregisterHandler(MsgType.Connect);
             Settings.Client.RegisterHandler(PlayerSyncMsg, SyncAndStart);
-            Settings.Client.Send(AddPlayerMsg, new Message { message = Settings.Players[0].Name });
+            Settings.Client.Send(AddPlayerMsg, new Message { message = Settings.GetName() });
             Debug.Log("Send Add Player");
         }
         private void SyncAndStart(NetworkMessage msg)
@@ -122,10 +124,13 @@ namespace Hanafuda
             Debug.Log("SyncAndStart");
             Settings.Client.UnregisterHandler(PlayerSyncMsg);
             string[] names = msg.ReadMessage<Message>().message.Split('|');
-            Settings.PlayerID = names.ToList().IndexOf(Settings.Players[0].Name);
+            Settings.PlayerID = names.ToList().IndexOf(Settings.GetName());
             Settings.Players.Clear();
             for (int name = 0; name < names.Length; name++)
+            {
                 Settings.Players.Add(new Player(names[name]));
+                Debug.Log(Settings.Players[name].Name);
+            }
             SceneManager.LoadScene("OyaNegotiation");
         }
     }

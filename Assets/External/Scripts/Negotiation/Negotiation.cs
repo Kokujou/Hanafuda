@@ -25,7 +25,17 @@ namespace Hanafuda
         private Communication PlayerInteraction;
         private Card[] Selections;
         private List<Card> tempDeck;
-        private int Turn;
+        private int _Turn;
+        private int Turn
+        {
+            get { return _Turn; }
+            set
+            {
+                _Turn = value;
+                if (Settings.Mobile && value == Settings.PlayerID)
+                    CreateSlide();
+            }
+        }
         private Card selected;
         /// <summary>
         ///     Platzierung der repräsentativen Deck-Karten im Kreis und Initialisierung von Startpositionen
@@ -50,6 +60,7 @@ namespace Hanafuda
                 Destroy(PlayerInteraction);
                 LoadDeck(seed);
             }
+            Debug.Log($"Player ID: {Settings.PlayerID}");
         }
 
         private void LoadDeck(int seed)
@@ -86,11 +97,8 @@ namespace Hanafuda
             {
                 Order.SetActive(false);
                 Kartenziehen.transform.Translate(new Vector3(0, -13, 0));
-                var Slide = Instantiate(Global.prefabCollection.PSlide);
-                Slide.transform.SetParent(Kartenziehen.transform, true);
-                var SlideScript = Slide.AddComponent<SlideHand>();
-                SlideScript.Init(tempDeck.Count, x => HoverCards(x >= 0 ? tempDeck[x] : null), x => { OnSelectItem(tempDeck[x]); });
             }
+            Turn = 0;
         }
         public void HoverCards(params Card[] cards)
         {
@@ -143,7 +151,8 @@ namespace Hanafuda
 
         private void PlayCard(PlayerAction action)
         {
-            bool isHost = action.PlayerID != Settings.PlayerID;
+            Debug.Log(action.PlayerID);
+            bool isHost = action.PlayerID == 1;
             float targetX = 13, targetY = 18, targetScale = 1.5f, InfoX = isHost ? 0 : -24, InfoY = 41;
             if (!Settings.Mobile)
             {
@@ -163,8 +172,8 @@ namespace Hanafuda
                 new Vector3(0, 180, 0), Animations.StandardScale * targetScale, 0));
             var Info = Instantiate(Global.prefabCollection.PText);
             Info.transform.position = new Vector3(InfoX, InfoY, 0);
-            Info.GetComponent<TextMesh>().text = "Spieler " + (isHost ? "2" : "1");
-            Info.GetComponentsInChildren<TextMesh>()[1].text = "Spieler " + (isHost ? "2" : "1");
+            Info.GetComponent<TextMesh>().text = Settings.Players[action.PlayerID].Name;
+            Info.GetComponentsInChildren<TextMesh>()[1].text = Settings.Players[action.PlayerID].Name;
             Infos[action.PlayerID] = Info;
             Turn = action.PlayerID + 1;
             for (int selection = 0; selection < Selections.Length; selection++)
@@ -183,7 +192,7 @@ namespace Hanafuda
             for (int selection = 0; selection < Selections.Length; selection++)
                 selections.Add((int)Selections[selection].Monat, selection);
             List<Player> rearrange = new List<Player>(Settings.Players);
-            Infos[selections.Values[0]].GetComponent<TextMesh>().color = new Color(28, 165, 28, 255)/255f;
+            Infos[selections.Values[0]].GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255f;
             Settings.Players[selections.Values[0]] = rearrange[0];
             for (int selection = 1; selection < Selections.Length; selection++)
             {
@@ -226,6 +235,17 @@ namespace Hanafuda
                     selected = null;
                     Global.prev?.HoverCard(true);
                 }
+            }
+        }
+
+        private void CreateSlide()
+        {
+            if (Settings.Mobile)
+            {
+                var Slide = Instantiate(Global.prefabCollection.PSlide);
+                Slide.transform.SetParent(Kartenziehen.transform, true);
+                var SlideScript = Slide.AddComponent<SlideHand>();
+                SlideScript.Init(tempDeck.Count, x => HoverCards(x >= 0 ? tempDeck[x] : null), x => { OnSelectItem(tempDeck[x]); });
             }
         }
     }

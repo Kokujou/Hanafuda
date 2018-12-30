@@ -173,19 +173,37 @@ namespace Hanafuda
         public static implicit operator Move(PlayerAction action)
         {
             Move move = new Move();
-            move.SingleSelection = action.SingleSelection.name;
-            move.HandSelection = action.HandSelection.Title;
-            move.PlayerID = action.PlayerID;
-            if (action.HandMatches.Count == 1)
-                move.HandFieldSelection = action.HandMatches[0].Title;
-            if (action.DeckMatches.Count == 1)
-                move.HandFieldSelection = action.DeckMatches[0].Title;
-            return move;
+            if (action.SingleSelection)
+            {
+                move.SingleSelection = action.SingleSelection.name;
+                move.PlayerID = action.PlayerID;
+                return move;
+            }
+            else
+            {
+                move.HandSelection = action.HandSelection.Title;
+                move.PlayerID = action.PlayerID;
+                if (action.HandMatches.Count == 1)
+                    move.HandFieldSelection = action.HandMatches[0].Title;
+                if (action.DeckMatches.Count == 1)
+                    move.DeckFieldSelection = action.DeckMatches[0].Title;
+                return move;
+            }
         }
 
         public static implicit operator PlayerAction(Move move)
         {
-            return null;
+            PlayerAction action = new PlayerAction();
+            if (move.HandSelection != "")
+                action.HandSelection = Global.allCards.Find(x => x.Title == move.HandSelection);
+            if (move.SingleSelection != "")
+                action.SingleSelection = Global.allCards.Find(x => x.Title == move.SingleSelection);
+            if (move.HandFieldSelection != "")
+                action.HandMatches = new List<Card>() { Global.allCards.Find(x => x.Title == move.HandFieldSelection) };
+            if (move.DeckFieldSelection != "")
+                action.DeckMatches = new List<Card>() { Global.allCards.Find(x => x.Title == move.DeckFieldSelection) };
+            action.PlayerID = move.PlayerID;
+            return action;
         }
     }
 }

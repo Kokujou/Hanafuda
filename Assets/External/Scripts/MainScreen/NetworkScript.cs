@@ -80,7 +80,7 @@ namespace Hanafuda
             MultiPlayer.addToLine(new Global.GridLayout.Button(4,
                 () =>
                 {
-                    Global.instance.gameObject.GetComponent<Communication>().SearchMatch(P2.Text, Global.GridLayout.Toggles[0][0]);
+                    Global.instance.gameObject.GetComponent<Communication>().SearchMatch(P1.Text, P2.Text, Global.GridLayout.Toggles[0][0]);
                     Running = true;
                 },
                 "Mitspieler suchen"));
@@ -101,7 +101,7 @@ namespace Hanafuda
                     new Vector3(Screen.width / resolution.x, Screen.height / resolution.y, 1));
                 layout.DrawLayout(true, "Einstellungen");
             }
-            else if(Loading == null)
+            else if (Loading == null)
             {
                 Loading = Instantiate(Global.prefabCollection.Loading);
             }
