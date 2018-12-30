@@ -53,6 +53,18 @@ namespace Hanafuda
             return Players[PlayerID].Name;
         }
 
+        /// <summary>
+        /// Gibt einen String zurück, der den Match-Namen im Multiplayer-Modus repräsentiert
+        /// </summary>
+        /// <returns></returns>
+        public static string GetMatchName()
+        {
+            if (Rounds6)
+                return $"6 Rounds | {Players[0].Name}";
+            else
+                return $"12 Rounds | {Players[0].Name}";
+        }
+
         public static NetworkClient Client;
     }
 }

@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using UnityEngine.Networking;
 
 namespace Hanafuda
 {
     public class PlayerAction
     {
+        public Card SingleSelection;
+        public int PlayerID;
         private Card HandSelection;
         private Card DeckSelection = null;
         private List<Card> HandMatches = new List<Card>();
@@ -36,6 +39,7 @@ namespace Hanafuda
         public void Init(Spielfeld board)
         {
             Board = board;
+            PlayerID = Settings.PlayerID;
         }
         public void SelectFromHand(Card selection)
         {
@@ -151,11 +155,11 @@ namespace Hanafuda
             List<Yaku> newYaku = Yaku.GetYaku(newCollection);
             for (int i = newYaku.Count; i >= 0; i--)
             {
-                if (oldYaku.Exists(x=>x.Title == newYaku[i].Title))
+                if (oldYaku.Exists(x => x.Title == newYaku[i].Title))
                     NewYaku.Add(newYaku[i]);
                 else
                 {
-                    if(newYaku[i].addPoints > 0)
+                    if (newYaku[i].addPoints > 0)
                     {
                         int oldPoints = oldCollection.FindAll(x => x.Typ == newYaku[i].TypPref).Count;
                         int newPoints = newCollection.FindAll(x => x.Typ == newYaku[i].TypPref).Count;
@@ -164,6 +168,24 @@ namespace Hanafuda
                     }
                 }
             }
+        }
+
+        public static implicit operator Move(PlayerAction action)
+        {
+            Move move = new Move();
+            move.SingleSelection = action.SingleSelection.name;
+            move.HandSelection = action.HandSelection.Title;
+            move.PlayerID = action.PlayerID;
+            if (action.HandMatches.Count == 1)
+                move.HandFieldSelection = action.HandMatches[0].Title;
+            if (action.DeckMatches.Count == 1)
+                move.HandFieldSelection = action.DeckMatches[0].Title;
+            return move;
+        }
+
+        public static implicit operator PlayerAction(Move move)
+        {
+            return null;
         }
     }
 }

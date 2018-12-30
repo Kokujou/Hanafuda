@@ -5,17 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
 using UnityEngine.SceneManagement;
 
-/*
- * Todo:
- *  - Fehlerbehebung: Doppelte Spielernamen bei Eintragung
- *  - Zusätzlicher Filter beim Suchen: Rundenzahl
- *  - Offene Match-Liste zur Verfügung stellen
- *  - Ladeanimation beim Warten/Suchen/Erstellen
- */
-/// <summary>
-/// Hauptmenü beim Spielstart
-/// </summary>
-/// 
+
 namespace Hanafuda
 {
     public class NetworkScript : MonoBehaviour
@@ -72,14 +62,15 @@ namespace Hanafuda
             {
                 Settings.Rounds6 = Global.GridLayout.Toggles[0][0];
                 Settings.KIMode = KIMode.Selected;
-                Settings.Players = new List<Player>() { new Player(P1.Text) };
+                Settings.Players = new List<Player>() { new Player(P1.Text), new Player("Computer") };
+                Settings.PlayerID = 0;
                 SceneManager.LoadScene("OyaNegotiation");
             }, "Spiel Starten"));
             SinglePlayer.addToLine(new Global.GridLayout.Empty(1));
             MultiPlayer.addLine(new Global.GridLayout.Empty(1), 1);
             MultiPlayer.addToLine(new Global.GridLayout.Button(4, () =>
             {
-                Global.global.gameObject.GetComponent<Communication>().CreateMatch(P1.Text);
+                Global.instance.gameObject.GetComponent<Communication>().CreateMatch(P1.Text, Global.GridLayout.Toggles[0][0]);
                 Running = true;
             }, "Auf Mitspieler warten"));
             MultiPlayer.addToLine(new Global.GridLayout.Empty(1));
@@ -89,7 +80,7 @@ namespace Hanafuda
             MultiPlayer.addToLine(new Global.GridLayout.Button(4,
                 () =>
                 {
-                    Global.global.gameObject.GetComponent<Communication>().SearchMatch(P2.Text);
+                    Global.instance.gameObject.GetComponent<Communication>().SearchMatch(P2.Text, Global.GridLayout.Toggles[0][0]);
                     Running = true;
                 },
                 "Mitspieler suchen"));

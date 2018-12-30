@@ -25,7 +25,7 @@ namespace Hanafuda
         /// <summary>
         /// Splitter-Blockgröße der Icons, 2^x.
         /// </summary>
-        private const int SplitSize = 3;
+        private const int SplitSize = 2;
         /// <summary>
         /// Einheitliche Größe der Icon-Texturen
         /// </summary>

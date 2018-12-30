@@ -15,7 +15,8 @@ namespace Hanafuda
 {
     public partial class Global : MonoBehaviour
     {
-        public static Global global;
+        public static Action NoAction = () => { Debug.Log("Not Implemented Action Called"); };
+        public static Global instance;
         public static int MovingCards;
         public static Sprite[] CardSkins;
         public static int Turn = -1;
@@ -28,7 +29,7 @@ namespace Hanafuda
         public List<Yaku> AllYaku = new List<Yaku>();
         private void Awake()
         {
-            global = this;
+            instance = this;
             DontDestroyOnLoad(this);
             allYaku = AllYaku;
             allCards = AllCards;

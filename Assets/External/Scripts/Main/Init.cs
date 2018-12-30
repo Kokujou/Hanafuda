@@ -60,19 +60,21 @@ namespace Hanafuda
                 RegisterHandlers();
                 return;
             }*/
-            if (Global.players.Count == 0)
+            if (Settings.Players.Count == 0)
             {
                 Init(Settings.Players);
                 players.Add(new KI((KI.Mode)Settings.KIMode, this, Turn, "Computer"));
             }
             else
             {
-                Init(Global.players);
+                Init(Settings.Players);
                 for (int i = 0; i < players.Count; i++)
                     ((Player)players[0]).Reset();
             }
             FieldSetup();
         }
+
+
         /// <summary>
         /// Erstellung des Decks, sowie Austeilen von Händen und Spielfeld
         /// </summary>
