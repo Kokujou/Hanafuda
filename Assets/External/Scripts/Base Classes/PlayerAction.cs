@@ -7,6 +7,7 @@ namespace Hanafuda
     {
         public Card SingleSelection;
         public int PlayerID;
+        public bool HadYaku;
         private Card HandSelection;
         private Card DeckSelection = null;
         private List<Card> HandMatches = new List<Card>();
@@ -19,7 +20,7 @@ namespace Hanafuda
                 _DeckMatches = value;
                 if (value.Count != 2)
                 {
-                    GetNewYaku();
+                    //GetNewYaku();
                 }
             }
         }
@@ -31,9 +32,10 @@ namespace Hanafuda
         {
             return !Koikoi;
         }
-        public void SayKoikoi()
+        public void SayKoikoi(bool koikoi)
         {
-            Koikoi = true;
+            HadYaku = true;
+            Koikoi = koikoi;
         }
 
         public void Init(Spielfeld board)
@@ -137,7 +139,24 @@ namespace Hanafuda
 
         public void Apply3D()
         {
+            Board.SelectionToField(HandSelection);
+            List<Card> Collection = new List<Card>(HandMatches);
+            Collection.Add(HandSelection);
+            if (Collection.Count != 1)
+                Board.CollectCards(Collection);
 
+            Board.SelectionToField(DeckSelection);
+            Collection = new List<Card>(DeckMatches);
+            Collection.Add(DeckSelection);
+            if (Collection.Count != 1)
+                Board.CollectCards(Collection);
+
+            if (HadYaku)
+            {
+                if (Koikoi)
+                    Board.players[PlayerID].Koikoi++;
+                Board.SayKoiKoi(Koikoi);
+            }
         }
 
         public void GetNewYaku()
@@ -187,6 +206,8 @@ namespace Hanafuda
                     move.HandFieldSelection = action.HandMatches[0].Title;
                 if (action.DeckMatches.Count == 1)
                     move.DeckFieldSelection = action.DeckMatches[0].Title;
+                move.hadYaku = action.HadYaku;
+                move.Koikoi = action.Koikoi;
                 return move;
             }
         }
@@ -202,6 +223,8 @@ namespace Hanafuda
                 action.HandMatches = new List<Card>() { Global.allCards.Find(x => x.Title == move.HandFieldSelection) };
             if (move.DeckFieldSelection != "")
                 action.DeckMatches = new List<Card>() { Global.allCards.Find(x => x.Title == move.DeckFieldSelection) };
+            action.HadYaku = move.hadYaku;
+            action.Koikoi = move.Koikoi;
             action.PlayerID = move.PlayerID;
             return action;
         }

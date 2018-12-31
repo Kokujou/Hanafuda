@@ -15,6 +15,8 @@ namespace Hanafuda
         public string HandSelection;
         public string HandFieldSelection;
         public string DeckFieldSelection;
+        public bool hadYaku;
+        public bool Koikoi;
         public int PlayerID;
     }
 }

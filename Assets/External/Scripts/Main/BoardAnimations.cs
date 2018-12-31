@@ -29,7 +29,23 @@ namespace Hanafuda
             }
         }
 
-        private void CollectCards()
+        public void SelectionToField(Card card)
+        {
+            card.Object.transform.parent = Field3D.transform;
+            float scaleFactor = Settings.Mobile ? 1.5f : 1;
+            int maxSize = Settings.Mobile ? 3 : 2;
+            float offsetX = Animations.StandardScale.x / scaleFactor;
+            float offsetY = Animations.StandardScale.y / scaleFactor;
+            float cardWidth = Animations.CardSize * offsetX;
+            float cardHeight = Animations.CardSize * offsetY;
+            float alignY = (cardHeight + offsetY) * (maxSize - 1) * 0.5f;
+            Vector3 FieldPos = new Vector3((Field.Count / maxSize) * (cardWidth + offsetX), -alignY + (Field.Count % maxSize) * (cardHeight + offsetY), 0);
+            StartCoroutine(card.Object.transform.StandardAnimation(Field3D.position + FieldPos, new Vector3(0, 180, 0),
+                Animations.StandardScale / scaleFactor));
+            Field.Add(card);
+        }
+
+        public void CollectCards(List<Card> ToCollect)
         {
             HoverMatches(Card.Months.Null);
             Vector3 destPos = Vector3.zero;
@@ -46,7 +62,6 @@ namespace Hanafuda
             }
             for (int card = 0; card < ToCollect.Count; card++)
             {
-                Debug.Log(ToCollect[card]);
                 Transform parent = null;
                 if (!Settings.Mobile)
                 {
@@ -56,7 +71,6 @@ namespace Hanafuda
                     destPos = parent.position + insertPos;
                     ToCollect[card].Object.transform.parent = parent;
                 }
-                Debug.Log(destScale);
                 StartCoroutine(ToCollect[card].Object.transform.StandardAnimation(destPos, destRot, destScale));
                 ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(ToCollect[card]);
                 Field.Remove(ToCollect[card]);
@@ -77,7 +91,7 @@ namespace Hanafuda
 
         private void DrawFromDeck()
         {
-            ToCollect.Add(Deck[0]);
+            Collection.Add(Deck[0]);
         }
     }
 }

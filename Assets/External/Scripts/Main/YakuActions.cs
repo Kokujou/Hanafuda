@@ -25,6 +25,8 @@ namespace Hanafuda
                 }
                 Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
             }
+            else
+                OpponentTurn();
         }
     }
 }

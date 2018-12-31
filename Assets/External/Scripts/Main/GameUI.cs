@@ -14,7 +14,7 @@ namespace Hanafuda
         private void Awake()
         {
             _mobileContainerX = -maxMobileContainerX;
-            Players = gameObject.GetComponent<PlayerComponent>().Players;
+            Players = gameObject.GetComponent<Spielfeld>().players;
         }
 
         private void Update()

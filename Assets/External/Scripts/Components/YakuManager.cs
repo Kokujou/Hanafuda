@@ -54,7 +54,6 @@ namespace Hanafuda
         {
             if (Queue?.Count > 0)
             {
-                Debug.Log(Queue[0].TypPref);
                 if (Queue[0].TypPref == Card.Type.Lichter) return;
             }
             Yaku.localPosition = new Vector3(animLeft, 0, 0);
@@ -84,13 +83,13 @@ namespace Hanafuda
                 if (Queue[0].TypPref == Card.Type.Lichter)
                 {
                     handler = Instantiate(Global.prefabCollection.gKouYaku, transform).GetComponent<YakuHandler>();
-                    handler.KouYaku(Queue[0], ((Player)Board.players[0]).CollectedCards);
+                    handler.KouYaku(Queue[0], ((Player)Board.players[Settings.PlayerID]).CollectedCards);
                     handler.name = "Kou";
                 }
                 else if (Queue[0].addPoints == 0)
                 {
                     handler = Instantiate(Global.prefabCollection.gFixedYaku, transform).GetComponent<YakuHandler>();
-                    handler.FixedYaku(Queue[0], ((Player)Board.players[0]).CollectedCards);
+                    handler.FixedYaku(Queue[0], ((Player)Board.players[Settings.PlayerID]).CollectedCards);
                 }
                 else
                 {
@@ -115,12 +114,12 @@ namespace Hanafuda
             };
             entry.callback.AddListener((data) =>
             {
-                ((Player)Board.players[0]).Koikoi++;
+                ((Player)Board.players[Settings.PlayerID]).Koikoi++;
                 StartCoroutine(Global.prefabCollection.KoikoiText.KoikoiAnimation(() =>
                 {
                     Destroy(gameObject);
                     Board.gameObject.SetActive(true);
-                    Board.OpponentTurn();
+                    Board.SayKoiKoi(true);
                 }));
                 Main.SetActive(false);
             });
@@ -131,9 +130,9 @@ namespace Hanafuda
             };
             entry.callback.AddListener((data) =>
             {
-                Global.players.RemoveAll(x => x.Name == ((Player)Board.players[0]).Name);
-                Global.players.Add(((Player)Board.players[0]));
-                SceneManager.LoadScene("Finish");
+                Destroy(gameObject);
+                Board.gameObject.SetActive(true);
+                Board.SayKoiKoi(false);
             });
             NoButton.triggers.Add(entry);
         }

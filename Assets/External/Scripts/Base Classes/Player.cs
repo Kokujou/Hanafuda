@@ -67,19 +67,6 @@ namespace Hanafuda
 
             tempPoints = nPoints + Koikoi;
         }
-
-        [Command]
-        public void CmdSetPoints(int value)
-        {
-            TotalPoints = value;
-        }
-
-        [Command]
-        public void CmdAddKoiKoi()
-        {
-            Koikoi++;
-        }
-
         public override string ToString()
         {
             return Name;

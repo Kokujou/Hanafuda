@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ExtensionMethods;
+using UnityEngine.SceneManagement;
 
 namespace Hanafuda
 {
     public partial class Spielfeld
     {
-        private List<Card> ToCollect;
+        private List<Card> Collection;
+        private PlayerAction currentAction;
         public void HoverHand(Card card)
         {
             if (card)
@@ -23,22 +25,6 @@ namespace Hanafuda
             }
         }
 
-        private void SelectionToField(Card card, List<Card> source)
-        {
-            card.Object.transform.parent = Field3D.transform;
-            float scaleFactor = Settings.Mobile ? 1.5f : 1;
-            int maxSize = Settings.Mobile ? 3 : 2;
-            float offsetX = Animations.StandardScale.x / scaleFactor;
-            float offsetY = Animations.StandardScale.y / scaleFactor;
-            float cardWidth = Animations.CardSize * offsetX;
-            float cardHeight = Animations.CardSize * offsetY;
-            float alignY = (cardHeight + offsetY) * (maxSize - 1) * 0.5f;
-            Vector3 FieldPos = new Vector3((Field.Count / maxSize) * (cardWidth + offsetX), -alignY + (Field.Count % maxSize) * (cardHeight + offsetY), 0);
-            StartCoroutine(card.Object.transform.StandardAnimation(Field3D.position + FieldPos, new Vector3(0, 180, 0),
-                Animations.StandardScale / scaleFactor));
-            Field.Add(card);
-            source.Remove(card);
-        }
         private bool HandleMatches(Card card, bool fromDeck = false)
         {
             List<Card> matches = Field.FindAll(x => x.Monat == card.Monat);
@@ -46,41 +32,90 @@ namespace Hanafuda
             {
                 case 2:
                 case 4:
-                    ToCollect = matches;
-                    StartCoroutine(AfterAnimation(CollectCards));
+                    Collection = matches;
+                    StartCoroutine(AfterAnimation(() => CollectCards(Collection)));
                     break;
                 case 3:
                     card.FadeCard();
                     gameObject.GetComponent<PlayerComponent>().RequestFieldSelection(card, fromDeck);
                     return false;
                 default:
-                    ToCollect.Clear();
+                    Collection.Clear();
                     HoverMatches(Card.Months.Null);
                     break;
             }
             return true;
         }
+        public void SayKoiKoi(bool koikoi)
+        {
+            if (Turn)
+            {
+                currentAction.SayKoikoi(koikoi);
+                if (Settings.Multiplayer)
+                    OpponentTurn();
+            }
+            else
+            {
+                if (koikoi)
+                {
+                    /*
+                     * Koikoi-Animation Einblenden
+                     */
+                }
+            }
+            if((!Settings.Multiplayer || !Turn) && !koikoi)
+                SceneManager.LoadScene("Finish");
+        }
+
         public void OpponentTurn()
         {
             _Turn = !_Turn;
             if (!Settings.Multiplayer)
             {
-                PlayerAction action = ((KI)players[1]).MakeTurn(this);
+                PlayerAction action = ((KI)players[1 - Settings.PlayerID]).MakeTurn(this);
                 gameObject.GetComponent<PlayerComponent>().Reset();
+                currentAction = new PlayerAction();
+                currentAction.Init(this);
+            }
+            else
+            {
+                PlayerInteraction.SendAction(currentAction);
             }
         }
+
+        private void ApplyMove(Move move)
+        {
+            if (move.PlayerID == Settings.PlayerID) return;
+            PlayerAction action = move;
+            action.Init(this);
+            action.PlayerID = move.PlayerID;
+            action.Apply3D();
+            currentAction = new PlayerAction();
+            currentAction.Init(this);
+        }
+
         public void SelectCard(Card card, bool fromDeck = false)
         {
             List<Card> Source = fromDeck ? Deck : ((Player)players[Turn ? 0 : 1]).Hand;
-            ToCollect.Add(card);
-            if (ToCollect.Count == 1)
+            Collection.Add(card);
+            // = Erster Aufruf
+            if (Collection.Count == 1)
             {
-                SelectionToField(card, Source);
+                if (fromDeck)
+                    currentAction.DrawCard();
+                else
+                    currentAction.SelectFromHand(card);
+                SelectionToField(card);
+                Source.Remove(card);
                 if (!HandleMatches(card, fromDeck)) return;
             }
             else
             {
-                StartCoroutine(AfterAnimation(CollectCards));
+                if (fromDeck)
+                    currentAction.SelectDeckMatch(card);
+                else
+                    currentAction.SelectHandMatch(card);
+                StartCoroutine(AfterAnimation(() => CollectCards(Collection)));
             }
             HoverMatches(Card.Months.Null);
             if (!fromDeck)
@@ -125,7 +160,7 @@ namespace Hanafuda
         public void OnGUI()
         {
             if (GUILayout.Button("X"))
-                ((Player)players[0]).CollectedCards = Global.allCards;
+                ((Player)players[Settings.PlayerID]).CollectedCards = Global.allCards;
         }
     }
 }

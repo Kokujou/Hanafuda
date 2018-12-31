@@ -12,7 +12,7 @@ namespace Hanafuda
     public partial class Communication : MonoBehaviour
     {
         public Action<int> OnDeckSync = x => Global.NoAction();
-        public Action<PlayerAction> OnMoveSync = x => Global.NoAction();
+        public Action<Move> OnMoveSync = x => Global.NoAction();
 
         private void ReceiveSeed(NetworkMessage msg)
         {

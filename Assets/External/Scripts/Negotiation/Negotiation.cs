@@ -60,7 +60,6 @@ namespace Hanafuda
                 Destroy(PlayerInteraction);
                 LoadDeck(seed);
             }
-            Debug.Log($"Player ID: {Settings.PlayerID}");
         }
 
         private void LoadDeck(int seed)
@@ -73,7 +72,6 @@ namespace Hanafuda
             {
                 var rnd = rand.Next(0, all.Count);
                 tempDeck.Add(all[rnd]);
-                all.RemoveAll(x => x.Monat == all[rnd].Monat);
                 var go = Instantiate(Global.prefabCollection.PKarte, Kartenziehen.transform);
                 go.GetComponentsInChildren<MeshRenderer>()[0].material = tempDeck[i].Image;
                 go.name = tempDeck[i].Title;
@@ -89,7 +87,7 @@ namespace Hanafuda
                     go.transform.Rotate(0, 0, 360f / 12f * i);
                     go.transform.Translate(0, 30, 0);
                 }
-                tempDeck[tempDeck.Count - 1].Object = go;
+                tempDeck[i].Object = go;
             }
             Order = Instantiate(Global.prefabCollection.PText);
             Order.name = "Order";
@@ -149,9 +147,8 @@ namespace Hanafuda
             PlayCard(action);
         }
 
-        private void PlayCard(PlayerAction action)
+        private void PlayCard(Move action)
         {
-            Debug.Log(action.PlayerID);
             bool isHost = action.PlayerID == 1;
             float targetX = 13, targetY = 18, targetScale = 1.5f, InfoX = isHost ? 0 : -24, InfoY = 41;
             if (!Settings.Mobile)
@@ -162,11 +159,13 @@ namespace Hanafuda
                 InfoX = isHost ? 40 : -65;
                 InfoY = 30;
             }
-            Selections[action.PlayerID] = action.SingleSelection;
+            Card SingleSelection = tempDeck.Find(x => x.Title == action.SingleSelection);
+            Debug.Log($"Player{ action.PlayerID} zog {SingleSelection.Monat}");
+            Selections[action.PlayerID] = SingleSelection;
             Global.prev = null;
-            GameObject sel = action.SingleSelection.Object;
+            GameObject sel = SingleSelection.Object;
             sel.transform.parent = null;
-            tempDeck.Remove(action.SingleSelection);
+            tempDeck.Remove(SingleSelection);
             sel.layer = 0;
             StartCoroutine(sel.transform.StandardAnimation(new Vector3(targetX * (isHost ? 1 : -1), targetY, 0),
                 new Vector3(0, 180, 0), Animations.StandardScale * targetScale, 0));
@@ -193,12 +192,15 @@ namespace Hanafuda
                 selections.Add((int)Selections[selection].Monat, selection);
             List<Player> rearrange = new List<Player>(Settings.Players);
             Infos[selections.Values[0]].GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255f;
+            Player self = Settings.Players[Settings.PlayerID];
             Settings.Players[selections.Values[0]] = rearrange[0];
             for (int selection = 1; selection < Selections.Length; selection++)
             {
                 Infos[selections.Values[selection]].GetComponent<TextMesh>().color = new Color(165, 28, 28, 255) / 255f;
                 Settings.Players[selections.Values[selection]] = rearrange[selection];
+
             }
+            Settings.PlayerID = Settings.Players.IndexOf(self);
             yield return new WaitForSeconds(3f);
             StopAllCoroutines();
             SceneManager.LoadScene("Singleplayer");

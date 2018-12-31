@@ -74,9 +74,9 @@ namespace Hanafuda
             Slide = Instantiate(Global.prefabCollection.PSlide, MainSceneVariables.variableCollection.Hand1M);
             Slide.transform.localPosition = new Vector3(0, -8, 10);
             SlideHand SlideScript = Slide.AddComponent<SlideHand>();
-            SlideScript.Init(Players[0].Hand.Count,
-                x => Board.HoverHand(x >= 0 ? Players[0].Hand[x] : null),
-                x => Board.SelectCard(x >= 0 ? Players[0].Hand[x] : null));
+            SlideScript.Init(Players[Settings.PlayerID].Hand.Count,
+                x => Board.HoverHand(x >= 0 ? Players[Settings.PlayerID].Hand[x] : null),
+                x => Board.SelectCard(x >= 0 ? Players[Settings.PlayerID].Hand[x] : null));
             //SlideScript.onSelect = x => { Selection = x; Activate(true); };
             Activate(false);
         }
@@ -91,7 +91,6 @@ namespace Hanafuda
                 Card selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
                 Board.SelectCard(selected, fromDeck);
             }
-
         }
 
         public void RequestFieldSelection(Card card, bool fromDeck)

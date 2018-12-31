@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 using Random = System.Random;
+using UnityEngine.Networking;
 
 namespace Hanafuda
 {
@@ -15,11 +16,28 @@ namespace Hanafuda
         private const float CardWidth = 11f;
 
         Transform EffectCam, Hand1, Hand2, Field3D, Deck3D;
-        public void Init(List<Player> Players, int seed = -1)
+        private Communication PlayerInteraction;
+        public void Init(List<Player> Players)
         {
             players = Players;
-            gameObject.AddComponent<PlayerComponent>().Init(players);
             gameObject.AddComponent<GameUI>();
+            PlayerInteraction = Global.instance.GetComponent<Communication>();
+            currentAction = new PlayerAction();
+            currentAction.Init(this);
+            if (Settings.Multiplayer)
+            {
+                PlayerInteraction.OnDeckSync = GenerateDeck;
+                PlayerInteraction.OnMoveSync = ApplyMove;
+                if (NetworkServer.active)
+                    PlayerInteraction.SendSeed(UnityEngine.Random.Range(0, 10000));
+            }
+            else
+                GenerateDeck();
+        }
+
+        private void GenerateDeck(int seed = -1)
+        {
+            gameObject.AddComponent<PlayerComponent>().Init(players);
             var rnd = seed == -1 ? new Random() : new Random(seed);
             for (var i = 0; i < Global.allCards.Count; i++)
             {
@@ -28,16 +46,19 @@ namespace Hanafuda
                     rand = rnd.Next(0, Global.allCards.Count);
                 Deck.Add(Global.allCards[rand]);
             }
+            FieldSetup();
         }
+
         void Start()
         {
             Camera.main.SetCameraRect();
-            ToCollect = new List<Card>();
+            Collection = new List<Card>();
             Hovered = new Card[] { };
             Deck = new List<Card>();
             Field = new List<Card>();
             NewYaku = new List<Yaku>();
-            _Turn = true;
+            currentAction = new PlayerAction();
+            _Turn = Settings.PlayerID == 0;
             EffectCam = MainSceneVariables.variableCollection.EffectCamera;
             if (Settings.Mobile)
             {
@@ -54,26 +75,23 @@ namespace Hanafuda
                 Field3D = MainSceneVariables.variableCollection.Feld;
                 Deck3D = MainSceneVariables.variableCollection.Deck;
             }
-            /*
-            if (Settings.Multiplayer)
+            if (Settings.Rounds == 0)
             {
-                RegisterHandlers();
-                return;
-            }*/
-            if (Settings.Players.Count == 0)
-            {
-                Init(Settings.Players);
-                players.Add(new KI((KI.Mode)Settings.KIMode, this, Turn, "Computer"));
+                if (Settings.Multiplayer)
+                    Init(Settings.Players);
+                else
+                {
+                    Init(Settings.Players);
+                    players[1 - Settings.PlayerID] = new KI((KI.Mode)Settings.KIMode, this, Turn, "Computer");
+                }
             }
             else
             {
                 Init(Settings.Players);
                 for (int i = 0; i < players.Count; i++)
-                    ((Player)players[0]).Reset();
+                    ((Player)players[i]).Reset();
             }
-            FieldSetup();
         }
-
 
         /// <summary>
         /// Erstellung des Decks, sowie Austeilen von Händen und Spielfeld
@@ -114,34 +132,36 @@ namespace Hanafuda
 
         private void BuildHands()
         {
-            for (int i = Settings.GetName() == Settings.Players[0].Name ? 0 : 1;
-                Settings.GetName() == Settings.Players[0].Name ? i < 2 : i >= 0;
-                i += (Settings.GetName() == Settings.Players[0].Name ? 1 : -1))
+            Debug.Log(Settings.Players.Count);
+            for (int player = 0; player < Settings.Players.Count; player++)
             {
-                for (int j = 0; j < 8; j++)
+
+                bool active = player == Settings.PlayerID;
+                for (int card = 0; card < 8; card++)
                 {
-                    ((Player)players[i]).Hand.Add(Deck[0]);
+                    ((Player)players[player]).Hand.Add(Deck[0]);
                     GameObject temp = Deck[0].Object;
                     Deck.RemoveAt(0);
-                    temp.transform.parent = i == 0 ? Hand1.transform : Hand2.transform;
+                    temp.transform.parent = active ? Hand1.transform : Hand2.transform;
+                    Debug.Log($"{temp.transform.parent.name} ID: { Settings.PlayerID} Active: {active}");
                     if (!Settings.Mobile)
-                        temp.layer = LayerMask.NameToLayer("P" + (i + 1).ToString() + "Hand");
+                        temp.layer = LayerMask.NameToLayer("P" + (active ? 1 : 2).ToString() + "Hand");
                     /* Zugedeckte Transformation mit anschließender Aufdeckrotation */
                     if (Settings.Mobile)
                     {
                         StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position +
                             new Vector3(UnityEngine.Random.Range(-MaxDispersionPos, MaxDispersionPos),
-                            UnityEngine.Random.Range(-MaxDispersionPos, MaxDispersionPos), -j / 10f),
-                            new Vector3(0, 0, (i == 0 ? 0 : 180) + UnityEngine.Random.Range(-MaxDispersionAngle, MaxDispersionAngle)),
-                            temp.transform.localScale, (j + 8 * i) * 0.2f, .3f,
+                            UnityEngine.Random.Range(-MaxDispersionPos, MaxDispersionPos), -card / 10f),
+                            new Vector3(0, 0, (active ? 0 : 180) + UnityEngine.Random.Range(-MaxDispersionAngle, MaxDispersionAngle)),
+                            temp.transform.localScale, (card + 8 * player) * 0.2f, .3f,
                             () => { temp.transform.position += new Vector3(0, 0, 1); }));
                     }
                     else
                     {
-                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((j) * CardWidth, 0, -j),
-                            Vector3.zero, temp.transform.localScale, (j + 8 * i) * 0.2f));
+                        StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((card) * CardWidth, 0, -card),
+                            Vector3.zero, temp.transform.localScale, (card + 8 * player) * 0.2f));
                         if (temp.transform.parent == Hand1.transform)
-                            StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((j) * CardWidth, 0, -j),
+                            StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position + new Vector3((card) * CardWidth, 0, -card),
                                 new Vector3(0, 180, 0), temp.transform.localScale, 18 * 0.2f));
                     }
 
@@ -150,8 +170,8 @@ namespace Hanafuda
             if (Settings.Mobile)
             {
                 StartCoroutine(Hand1.transform.StandardAnimation(Hand1.transform.position, new Vector3(0, 180, 0), Hand1.transform.localScale, 4f, AddFunc: () =>
-                { StartCoroutine(((Player)players[0]).Hand.ResortCards(8, true)); }));
-                StartCoroutine(((Player)players[1]).Hand.ResortCards(8, true, delay: 4f));
+                { StartCoroutine(((Player)players[Settings.PlayerID]).Hand.ResortCards(8, true)); }));
+                StartCoroutine(((Player)players[1-Settings.PlayerID]).Hand.ResortCards(8, true, delay: 4f));
             }
         }
 

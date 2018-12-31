@@ -10,6 +10,11 @@ namespace Hanafuda
     public static class Settings
     {
         /// <summary>
+        /// Anzahl bereits gespielter Runden
+        /// </summary>
+        public static int Rounds = 0;
+
+        /// <summary>
         ///     Modus der KI: Normal, Schwer, Alptraum
         /// </summary>
         public static int KIMode = 0;
