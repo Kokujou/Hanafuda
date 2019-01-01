@@ -93,7 +93,7 @@ namespace Hanafuda
         /// </summary>
         private void OnGUI()
         {
-            if (!Running)
+            /*if (!Running)
             {
                 GUI.skin = skin;
                 // 500:400
@@ -104,7 +104,7 @@ namespace Hanafuda
             else if (Loading == null)
             {
                 Loading = Instantiate(Global.prefabCollection.Loading);
-            }
+            }*/
         }
     }
 }
