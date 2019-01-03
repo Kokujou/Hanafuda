@@ -128,14 +128,14 @@ namespace ExtensionMethods
         /// <param name="maxCols">Maximale Anzahl von Spalten</param>
         /// <returns></returns>
         /// 
-        public static IEnumerator ResortCards(this List<Card> toSort, int maxSize, bool isMobileHand = false, bool rowWise = true, float delay = 0f)
+        public static IEnumerator ResortCards(this List<Card> toSort, CardLayout layout)
         {
             Vector3 StartPos = toSort[0].Object.transform.parent.position;
-            yield return new WaitForSeconds(delay);
-            if (isMobileHand)
-                yield return SortHand(toSort);
+            yield return new WaitForSeconds(layout.Delay);
+            if (layout.IsMobileHand)
+                yield return SortMobileHand(toSort);
             else
-                yield return SortCollection(toSort, maxSize, rowWise, StartPos);
+                yield return SortCollection(toSort, layout.MaxSize, layout.RowWise, StartPos);
         }
 
         private static IEnumerator SortCollection(List<Card> toSort, int maxSize, bool rowWise, Vector3 StartPos)
@@ -160,7 +160,7 @@ namespace ExtensionMethods
             }
         }
 
-        private static IEnumerator SortHand(List<Card> toSort)
+        private static IEnumerator SortMobileHand(List<Card> toSort)
         {
             for (int card = 0; card < toSort.Count; card++)
             {
@@ -186,6 +186,40 @@ namespace ExtensionMethods
                         //temp.transform.localPosition = new Vector3(temp.transform.localPosition.x, temp.transform.localPosition.y, id/10f);
                     }));
                 }));
+                yield return null;
+            }
+        }
+
+        public static IEnumerator AfterAnimation(Action action)
+        {
+            while (Global.MovingCards > 0)
+            {
+                //Debug.Log(Global.MovingCards);
+                yield return null;
+            }
+            action();
+        }
+
+        public static IEnumerator CoordinateQueue(this List<Action> actions)
+        {
+            bool actionRunning = false;
+            int actionIndex = -1;
+            while (true)
+            {
+                if (!actionRunning)
+                {
+                    actionIndex++;
+                    if (actionIndex >= actions.Count)
+                        break;
+                    else
+                    {
+                        actionRunning = true;
+                        Debug.Log(actionIndex);
+                        actions[actionIndex]();
+                    }
+                }
+                else if (Global.MovingCards == 0)
+                    actionRunning = false;
                 yield return null;
             }
         }

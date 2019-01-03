@@ -30,6 +30,7 @@ namespace Hanafuda
         public void Reset()
         {
             InputRoutine = HandInteraction;
+            isActive = true;
         }
         public void Awake()
         {

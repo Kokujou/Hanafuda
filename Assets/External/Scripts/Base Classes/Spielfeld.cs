@@ -28,7 +28,10 @@ namespace Hanafuda
         public bool Turn
         {
             get { return _Turn; }
-            set { _Turn = value; }
+            set
+            {
+                _Turn = value;
+            }
         }
         /// <summary>
         /// KI-Konstruktor

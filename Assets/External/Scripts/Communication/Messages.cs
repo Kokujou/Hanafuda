@@ -14,6 +14,7 @@ namespace Hanafuda
         public string SingleSelection;
         public string HandSelection;
         public string HandFieldSelection;
+        public string DeckSelection;
         public string DeckFieldSelection;
         public bool hadYaku;
         public bool Koikoi;

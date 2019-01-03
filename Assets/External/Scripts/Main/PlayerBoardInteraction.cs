@@ -33,7 +33,7 @@ namespace Hanafuda
                 case 2:
                 case 4:
                     Collection = matches;
-                    StartCoroutine(AfterAnimation(() => CollectCards(Collection)));
+                    StartCoroutine(Animations.AfterAnimation(() => CollectCards(Collection)));
                     break;
                 case 3:
                     card.FadeCard();
@@ -63,7 +63,7 @@ namespace Hanafuda
                      */
                 }
             }
-            if((!Settings.Multiplayer || !Turn) && !koikoi)
+            if ((!Settings.Multiplayer || !Turn) && !koikoi)
                 SceneManager.LoadScene("Finish");
         }
 
@@ -87,9 +87,8 @@ namespace Hanafuda
         {
             if (move.PlayerID == Settings.PlayerID) return;
             PlayerAction action = move;
-            action.Init(this);
             action.PlayerID = move.PlayerID;
-            action.Apply3D();
+            AnimateAction(action);
             currentAction = new PlayerAction();
             currentAction.Init(this);
         }
@@ -115,46 +114,23 @@ namespace Hanafuda
                     currentAction.SelectDeckMatch(card);
                 else
                     currentAction.SelectHandMatch(card);
-                StartCoroutine(AfterAnimation(() => CollectCards(Collection)));
+                StartCoroutine(Animations.AfterAnimation(() => CollectCards(Collection)));
             }
             HoverMatches(Card.Months.Null);
             if (!fromDeck)
             {
-                StartCoroutine(AfterAnimation(() =>
+                StartCoroutine(Animations.AfterAnimation(() =>
                 {
                     Global.MovingCards++;
-                    if (Settings.Mobile)
-                    {
-                        StartCoroutine(((Player)players[Turn ? 0 : 1]).Hand.ResortCards(8, true));
-                        StartCoroutine(Field.ResortCards(3, rowWise: false));
-                    }
-                    else
-                    {
-                        StartCoroutine(((Player)players[Turn ? 0 : 1]).Hand.ResortCards(1, rowWise: false));
-                        StartCoroutine(Field.ResortCards(2, rowWise: false));
-                    }
-                    StartCoroutine(AfterAnimation(() => { SelectCard(Deck[0], true); }));
+                    StartCoroutine(((Player)players[Turn ? 0 : 1]).Hand.ResortCards(new CardLayout(true)));
+                    StartCoroutine(Field.ResortCards(new CardLayout(false)));
+                    StartCoroutine(Animations.AfterAnimation(() => { SelectCard(Deck[0], true); }));
                     Global.MovingCards--;
                 }));
             }
             else
             {
-                StartCoroutine(AfterAnimation(CheckNewYaku));
-                /*if (NewYaku.Count == 0)
-                {
-                    _Turn = !_Turn;
-                    PlayMode = 1;
-                    if (Settings.Multiplayer)
-                    {
-                        string move = Move[0].ToString() + "," + Move[1].ToString() + "," + Move[2].ToString();
-                        if (NetworkServer.active)
-                            NetworkServer.SendToAll(MoveSyncMsg, new Message() { message = move });
-                        else
-                            Settings.playerClients[0].Send(MoveSyncMsg, new Message() { message = move });
-                    }
-                }
-                Move = new[] { -1, -1, -1 };*/
-                //StartCoroutine(AfterAnimation(OpponentTurn));
+                StartCoroutine(Animations.AfterAnimation(CheckNewYaku));
             }
         }
         public void OnGUI()

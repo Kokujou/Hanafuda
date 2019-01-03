@@ -170,8 +170,8 @@ namespace Hanafuda
             if (Settings.Mobile)
             {
                 StartCoroutine(Hand1.transform.StandardAnimation(Hand1.transform.position, new Vector3(0, 180, 0), Hand1.transform.localScale, 4f, AddFunc: () =>
-                { StartCoroutine(((Player)players[Settings.PlayerID]).Hand.ResortCards(8, true)); }));
-                StartCoroutine(((Player)players[1-Settings.PlayerID]).Hand.ResortCards(8, true, delay: 4f));
+                { StartCoroutine(((Player)players[Settings.PlayerID]).Hand.ResortCards(new CardLayout(true))); }));
+                StartCoroutine(((Player)players[1 - Settings.PlayerID]).Hand.ResortCards(new CardLayout(true, 4f)));
             }
         }
 

@@ -317,5 +317,10 @@ namespace Hanafuda
             transform.localScale = Vector3.one;
             AnimationRunning = false;
         }
+
+        private IEnumerator PixelDisappear(Sprite next)
+        {
+            yield return null;
+        }
     }
 }

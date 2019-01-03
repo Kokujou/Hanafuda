@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Hanafuda
@@ -31,6 +32,7 @@ namespace Hanafuda
 
         public void SelectionToField(Card card)
         {
+            Debug.Log("Lege " + card.Title + "aufs Feld.");
             card.Object.transform.parent = Field3D.transform;
             float scaleFactor = Settings.Mobile ? 1.5f : 1;
             int maxSize = Settings.Mobile ? 3 : 2;
@@ -47,6 +49,7 @@ namespace Hanafuda
 
         public void CollectCards(List<Card> ToCollect)
         {
+            Debug.Log("Sammle ein: " + string.Join(", ", ToCollect.Select(x => x.Title)));
             HoverMatches(Card.Months.Null);
             Vector3 destPos = Vector3.zero;
             Vector3 destRot = Vector3.zero;
@@ -79,19 +82,54 @@ namespace Hanafuda
             HoverHand(null);
         }
 
-        private IEnumerator AfterAnimation(Action action)
-        {
-            while (Global.MovingCards > 0)
-            {
-                //Debug.Log(Global.MovingCards);
-                yield return null;
-            }
-            action();
-        }
-
         private void DrawFromDeck()
         {
             Collection.Add(Deck[0]);
+        }
+
+        public void AnimateAction(PlayerAction action)
+        {
+            List<Action> actions = new List<Action>();
+            actions.Add(() => SelectionToField(action.HandSelection));
+            players[action.PlayerID].Hand.Remove(action.HandSelection);
+            actions.Add(() => players[action.PlayerID].Hand.ResortCards(new CardLayout(true)));
+
+            List<Card> HandCollection;
+            if (action.HandMatches.Count == 1)
+                HandCollection = new List<Card>(action.HandMatches);
+            else
+                HandCollection = new List<Card>(Field.FindAll(x=>x.Monat == action.HandSelection.Monat));
+            HandCollection.Add(action.HandSelection);
+            if (HandCollection.Count != 1)
+            {
+                actions.Add(() => CollectCards(HandCollection));
+                actions.Add(() => Field.ResortCards(new CardLayout(false)));
+            }
+
+            actions.Add(() => SelectionToField(action.DeckSelection));
+            Deck.Remove(action.DeckSelection);
+
+            List<Card> DeckCollection;
+            if (action.DeckMatches.Count == 1)
+                DeckCollection = new List<Card>(action.DeckMatches);
+            else
+                DeckCollection = new List<Card>(Field.FindAll(x => x.Monat == action.DeckSelection.Monat));
+            DeckCollection.Add(action.DeckSelection);
+            if (DeckCollection.Count != 1)
+            {
+                actions.Add(() => CollectCards(DeckCollection));
+                actions.Add(() => Field.ResortCards(new CardLayout(false)));
+            }
+
+            if (action.HadYaku)
+            {
+                if (action.Koikoi)
+                    players[action.PlayerID].Koikoi++;
+                actions.Add(() => SayKoiKoi(action.Koikoi));
+            }
+
+            actions.Add(() => { Turn = !Turn; });
+            StartCoroutine(Animations.CoordinateQueue(actions));
         }
     }
 }

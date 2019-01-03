@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ExtensionMethods;
+using System.Collections.Generic;
 using UnityEngine.Networking;
 
 namespace Hanafuda
@@ -8,11 +9,11 @@ namespace Hanafuda
         public Card SingleSelection;
         public int PlayerID;
         public bool HadYaku;
-        private Card HandSelection;
-        private Card DeckSelection = null;
-        private List<Card> HandMatches = new List<Card>();
-        private List<Card> _DeckMatches = new List<Card>();
-        private List<Card> DeckMatches
+        public Card HandSelection;
+        public Card DeckSelection = null;
+        public List<Card> HandMatches = new List<Card>();
+        public List<Card> _DeckMatches = new List<Card>();
+        public List<Card> DeckMatches
         {
             get { return _DeckMatches; }
             set
@@ -24,8 +25,7 @@ namespace Hanafuda
                 }
             }
         }
-        public readonly List<Yaku> NewYaku = new List<Yaku>();
-        private bool Koikoi = false;
+        public bool Koikoi = false;
         private Spielfeld Board;
 
         public bool isFinal()
@@ -83,17 +83,15 @@ namespace Hanafuda
             }
 
             string yakuAction = "";
-            if (NewYaku.Count > 0)
+            if (HadYaku)
             {
-                string yaku = string.Join(", ", NewYaku);
-
                 string koikoiAction = "";
                 if (Koikoi)
                     koikoiAction = $"{Settings.GetName()} hat 'Koi Koi' gesagt.";
                 else
                     koikoiAction = $"{Settings.GetName()} hat nicht 'Koi Koi' gesagt. Das Spiel ist beendet.";
 
-                yakuAction = $"Damit erreicht er die Yaku {yaku}.\n{koikoiAction}\n";
+                yakuAction = $"Damit konnte er neue Yaku formen.\n{koikoiAction}\n";
             }
             return $"{Settings.GetName()} {handAction}.\n " +
                 $"Anschließend {deckAction}.\n" +
@@ -137,58 +135,6 @@ namespace Hanafuda
             }
         }
 
-        public void Apply3D()
-        {
-            Board.SelectionToField(HandSelection);
-            List<Card> Collection = new List<Card>(HandMatches);
-            Collection.Add(HandSelection);
-            if (Collection.Count != 1)
-                Board.CollectCards(Collection);
-
-            Board.SelectionToField(DeckSelection);
-            Collection = new List<Card>(DeckMatches);
-            Collection.Add(DeckSelection);
-            if (Collection.Count != 1)
-                Board.CollectCards(Collection);
-
-            if (HadYaku)
-            {
-                if (Koikoi)
-                    Board.players[PlayerID].Koikoi++;
-                Board.SayKoiKoi(Koikoi);
-            }
-        }
-
-        public void GetNewYaku()
-        {
-            NewYaku.Clear();
-            List<Card> oldCollection = ((Player)Board.players[Board.Turn ? 0 : 1]).CollectedCards;
-            List<Card> newCollection = new List<Card>();
-            if (HandMatches.Count > 0)
-                newCollection.Add(HandSelection);
-            newCollection.AddRange(HandMatches);
-            if (DeckMatches.Count > 0)
-                newCollection.Add(DeckSelection);
-            newCollection.AddRange(DeckMatches);
-            List<Yaku> oldYaku = Yaku.GetYaku(oldCollection);
-            List<Yaku> newYaku = Yaku.GetYaku(newCollection);
-            for (int i = newYaku.Count; i >= 0; i--)
-            {
-                if (oldYaku.Exists(x => x.Title == newYaku[i].Title))
-                    NewYaku.Add(newYaku[i]);
-                else
-                {
-                    if (newYaku[i].addPoints > 0)
-                    {
-                        int oldPoints = oldCollection.FindAll(x => x.Typ == newYaku[i].TypPref).Count;
-                        int newPoints = newCollection.FindAll(x => x.Typ == newYaku[i].TypPref).Count;
-                        if (newPoints > oldPoints)
-                            NewYaku.Add(NewYaku[i]);
-                    }
-                }
-            }
-        }
-
         public static implicit operator Move(PlayerAction action)
         {
             Move move = new Move();
@@ -201,6 +147,7 @@ namespace Hanafuda
             else
             {
                 move.HandSelection = action.HandSelection.Title;
+                move.DeckSelection = action.DeckSelection.Title;
                 move.PlayerID = action.PlayerID;
                 if (action.HandMatches.Count == 1)
                     move.HandFieldSelection = action.HandMatches[0].Title;
@@ -221,6 +168,8 @@ namespace Hanafuda
                 action.SingleSelection = Global.allCards.Find(x => x.Title == move.SingleSelection);
             if (move.HandFieldSelection != "")
                 action.HandMatches = new List<Card>() { Global.allCards.Find(x => x.Title == move.HandFieldSelection) };
+            if (move.DeckSelection != "")
+                action.DeckSelection = Global.allCards.Find(x => x.Title == move.DeckSelection);
             if (move.DeckFieldSelection != "")
                 action.DeckMatches = new List<Card>() { Global.allCards.Find(x => x.Title == move.DeckFieldSelection) };
             action.HadYaku = move.hadYaku;

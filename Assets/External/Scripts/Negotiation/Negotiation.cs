@@ -33,7 +33,7 @@ namespace Hanafuda
             {
                 _Turn = value;
                 if (Settings.Mobile && value == Settings.PlayerID)
-                    CreateSlide();
+                    StartCoroutine(Animations.AfterAnimation(CreateSlide));
             }
         }
         private Card selected;

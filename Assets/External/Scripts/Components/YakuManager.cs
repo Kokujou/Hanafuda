@@ -38,9 +38,9 @@ namespace Hanafuda
         private readonly System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
         private List<Yaku> Queue = null;
         private Spielfeld Board;
-        private GameObject Main;
-        private RectTransform SlideIn;
-        private EventTrigger YesButton, NoButton;
+        public GameObject Main;
+        public RectTransform SlideIn;
+        public EventTrigger YesButton, NoButton;
         public bool Finished=false;
         private GameObject _CherryBlossoms;
         public void Init(List<Yaku> queue, Spielfeld board)
