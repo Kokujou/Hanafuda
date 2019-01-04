@@ -194,7 +194,6 @@ namespace ExtensionMethods
         {
             while (Global.MovingCards > 0)
             {
-                //Debug.Log(Global.MovingCards);
                 yield return null;
             }
             action();
@@ -214,7 +213,6 @@ namespace ExtensionMethods
                     else
                     {
                         actionRunning = true;
-                        Debug.Log(actionIndex);
                         actions[actionIndex]();
                     }
                 }

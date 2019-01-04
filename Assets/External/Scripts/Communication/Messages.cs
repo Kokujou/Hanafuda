@@ -1,14 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Hanafuda
 {
-    public class Message : MessageBase
-    {
-        public string message;
-    }
     public class Move : MessageBase
     {
         public string SingleSelection;
@@ -16,8 +13,22 @@ namespace Hanafuda
         public string HandFieldSelection;
         public string DeckSelection;
         public string DeckFieldSelection;
-        public bool hadYaku;
+        public bool HadYaku;
         public bool Koikoi;
         public int PlayerID;
+        public int MoveID;
+    }
+    public class Response : MessageBase
+    {
+        public int PlayerID;
+        public int MessageID;
+    }
+    public class PlayerList : MessageBase
+    {
+        public string[] players;
+    }
+    public class Seed : MessageBase
+    {
+        public int seed;
     }
 }

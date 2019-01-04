@@ -1,5 +1,6 @@
 ﻿using ExtensionMethods;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Hanafuda
@@ -8,6 +9,7 @@ namespace Hanafuda
     {
         public Card SingleSelection;
         public int PlayerID;
+        public int ActionID;
         public bool HadYaku;
         public Card HandSelection;
         public Card DeckSelection = null;
@@ -42,6 +44,7 @@ namespace Hanafuda
         {
             Board = board;
             PlayerID = Settings.PlayerID;
+            ActionID = (int)(Time.timeSinceLevelLoad * 100);
         }
         public void SelectFromHand(Card selection)
         {
@@ -138,25 +141,24 @@ namespace Hanafuda
         public static implicit operator Move(PlayerAction action)
         {
             Move move = new Move();
+            move.PlayerID = action.PlayerID;
+            move.MoveID = action.ActionID;
             if (action.SingleSelection)
             {
                 move.SingleSelection = action.SingleSelection.name;
-                move.PlayerID = action.PlayerID;
-                return move;
             }
             else
             {
                 move.HandSelection = action.HandSelection.Title;
                 move.DeckSelection = action.DeckSelection.Title;
-                move.PlayerID = action.PlayerID;
                 if (action.HandMatches.Count == 1)
                     move.HandFieldSelection = action.HandMatches[0].Title;
                 if (action.DeckMatches.Count == 1)
                     move.DeckFieldSelection = action.DeckMatches[0].Title;
-                move.hadYaku = action.HadYaku;
+                move.HadYaku = action.HadYaku;
                 move.Koikoi = action.Koikoi;
-                return move;
             }
+            return move;
         }
 
         public static implicit operator PlayerAction(Move move)
@@ -172,9 +174,10 @@ namespace Hanafuda
                 action.DeckSelection = Global.allCards.Find(x => x.Title == move.DeckSelection);
             if (move.DeckFieldSelection != "")
                 action.DeckMatches = new List<Card>() { Global.allCards.Find(x => x.Title == move.DeckFieldSelection) };
-            action.HadYaku = move.hadYaku;
+            action.HadYaku = move.HadYaku;
             action.Koikoi = move.Koikoi;
             action.PlayerID = move.PlayerID;
+            action.ActionID = move.MoveID;
             return action;
         }
     }

@@ -29,7 +29,7 @@ namespace Hanafuda
                 PlayerInteraction.OnDeckSync = GenerateDeck;
                 PlayerInteraction.OnMoveSync = ApplyMove;
                 if (NetworkServer.active)
-                    PlayerInteraction.SendSeed(UnityEngine.Random.Range(0, 10000));
+                    PlayerInteraction.BroadcastSeed(UnityEngine.Random.Range(0, 10000));
             }
             else
                 GenerateDeck();
@@ -132,7 +132,6 @@ namespace Hanafuda
 
         private void BuildHands()
         {
-            Debug.Log(Settings.Players.Count);
             for (int player = 0; player < Settings.Players.Count; player++)
             {
 
@@ -143,7 +142,6 @@ namespace Hanafuda
                     GameObject temp = Deck[0].Object;
                     Deck.RemoveAt(0);
                     temp.transform.parent = active ? Hand1.transform : Hand2.transform;
-                    Debug.Log($"{temp.transform.parent.name} ID: { Settings.PlayerID} Active: {active}");
                     if (!Settings.Mobile)
                         temp.layer = LayerMask.NameToLayer("P" + (active ? 1 : 2).ToString() + "Hand");
                     /* Zugedeckte Transformation mit anschließender Aufdeckrotation */

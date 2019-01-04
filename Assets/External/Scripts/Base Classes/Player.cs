@@ -23,6 +23,7 @@ namespace Hanafuda
         public List<int> pTotalPoints = new List<int>();
         public int tempPoints;
         public int TotalPoints;
+        public int LastResponse;
         public Player(string name)
         {
             Name = name;

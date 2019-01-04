@@ -56,13 +56,13 @@ namespace Hanafuda
         }
         private void AddPlayer(NetworkMessage msg)
         {
-            string name = msg.ReadMessage<Message>().message;
+            string name = msg.ReadMessage<PlayerList>().players[0];
             connected.Add(new Player(name));
             if (connected.Count == MaxPlayer)
             {
                 Debug.Log("Alle Spieler verbunden");
                 NetworkServer.UnregisterHandler(AddPlayerMsg);
-                NetworkServer.SendToAll(PlayerSyncMsg, new Message { message = string.Join("|", connected.Select(x => x.Name)) });
+                NetworkServer.SendToAll(PlayerSyncMsg, new PlayerList { players = connected.Select(x => x.Name).ToArray() });
             }
             else
                 Debug.Log(connected.Count);
@@ -116,14 +116,14 @@ namespace Hanafuda
         {
             Settings.Client.UnregisterHandler(MsgType.Connect);
             Settings.Client.RegisterHandler(PlayerSyncMsg, SyncAndStart);
-            Settings.Client.Send(AddPlayerMsg, new Message { message = Settings.GetName() });
+            Settings.Client.Send(AddPlayerMsg, new PlayerList { players = new string[] { Settings.GetName() } });
             Debug.Log("Send Add Player");
         }
         private void SyncAndStart(NetworkMessage msg)
         {
             Debug.Log("SyncAndStart");
             Settings.Client.UnregisterHandler(PlayerSyncMsg);
-            string[] names = msg.ReadMessage<Message>().message.Split('|');
+            string[] names = msg.ReadMessage<PlayerList>().players;
             Settings.PlayerID = names.ToList().IndexOf(Settings.GetName());
             Settings.Players.Clear();
             for (int name = 0; name < names.Length; name++)

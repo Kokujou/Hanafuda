@@ -53,7 +53,7 @@ namespace Hanafuda
                 PlayerInteraction.OnDeckSync = LoadDeck;
                 PlayerInteraction.OnMoveSync = PlayCard;
                 if (NetworkServer.active)
-                    PlayerInteraction.SendSeed(seed);
+                    PlayerInteraction.BroadcastSeed(seed);
             }
             else
             {
@@ -72,6 +72,8 @@ namespace Hanafuda
             {
                 var rnd = rand.Next(0, all.Count);
                 tempDeck.Add(all[rnd]);
+                Card.Months month = all[rnd].Monat;
+                all.RemoveAll(x=>x.Monat == month);
                 var go = Instantiate(Global.prefabCollection.PKarte, Kartenziehen.transform);
                 go.GetComponentsInChildren<MeshRenderer>()[0].material = tempDeck[i].Image;
                 go.name = tempDeck[i].Title;

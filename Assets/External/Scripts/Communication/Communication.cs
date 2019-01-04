@@ -16,7 +16,7 @@ namespace Hanafuda
 
         private void ReceiveSeed(NetworkMessage msg)
         {
-            int seed = Convert.ToInt32(msg.ReadMessage<Message>().message);
+            int seed = msg.ReadMessage<Seed>().seed;
             OnDeckSync(seed);
             OnDeckSync = x => Global.NoAction();
         }
@@ -28,17 +28,28 @@ namespace Hanafuda
 
         private void BroadcastMove(NetworkMessage msg)
         {
-            NetworkServer.SendToAll(MoveSyncMsg, msg.ReadMessage<Move>());
+            StartCoroutine(DoTillSuccess(() => NetworkServer.SendToAll(MoveSyncMsg, msg.ReadMessage<Move>())));
         }
 
-        public void SendSeed(int seed)
+        public void BroadcastSeed(int seed)
         {
-            NetworkServer.SendToAll(DeckSyncMsg, new Message { message = seed.ToString() });
+            StartCoroutine(DoTillSuccess(() => NetworkServer.SendToAll(DeckSyncMsg, new Seed { seed = seed })));
         }
 
         public void SendAction(Move action)
         {
-            Settings.Client.Send(MoveSyncMsg, action);
+            StartCoroutine(DoTillSuccess(() => Settings.Client.Send(MoveSyncMsg, action)));
+        }
+
+        private IEnumerator DoTillSuccess(Func<bool> action)
+        {
+            int i = 0;
+            while (!action())
+            {
+                i++;
+                yield return null;
+            }
+            Debug.Log(i);
         }
     }
 }
