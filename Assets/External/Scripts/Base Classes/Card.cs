@@ -87,5 +87,9 @@ namespace Hanafuda
         {
             return Title;
         }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

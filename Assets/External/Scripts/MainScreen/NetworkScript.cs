@@ -15,7 +15,6 @@ namespace Hanafuda
         private readonly Global.GridLayout.SelectionGrid KIMode =
             new Global.GridLayout.SelectionGrid(1, 3, new[] { "Normal", "Schwer", "Alptraum" });
         private Global.GridLayout layout;
-        private string matchName = "";
         private readonly Global.GridLayout MultiPlayer = new Global.GridLayout();
         private readonly Global.GridLayout.TextField P1 = new Global.GridLayout.TextField(2, 20);
         private readonly Global.GridLayout.TextField P2 = new Global.GridLayout.TextField(2, 20);

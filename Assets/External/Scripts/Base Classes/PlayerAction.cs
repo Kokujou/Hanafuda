@@ -46,19 +46,21 @@ namespace Hanafuda
             PlayerID = Settings.PlayerID;
             ActionID = (int)(Time.timeSinceLevelLoad * 100);
         }
-        public void SelectFromHand(Card selection)
+        public List<Card> SelectFromHand(Card selection)
         {
             HandSelection = selection;
             HandMatches = Board.Field.FindAll(x => x.Monat == selection.Monat);
+            return HandMatches;
         }
         public void SelectHandMatch(Card selection)
         {
             HandMatches = new List<Card>() { selection };
         }
-        public void DrawCard()
+        public List<Card> DrawCard()
         {
             DeckSelection = Board.Deck[0];
             DeckMatches = Board.Field.FindAll(x => x.Monat == DeckSelection.Monat);
+            return DeckMatches;
         }
         public void SelectDeckMatch(Card fieldSelection)
         {
@@ -111,7 +113,7 @@ namespace Hanafuda
         private void ApplyHandSelection()
         {
             List<Card> Hand = ((Player)Board.players[Board.Turn ? 0 : 1]).Hand;
-            Hand.RemoveAll(x => x.Title == HandSelection.Title);
+            Hand.Remove(HandSelection);
             if (HandMatches.Count > 0)
             {
                 List<Card> Collection = ((Player)Board.players[Board.Turn ? 0 : 1]).CollectedCards;

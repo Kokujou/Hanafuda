@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ExtensionMethods;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 namespace Hanafuda
 {
@@ -72,10 +73,10 @@ namespace Hanafuda
             _Turn = !_Turn;
             if (!Settings.Multiplayer)
             {
-                PlayerAction action = ((KI)players[1 - Settings.PlayerID]).MakeTurn(this);
+                Move move = ((KI)players[1 - Settings.PlayerID]).MakeTurn(new VirtualBoard(this));
+                move.PlayerID = 1 - Settings.PlayerID;
+                ApplyMove(move);
                 gameObject.GetComponent<PlayerComponent>().Reset();
-                currentAction = new PlayerAction();
-                currentAction.Init(this);
             }
             else
             {
@@ -135,6 +136,7 @@ namespace Hanafuda
         }
         public void OnGUI()
         {
+            Debug.Log(string.Join(",", Settings.Players.Select(x => x.Hand.Count)));
             if (GUILayout.Button("X"))
                 ((Player)players[Settings.PlayerID]).CollectedCards = Global.allCards;
         }

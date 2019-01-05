@@ -24,7 +24,6 @@ namespace Hanafuda
         bool SkipNext;
 
         public ParticleSystem OldSystem, NewSystem;
-        Stopwatch watch = new Stopwatch();
 
         List<AnimationBase> Animations;
          AnimationBase ActiveAnimation;
@@ -68,9 +67,10 @@ namespace Hanafuda
                         if (newMat)
                             oldMat = newMat;
                         newMat = Images.GetRandom(x => x == oldMat);
-                        yield return new WaitForSeconds(_ToNextAnimation - (Time.timeSinceLevelLoad - start));
                         ActiveAnimation.ResetParticleSystem(oldMat, newMat);
-                        LoadingAnimation = ActiveAnimation.Animate;
+                        LoadingAnimation = () => LoadingAnimation = ActiveAnimation.Animate;
+                        yield return new WaitForSeconds(_ToNextAnimation - (Time.timeSinceLevelLoad - start));
+                        
                     }
                     else
                     {
@@ -86,18 +86,9 @@ namespace Hanafuda
 
         private void Update()
         {
-            if (!AwakeCalled || !ActiveAnimation.watch.IsRunning) return;
+            if (!AwakeCalled ) return;
             LoadingAnimation();
         }
 
-        private Dictionary<uint, Vector3> ShootFragments()
-        {
-            return null;
-        }
-
-        private void DrawbackFragments()
-        {
-
-        }
     }
 }

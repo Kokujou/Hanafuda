@@ -24,6 +24,21 @@ namespace Hanafuda
         public int tempPoints;
         public int TotalPoints;
         public int LastResponse;
+
+        /// <summary>
+        /// Konstruktor nicht für Mehrspielermodus geeignet
+        /// </summary>
+        /// <param name="copy">Originalspieler</param>
+        public Player(Player copy)
+        {
+            CollectedCards = new List<Card>(copy.CollectedCards);
+            Hand = new List<Card>(copy.Hand);
+            Koikoi = copy.Koikoi;
+            Name = copy.Name;
+            pTotalPoints = new List<int>(copy.pTotalPoints);
+            tempPoints = copy.tempPoints;
+            TotalPoints = copy.TotalPoints;
+        }
         public Player(string name)
         {
             Name = name;

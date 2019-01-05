@@ -81,8 +81,8 @@ namespace Hanafuda
                     Init(Settings.Players);
                 else
                 {
+                    Settings.Players[1 - Settings.PlayerID] = new KI((KI.Mode)Settings.KIMode, "Computer");
                     Init(Settings.Players);
-                    players[1 - Settings.PlayerID] = new KI((KI.Mode)Settings.KIMode, this, Turn, "Computer");
                 }
             }
             else
@@ -132,7 +132,7 @@ namespace Hanafuda
 
         private void BuildHands()
         {
-            for (int player = 0; player < Settings.Players.Count; player++)
+            for (int player = 0; player < players.Count; player++)
             {
 
                 bool active = player == Settings.PlayerID;

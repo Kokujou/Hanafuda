@@ -114,9 +114,10 @@ namespace Hanafuda
             };
             entry.callback.AddListener((data) =>
             {
-                ((Player)Board.players[Settings.PlayerID]).Koikoi++;
+                Board.players[Settings.PlayerID].Koikoi++;
                 StartCoroutine(Global.prefabCollection.KoikoiText.KoikoiAnimation(() =>
                 {
+                    Destroy(_CherryBlossoms);
                     Destroy(gameObject);
                     Board.gameObject.SetActive(true);
                     Board.SayKoiKoi(true);
@@ -130,6 +131,7 @@ namespace Hanafuda
             };
             entry.callback.AddListener((data) =>
             {
+                Destroy(_CherryBlossoms);
                 Destroy(gameObject);
                 Board.gameObject.SetActive(true);
                 Board.SayKoiKoi(false);

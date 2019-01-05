@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 /* To-Do:
@@ -15,8 +16,7 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-
-    public class KI : Player
+    public partial class KI : Player
     {
         public enum Mode
         {
@@ -25,18 +25,13 @@ namespace Hanafuda
             Omniscient
         }
 
-        public Func<Spielfeld, PlayerAction> MakeTurn;
+        public Func<VirtualBoard, Move> MakeTurn;
         public Mode mode;
-        public Spielfeld root;
-        public List<List<Spielfeld>> StateTree = new List<List<Spielfeld>>();
-        public object thisLock;
-        private readonly List<Thread> threads = new List<Thread>();
         public bool Turn;
-        public KI(Mode Modus, Spielfeld board, bool turn, string name) : base(name)
+        public KI(Mode Modus, string name) : base(name)
         {
+            thisLock = new object();
             mode = Modus;
-            Turn = turn;
-            root = board;
             //Thread temp = new Thread(() => BuildStateTree());
             //temp.Start();
             switch (Modus)
@@ -75,80 +70,7 @@ namespace Hanafuda
             }
         }
 
-        // Memo: optional Karte ziehen einbauen. variiert nach Spielmodus.
-        public void BuildChildNodes(bool Turn, int level, int node)
-        {
-            // Memo: matches = 0
-            // Memo: Koikoi sagen!
-            var parent = StateTree[level][node];
-            if (!parent.isFinal)
-            {
-                var aHand = ((Player)parent.players[Turn ? 0 : 1]).Hand;
-                for (var i = 0; i < aHand.Count; i++)
-                {
-                    var matches = new List<Card>();
-                    for (var j = 0; j < parent.Field.Count; j++)
-                        if (parent.Field[j].Monat == aHand[i].Monat)
-                            matches.Add(parent.Field[j]);
-                    if (matches.Count == 2)
-                    {
-                        for (var choice = 0; choice < 2; choice++)
-                        {
-                            var move = new PlayerAction();
-                            move.Init(parent);
-                            move.SelectFromHand(aHand[i]);
-                            move.SelectHandMatch(matches[choice]);
-                            //var child = new Spielfeld(parent, move, Turn);
-                            //child.LastMove = move;
-                            //StateTree[level + 1].Add(child);
-                        }
-                    }
-                    else
-                    {
-                        var move = new PlayerAction();
-                        move.Init(parent);
-                        move.SelectHandMatch(aHand[i]);
-                        //var child = new Spielfeld(parent, move, Turn);
-                        //child.LastMove = move;
-                        //StateTree[level + 1].Add(child);
-                    }
-                }
-            }
-        }
-
-        // Memo: Konstruktion nur für einen Spieler einbauen: Jede 2. Karte ziehen.
-        public void BuildStateTree(int maxDepth = 16)
-        {
-            StateTree.Clear();
-            StateTree.Add(new List<Spielfeld> { root });
-            for (var i = 0; i < maxDepth; i++)
-                StateTree.Add(new List<Spielfeld>());
-            for (var level = 0; level < maxDepth; level++, Turn = !Turn)
-            {
-                for (var node = 0; node < StateTree[level].Count; node++)
-                {
-                    while (threads.Count > 10000)
-                        for (var i = 0; i < threads.Count; i++)
-                            if (i == threads.Count - 1 && !threads[i].IsAlive)
-                                threads.Clear();
-                    var temp = new Thread(() => BuildChildNodes(Turn, level, node));
-                    temp.Start();
-                    threads.Add(temp);
-                    Thread.Sleep(1);
-                }
-
-                var running = true;
-                while (running)
-                    for (var i = 0; i < threads.Count; i++)
-                        if (threads[i].IsAlive)
-                            break;
-                        else if (i == threads.Count - 1 && !threads[i].IsAlive)
-                            running = false;
-                threads.Clear();
-            }
-        }
-
-        public float OmniscientRateState(Spielfeld State)
+        public float OmniscientRateState(VirtualBoard State)
         {
             /* Beachte:
              * - Koikoi = true? / isFinal?
@@ -162,6 +84,7 @@ namespace Hanafuda
              * - Temporäre Punkte
              * - Gesamtpunktzahl - Einfluss auf Koikoi
              */
+            return 0f;
             var oPossibleYaku = new List<Yaku>(); //NEU!
             var pPossibleYaku = new List<Yaku>();
             var oReachableCards = new List<Card>();
@@ -206,20 +129,19 @@ namespace Hanafuda
             return result;
         }
 
-        public float StochasticRateState(Spielfeld State)
+        public float StochasticRateState(VirtualBoard State)
         {
             return 0;
         }
 
-        public PlayerAction OmniscientCalcTurn(Spielfeld cRoot)
+        public Move OmniscientCalcTurn(VirtualBoard cRoot)
         {
             Turn = false;
             root = cRoot;
             BuildStateTree(1);
-            Debug.Log(StateTree.Count + "|" + StateTree[StateTree.Count - 1].Count);
             //Bewertung möglicherweise in Threads?
             var maxValue = -100f;
-            PlayerAction selectedMove = null;
+            Move selectedMove = null;
             for (var i = 0; i < StateTree[1].Count; i++)
             {
                 StateTree[1][i].Value = OmniscientRateState(StateTree[1][i]);
@@ -232,7 +154,7 @@ namespace Hanafuda
             return selectedMove;
         }
 
-        public int[] StatisticCalcTurn(Spielfeld root)
+        public int[] StatisticCalcTurn(VirtualBoard root)
         {
             int[] result = { };
             return result;
