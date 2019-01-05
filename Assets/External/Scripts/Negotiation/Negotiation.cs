@@ -1,5 +1,6 @@
 ﻿using ExtensionMethods;
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,50 +19,52 @@ namespace Hanafuda
 {
     public class Negotiation : MonoBehaviour
     {
-        private GameObject Kartenziehen, Order, Info1, Info2;
-        private string P1Selection = "", P2Selection = "";
-        private bool P2;
-        private string selected = "";
-        private string sTurn = Global.Settings.P1Name;
-        private bool Turn = true;
-
+        private GameObject Kartenziehen, Order;
+        private GameObject[] Infos;
+        private Card[] Hovered;
+        private Communication PlayerInteraction;
+        private Card[] Selections;
+        private List<Card> tempDeck;
+        private int _Turn;
+        private int Turn
+        {
+            get { return _Turn; }
+            set
+            {
+                _Turn = value;
+                if (Settings.Mobile && value == Settings.PlayerID)
+                    StartCoroutine(Animations.AfterAnimation(CreateSlide));
+            }
+        }
+        private Card selected;
         /// <summary>
         ///     Platzierung der repräsentativen Deck-Karten im Kreis und Initialisierung von Startpositionen
         /// </summary>
         private void Start()
         {
-            if (Global.Settings.Multiplayer)
+            Selections = new Card[Settings.Players.Count];
+            Infos = new GameObject[Settings.Players.Count];
+            Hovered = new Card[] { };
+            PlayerInteraction = Global.instance.gameObject.GetComponent<Communication>();
+            var seed = Random.Range(0, 100);
+            if (Settings.Multiplayer)
             {
-                NetworkServer.RegisterHandler(131, OpponentChoice);
-                for (var i = 0; i < Global.Settings.playerClients.Count; i++)
-                {
-                    Global.Settings.playerClients[i].RegisterHandler(131, OpponentChoice);
-                    Global.Settings.playerClients[i].RegisterHandler(132, SyncDeck);
-                }
-
-                if (Global.Settings.Name == Global.Settings.P2Name)
-                {
-                    Turn = false;
-                    P2 = true;
-                }
+                PlayerInteraction.RegisterHandlers();
+                PlayerInteraction.OnDeckSync = LoadDeck;
+                PlayerInteraction.OnMoveSync = PlayCard;
+                if (NetworkServer.active)
+                    PlayerInteraction.BroadcastSeed(seed);
             }
-
-            if (!P2)
+            else
             {
-                var seed = Random.Range(0, 100);
+                Destroy(PlayerInteraction);
                 LoadDeck(seed);
-                NetworkServer.SendToAll(132, new Global.Message { message = seed.ToString() });
             }
-        }
-
-        private void SyncDeck(NetworkMessage msg)
-        {
-            LoadDeck(Convert.ToInt32(msg.ReadMessage<Global.Message>().message));
         }
 
         private void LoadDeck(int seed)
         {
-            var tempDeck = new List<Card>();
+            tempDeck = new List<Card>();
             Kartenziehen = new GameObject("Kartenziehen");
             var rand = new System.Random(seed);
             var all = new List<Card>(Global.allCards);
@@ -69,15 +72,15 @@ namespace Hanafuda
             {
                 var rnd = rand.Next(0, all.Count);
                 tempDeck.Add(all[rnd]);
-                all.RemoveAll(x => x.Monat == all[rnd].Monat);
+                Card.Months month = all[rnd].Monat;
+                all.RemoveAll(x=>x.Monat == month);
                 var go = Instantiate(Global.prefabCollection.PKarte, Kartenziehen.transform);
                 go.GetComponentsInChildren<MeshRenderer>()[0].material = tempDeck[i].Image;
                 go.name = tempDeck[i].Title;
-                if (Camera.main.aspect < 1)
+                if (Settings.Mobile)
                 {
                     go.transform.localPosition = new Vector3(0, 0, i * 0.1f);
-                    go.transform.localScale = new Vector3(go.transform.localScale.x * 1.5f,
-                        go.transform.localScale.y * 1.5f, 1f);
+                    go.transform.localScale = Animations.StandardScale * 1.5f;
                     go.transform.RotateAround(new Vector3(0, -12, 0), Vector3.forward, -60 + 10 * (11 - i));
                     go.layer = 0;
                 }
@@ -86,109 +89,35 @@ namespace Hanafuda
                     go.transform.Rotate(0, 0, 360f / 12f * i);
                     go.transform.Translate(0, 30, 0);
                 }
-
-                tempDeck[tempDeck.Count - 1].Objekt = go;
+                tempDeck[i].Object = go;
             }
-
             Order = Instantiate(Global.prefabCollection.PText);
             Order.name = "Order";
-            if (Camera.main.aspect < 1)
+            if (Settings.Mobile)
             {
                 Order.SetActive(false);
                 Kartenziehen.transform.Translate(new Vector3(0, -13, 0));
-                var Slide = Instantiate(Global.prefabCollection.PSlide);
-                Slide.transform.SetParent(Kartenziehen.transform, true);
-                var SlideScript = Slide.AddComponent<SlideHand>();
-                SlideScript.onComplete = OnSelectItem;
-                SlideScript.cParent = tempDeck;
             }
+            Turn = 0;
         }
-
-        private void OnSelectItem(Card selected)
+        public void HoverCards(params Card[] cards)
         {
-            Global.prev = null;
-            Turn = !Turn;
-            var sel = selected.Objekt;
-            sel.transform.parent = null;
-            sel.layer = 0;
-            //!
-            StartCoroutine(sel.transform.StandardAnimation(new Vector3(13 * (P2 ? 1 : -1), 18, 0),
-                new Vector3(0, 180, 0), sel.transform.localScale, 0));
-            var Info = Instantiate(Global.prefabCollection.PText);
-            Info.transform.position = new Vector3(P2 ? 0 : -24, 41, 0);
-            Info.GetComponent<TextMesh>().text = "Spieler " + (P2 ? "2" : "1");
-            Info.GetComponentsInChildren<TextMesh>()[1].text = "Spieler " + (P2 ? "2" : "1");
-            if (P2) Info2 = Info;
-            else Info1 = Info;
-            if (!Global.Settings.Multiplayer)
-            {
-                StartCoroutine(AnimOponentChoice(sel, true));
-            }
-            else
-            {
-                if (P2)
-                {
-                    P2Selection = sel.name;
-                    Global.Settings.playerClients[0].Send(131, new Global.Message { message = sel.name });
-                }
-                else
-                {
-                    P1Selection = sel.name;
-                    NetworkServer.SendToAll(131, new Global.Message { message = sel.name });
-                }
-
-                if (P1Selection != "" && P2Selection != "")
-                    StartCoroutine(GetResult(P1Selection, P2Selection));
-            }
+            for (int card = 0; card < Hovered.Length; card++)
+                Hovered[card]?.HoverCard(true);
+            for (int card = 0; card < cards.Length; card++)
+                cards[card]?.HoverCard();
+            Hovered = cards;
         }
-
-        private void OpponentChoice(NetworkMessage msg)
+        private void OnSelectItem(Card Selection)
         {
-            var card = msg.ReadMessage<Global.Message>().message;
-            if (P2) P1Selection = card;
-            else P2Selection = card;
-            var col = GameObject.Find(card).GetComponent<BoxCollider>();
-            col.gameObject.transform.parent = null;
-            col.gameObject.layer = 0;
-            StartCoroutine(col.gameObject.transform.StandardAnimation(new Vector3(
-                    (P2 ? -1 : 1) * (Global.Settings.mobile ? 13 : 55),
-                    Global.Settings.mobile ? 18 : 0, 0), new Vector3(0, 180, 0),
-                col.gameObject.transform.localScale * (Global.Settings.mobile ? 1 : 2), 0));
-            var Info = Instantiate(Global.prefabCollection.PText);
-            if (Global.Settings.mobile)
-                Info.transform.position = new Vector3(P2 ? -24 : 0, 41, 0);
+            PlayerAction action = new PlayerAction();
+            action.SingleSelection = Selection;
+            action.PlayerID = Settings.PlayerID;
+            if (Settings.Multiplayer)
+                PlayerInteraction.SendAction(action);
             else
-                Info.transform.position = new Vector3(P2 ? -65 : 40, 30, 0);
-            Info.GetComponent<TextMesh>().text = "Spieler " + (P2 ? "1" : "2");
-            Info.GetComponentsInChildren<TextMesh>()[1].text = "Spieler " + (P2 ? "1" : "2");
-            if (P2) Info1 = Info;
-            else Info2 = Info;
-            Turn = !Turn;
-            if (P1Selection != "" && P2Selection != "")
-                StartCoroutine(GetResult(P1Selection, P2Selection));
-        }
-
-        private IEnumerator GetResult(string P1Sel, string P2Sel)
-        {
-            var tempTurn = false;
-            if (Global.allCards.Find(x => x.Title == P2Sel).Monat < Global.allCards.Find(x => x.Title == P1Sel).Monat)
-            {
-                Info1.GetComponent<TextMesh>().color = new Color(165, 28, 28, 255) / 255;
-                Info2.GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255;
-                tempTurn = false;
-                Global.Turn = 1;
-            }
-            else
-            {
-                Info2.GetComponent<TextMesh>().color = new Color(165, 28, 28, 255) / 255;
-                Info1.GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255;
-                tempTurn = true;
-                Global.Turn = 0;
-            }
-
-            yield return new WaitForSeconds(3f);
-            StopAllCoroutines();
-            SceneManager.LoadScene("Singleplayer");
+                PlayCard(action);
+            //PlayCardMobile(action);
         }
 
         /// <summary>
@@ -196,40 +125,89 @@ namespace Hanafuda
         /// </summary>
         /// <param name="sel">Wahl des Spielers</param>
         /// <returns></returns>
-        private IEnumerator AnimOponentChoice(GameObject sel, bool mobile = false)
+        private IEnumerator AnimOponentChoice()
         {
             yield return new WaitForSeconds(1);
             float rndTime = Random.Range(1000, 2000);
             var watch = new System.Diagnostics.Stopwatch();
-            var cols = new List<BoxCollider>();
-            cols.AddRange(Kartenziehen.GetComponentsInChildren<BoxCollider>());
             watch.Start();
             var i = 0;
             while (watch.ElapsedMilliseconds < rndTime)
             {
+                BoxCollider col = tempDeck[i].Object.GetComponent<BoxCollider>();
                 Global.prev?.HoverCard(true);
-                cols[i]?.HoverCard();
+                col.HoverCard();
                 yield return new WaitForSeconds(.05f);
                 i++;
-                if (i >= cols.Count)
+                if (i >= tempDeck.Count)
                     i = 0;
             }
             Global.prev?.HoverCard(true);
-            cols[i].gameObject.transform.parent = null;
-            StartCoroutine(cols[i].gameObject.transform.StandardAnimation(new Vector3(mobile ? 13 : 55, mobile ? 18 : 0, 0), new Vector3(0, 180, 0),
-                cols[i].gameObject.transform.localScale * (mobile ? 1 : 2), 0));
-            Order.GetComponentsInChildren<TextMesh>()[0].text = "Spiel wird\ngestartet...";
-            Order.GetComponentsInChildren<TextMesh>()[1].text = "Spiel wird\ngestartet...";
-            Info2 = Instantiate(Global.prefabCollection.PText);
-            if (mobile)
-                Info2.transform.position = new Vector3(0, 41, 0);
-            else
-                Info2.transform.position = new Vector3(40, 30, 0);
-            Info2.GetComponent<TextMesh>().text = "Spieler 2";
-            Info2.GetComponentsInChildren<TextMesh>()[1].text = "Spieler 2";
-            StartCoroutine(GetResult(sel.name, cols[i].name));
-            //FieldSetup();
+            PlayerAction action = new PlayerAction();
+            action.SingleSelection = tempDeck[i];
+            action.PlayerID = 1;
+            PlayCard(action);
         }
+
+        private void PlayCard(Move action)
+        {
+            bool isHost = action.PlayerID == 1;
+            float targetX = 13, targetY = 18, targetScale = 1.5f, InfoX = isHost ? 0 : -24, InfoY = 41;
+            if (!Settings.Mobile)
+            {
+                targetX = 55;
+                targetY = 0;
+                targetScale = 2;
+                InfoX = isHost ? 40 : -65;
+                InfoY = 30;
+            }
+            Card SingleSelection = tempDeck.Find(x => x.Title == action.SingleSelection);
+            Debug.Log($"Player{ action.PlayerID} zog {SingleSelection.Monat}");
+            Selections[action.PlayerID] = SingleSelection;
+            Global.prev = null;
+            GameObject sel = SingleSelection.Object;
+            sel.transform.parent = null;
+            tempDeck.Remove(SingleSelection);
+            sel.layer = 0;
+            StartCoroutine(sel.transform.StandardAnimation(new Vector3(targetX * (isHost ? 1 : -1), targetY, 0),
+                new Vector3(0, 180, 0), Animations.StandardScale * targetScale, 0));
+            var Info = Instantiate(Global.prefabCollection.PText);
+            Info.transform.position = new Vector3(InfoX, InfoY, 0);
+            Info.GetComponent<TextMesh>().text = Settings.Players[action.PlayerID].Name;
+            Info.GetComponentsInChildren<TextMesh>()[1].text = Settings.Players[action.PlayerID].Name;
+            Infos[action.PlayerID] = Info;
+            Turn = action.PlayerID + 1;
+            for (int selection = 0; selection < Selections.Length; selection++)
+                if (Selections[selection] == null)
+                {
+                    if (!Settings.Multiplayer)
+                        StartCoroutine(AnimOponentChoice());
+                    return;
+                }
+            StartCoroutine(GetResult());
+        }
+
+        private IEnumerator GetResult()
+        {
+            SortedList<int, int> selections = new SortedList<int, int>();
+            for (int selection = 0; selection < Selections.Length; selection++)
+                selections.Add((int)Selections[selection].Monat, selection);
+            List<Player> rearrange = new List<Player>(Settings.Players);
+            Infos[selections.Values[0]].GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255f;
+            Player self = Settings.Players[Settings.PlayerID];
+            Settings.Players[selections.Values[0]] = rearrange[0];
+            for (int selection = 1; selection < Selections.Length; selection++)
+            {
+                Infos[selections.Values[selection]].GetComponent<TextMesh>().color = new Color(165, 28, 28, 255) / 255f;
+                Settings.Players[selections.Values[selection]] = rearrange[selection];
+
+            }
+            Settings.PlayerID = Settings.Players.IndexOf(self);
+            yield return new WaitForSeconds(3f);
+            StopAllCoroutines();
+            SceneManager.LoadScene("Singleplayer");
+        }
+
 
         /// <summary>
         ///     Hover und Auswahl von Karten
@@ -237,63 +215,41 @@ namespace Hanafuda
         private void Update()
         {
             Camera.main.SetCameraRect();
-            if (Turn)
+            if (Settings.Mobile) return;
+            if (Turn == Settings.PlayerID)
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
-                if (Camera.main.aspect > 1)
+                if (Input.GetMouseButtonDown(0) && selected.Title != "")
                 {
-                    if (Input.GetMouseButtonDown(0) && selected != "")
-                    {
-                        Turn = !Turn;
-                        var sel = GameObject.Find(selected);
-                        selected = "";
-                        Global.prev?.HoverCard(true);
-
-                        sel.transform.parent = null;
-                        sel.layer = 0;
-                        StartCoroutine(sel.transform.StandardAnimation(new Vector3(55 * (P2 ? 1 : -1), 0, 0),
-                            new Vector3(0, 180, 0), sel.transform.localScale * 2, 0));
-                        var Info = Instantiate(Global.prefabCollection.PText);
-                        Info.transform.position = new Vector3(P2 ? 40 : -65, 30, 0);
-                        Info.GetComponent<TextMesh>().text = "Spieler " + (P2 ? "2" : "1");
-                        Info.GetComponentsInChildren<TextMesh>()[1].text = "Spieler " + (P2 ? "2" : "1");
-                        if (P2) Info2 = Info;
-                        else Info1 = Info;
-                        if (!Global.Settings.Multiplayer)
-                        {
-                            StartCoroutine(AnimOponentChoice(sel));
-                        }
-                        else
-                        {
-                            if (P2)
-                            {
-                                P2Selection = sel.name;
-                                Global.Settings.playerClients[0].Send(131, new Global.Message { message = sel.name });
-                            }
-                            else
-                            {
-                                P1Selection = sel.name;
-                                NetworkServer.SendToAll(131, new Global.Message { message = sel.name });
-                            }
-
-                            if (P1Selection != "" && P2Selection != "")
-                                StartCoroutine(GetResult(P1Selection, P2Selection));
-                        }
-                    }
-                    else if (Physics.Raycast(ray, out hit, 1 << LayerMask.NameToLayer("Card")) &&
-                             selected != hit.collider.gameObject.name)
-                    {
-                        Global.prev?.HoverCard(true);
-                        selected = hit.collider.gameObject.name;
-                        ((BoxCollider)hit.collider)?.HoverCard();
-                    }
-                    else if (hit.collider == null)
-                    {
-                        selected = "";
-                        Global.prev?.HoverCard(true);
-                    }
+                    PlayerAction action = new PlayerAction();
+                    action.SingleSelection = selected;
+                    action.PlayerID = Settings.PlayerID;
+                    PlayCard(action);
                 }
+                else if (Physics.Raycast(ray, out hit, 1 << LayerMask.NameToLayer("Card")) &&
+                         selected?.Title != hit.collider.gameObject.GetComponent<CardComponent>().card.Title)
+                {
+                    Global.prev?.HoverCard(true);
+                    selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
+                    ((BoxCollider)hit.collider)?.HoverCard();
+                }
+                else if (hit.collider == null)
+                {
+                    selected = null;
+                    Global.prev?.HoverCard(true);
+                }
+            }
+        }
+
+        private void CreateSlide()
+        {
+            if (Settings.Mobile)
+            {
+                var Slide = Instantiate(Global.prefabCollection.PSlide);
+                Slide.transform.SetParent(Kartenziehen.transform, true);
+                var SlideScript = Slide.AddComponent<SlideHand>();
+                SlideScript.Init(tempDeck.Count, x => HoverCards(x >= 0 ? tempDeck[x] : null), x => { OnSelectItem(tempDeck[x]); });
             }
         }
     }

@@ -23,7 +23,22 @@ namespace Hanafuda
         public List<int> pTotalPoints = new List<int>();
         public int tempPoints;
         public int TotalPoints;
+        public int LastResponse;
 
+        /// <summary>
+        /// Konstruktor nicht für Mehrspielermodus geeignet
+        /// </summary>
+        /// <param name="copy">Originalspieler</param>
+        public Player(Player copy)
+        {
+            CollectedCards = new List<Card>(copy.CollectedCards);
+            Hand = new List<Card>(copy.Hand);
+            Koikoi = copy.Koikoi;
+            Name = copy.Name;
+            pTotalPoints = new List<int>(copy.pTotalPoints);
+            tempPoints = copy.tempPoints;
+            TotalPoints = copy.TotalPoints;
+        }
         public Player(string name)
         {
             Name = name;
@@ -33,7 +48,6 @@ namespace Hanafuda
             CollectedYaku = new List<KeyValuePair<Yaku, int>>();
             TotalPoints = 0;
         }
-
         public List<KeyValuePair<Yaku, int>> CollectedYaku
         {
             get { return _CollectedYaku; }
@@ -69,17 +83,9 @@ namespace Hanafuda
 
             tempPoints = nPoints + Koikoi;
         }
-
-        [Command]
-        public void CmdSetPoints(int value)
+        public override string ToString()
         {
-            TotalPoints = value;
-        }
-
-        [Command]
-        public void CmdAddKoiKoi()
-        {
-            Koikoi++;
+            return Name;
         }
     }
 }

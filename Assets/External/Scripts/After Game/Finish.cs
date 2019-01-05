@@ -17,10 +17,10 @@ public class Finish : MonoBehaviour
     private void Start()
     {
         StopAllCoroutines();
-        Global.players[0].pTotalPoints.Add(Global.players[0].tempPoints);
-        Global.players[1].pTotalPoints.Add(Global.players[1].tempPoints);
-        Yaku.DistinctYakus(Global.players[0].CollectedYaku);
-        Yaku.DistinctYakus(Global.players[1].CollectedYaku);
+        Settings.Players[0].pTotalPoints.Add(Settings.Players[0].tempPoints);
+        Settings.Players[1].pTotalPoints.Add(Settings.Players[1].tempPoints);
+        Yaku.DistinctYakus(Settings.Players[0].CollectedYaku);
+        Yaku.DistinctYakus(Settings.Players[1].CollectedYaku);
     }
 
     /// <summary>
@@ -39,12 +39,12 @@ public class Finish : MonoBehaviour
         GUI.BeginGroup(new Rect(50, 20, Screen.width - 100, Screen.height - 40));
         GUI.Box(new Rect(0, 0, Screen.width - 100, Screen.height - 40), "Übersicht");
         {
-            GUI.Label(new Rect(0, 50, Screen.width / 2 - 50, 50), Global.players[0].Name,
+            GUI.Label(new Rect(0, 50, Screen.width / 2 - 50, 50), Settings.Players[0].Name,
                 new GUIStyle(GUI.skin.GetStyle("Label")) {fontSize = 30, alignment = TextAnchor.MiddleCenter});
-            GUI.Label(new Rect(Screen.width / 2 - 50, 50, Screen.width / 2 - 50, 50), Global.players[1].Name,
+            GUI.Label(new Rect(Screen.width / 2 - 50, 50, Screen.width / 2 - 50, 50), Settings.Players[1].Name,
                 new GUIStyle(GUI.skin.GetStyle("Label")) {fontSize = 30, alignment = TextAnchor.MiddleCenter});
             var maxCount = 0;
-            foreach (var yaku in Global.players[0].CollectedYaku)
+            foreach (var yaku in Settings.Players[0].CollectedYaku)
             {
                 GUI.Label(new Rect(0, 100 + maxCount * 30, Screen.width / 3 - 33, 30),
                     yaku.Key.Title + " - +" + yaku.Value);
@@ -52,7 +52,7 @@ public class Finish : MonoBehaviour
             }
 
             var tCount = 0;
-            foreach (var yaku in Global.players[1].CollectedYaku)
+            foreach (var yaku in Settings.Players[1].CollectedYaku)
             {
                 GUI.Label(new Rect(Screen.width / 2 - 50, 100 + tCount * 30, Screen.width / 3 - 33, 30),
                     yaku.Key.Title + " - +" + yaku.Value);
@@ -66,32 +66,32 @@ public class Finish : MonoBehaviour
             temp.Apply();
             GUI.DrawTexture(new Rect(50, 100 + maxCount * 30, Screen.width - 200, 2), temp);
             GUI.Label(new Rect(0, 110 + maxCount * 30, Screen.width / 3 - 33, 30),
-                "Gesamt - " + Global.players[0].tempPoints);
+                "Gesamt - " + Settings.Players[0].tempPoints);
             GUI.Label(new Rect(Screen.width / 2 - 50, 110 + maxCount * 30, Screen.width / 3 - 33, 30),
-                "Gesamt - " + Global.players[1].tempPoints);
-            for (var i = 0; i < (Global.Settings.Rounds6 ? 6 : 12); i++)
+                "Gesamt - " + Settings.Players[1].tempPoints);
+            for (var i = 0; i < (Settings.Rounds6 ? 6 : 12); i++)
             {
-                var offsetX = Screen.width / 2 - 50 - 50 * (Global.Settings.Rounds6 ? 6 : 12) / 2;
-                GUI.Label(new Rect(0, 160 + maxCount * 30, offsetX - 10, 50), Global.players[0].Name,
+                var offsetX = Screen.width / 2 - 50 - 50 * (Settings.Rounds6 ? 6 : 12) / 2;
+                GUI.Label(new Rect(0, 160 + maxCount * 30, offsetX - 10, 50), Settings.Players[0].Name,
                     new GUIStyle(GUI.skin.GetStyle("Label")) {alignment = TextAnchor.MiddleCenter, fontSize = 40});
-                GUI.Label(new Rect(0, 210 + maxCount * 30, offsetX - 10, 50), Global.players[1].Name,
+                GUI.Label(new Rect(0, 210 + maxCount * 30, offsetX - 10, 50), Settings.Players[1].Name,
                     new GUIStyle(GUI.skin.GetStyle("Label")) {alignment = TextAnchor.MiddleCenter, fontSize = 40});
 
-                if (i < Global.players[0].pTotalPoints.Count)
+                if (i < Settings.Players[0].pTotalPoints.Count)
                     GUI.Box(new Rect(offsetX + i * 50, 160 + maxCount * 30, 50, 50),
-                        Global.players[0].pTotalPoints[i].ToString());
+                        Settings.Players[0].pTotalPoints[i].ToString());
                 else
                     GUI.Box(new Rect(offsetX + i * 50, 160 + maxCount * 30, 50, 50), "");
-                if (i < Global.players[1].pTotalPoints.Count)
+                if (i < Settings.Players[1].pTotalPoints.Count)
                     GUI.Box(new Rect(offsetX + i * 50, 210 + maxCount * 30, 50, 50),
-                        Global.players[1].pTotalPoints[i].ToString());
+                        Settings.Players[1].pTotalPoints[i].ToString());
                 else
                     GUI.Box(new Rect(offsetX + i * 50, 210 + maxCount * 30, 50, 50), "");
             }
 
             if (GUI.Button(new Rect(Screen.width / 2 - 150, 280 + maxCount * 30, 200, 50), "Weiter"))
             {
-                if (Global.players[0].pTotalPoints.Count < (Global.Settings.Rounds6 ? 6 : 12))
+                if (Settings.Players[0].pTotalPoints.Count < (Settings.Rounds6 ? 6 : 12))
                     SceneManager.LoadScene("Singleplayer");
                 else
                     showWindow = true;

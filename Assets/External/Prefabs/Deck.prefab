@@ -38,16 +38,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 194764}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd7cb95a5fa07684080b5654f9a64649, type: 3}
+  m_Script: {fileID: 0}
   m_Name: 
   m_EditorClassIdentifier: 
-  skin: {fileID: 11400000, guid: 67144345a0f2a594aa854480d2cd3cf7, type: 2}
-  normalColor:
-    r: 0.5
-    g: 0.5
-    b: 0.5
-    a: 0.5
-  normalSize: {x: 1, y: 1.6, z: 1}
 --- !u!114 &11467874
 MonoBehaviour:
   m_ObjectHideFlags: 1

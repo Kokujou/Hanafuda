@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Hanafuda
 {
@@ -26,6 +29,15 @@ namespace Hanafuda
             result.SetPixel(0, 0, color);
             result.Apply();
             return result;
+        }
+
+        public static T GetRandom<T>(this List<T> list, Func<T, bool> exclude = null)
+        {
+            int index = Random.Range(0, list.Count);
+            if (list.Count == 1) return list[0];
+            while (exclude != null && exclude(list[index]))
+                index = Random.Range(0, list.Count);
+            return list[index];
         }
     }
 }

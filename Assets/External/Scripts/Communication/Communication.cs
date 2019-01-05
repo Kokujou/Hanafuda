@@ -1,41 +1,55 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Networking.Match;
+using UnityEngine.SceneManagement;
 
 namespace Hanafuda
 {
-    public partial class Main
+    public partial class Communication : MonoBehaviour
     {
-        void SyncDeck(NetworkMessage msg)
+        public Action<int> OnDeckSync = x => Global.NoAction();
+        public Action<Move> OnMoveSync = x => Global.NoAction();
+
+        private void ReceiveSeed(NetworkMessage msg)
         {
-            int seed = Convert.ToInt32(msg.ReadMessage<Global.Message>().message);
-            GenerateDeck(seed);
+            int seed = msg.ReadMessage<Seed>().seed;
+            OnDeckSync(seed);
+            OnDeckSync = x => Global.NoAction();
         }
-        void SyncMove(NetworkMessage msg)
+        private void ReceiveMove(NetworkMessage msg)
         {
-            string[] splitted = msg.ReadMessage<Global.Message>().message.Split(',');
-            int[] move = new int[3];
-            for (int i = 0; i < splitted.Length && i < 3; i++)
-                move[i] = Convert.ToInt32(splitted[i]);
-            Debug.Log(move[0] + "," + move[1] + "," + move[2]);
-            Board.DrawTurn(move);
+            Move action = msg.ReadMessage<Move>();
+            OnMoveSync(action);
         }
-        private void RegisterHandlers()
+
+        private void BroadcastMove(NetworkMessage msg)
         {
-            NetworkServer.RegisterHandler(MoveSyncMsg, SyncMove);
-            for (int i = 0; i < Global.Settings.playerClients.Count; i++)
+            StartCoroutine(DoTillSuccess(() => NetworkServer.SendToAll(MoveSyncMsg, msg.ReadMessage<Move>())));
+        }
+
+        public void BroadcastSeed(int seed)
+        {
+            StartCoroutine(DoTillSuccess(() => NetworkServer.SendToAll(DeckSyncMsg, new Seed { seed = seed })));
+        }
+
+        public void SendAction(Move action)
+        {
+            StartCoroutine(DoTillSuccess(() => Settings.Client.Send(MoveSyncMsg, action)));
+        }
+
+        private IEnumerator DoTillSuccess(Func<bool> action)
+        {
+            int i = 0;
+            while (!action())
             {
-                Global.Settings.playerClients[i].RegisterHandler(MoveSyncMsg, SyncMove);
-                Global.Settings.playerClients[i].RegisterHandler(DeckSyncMsg, SyncDeck);
+                i++;
+                yield return null;
             }
-            if (NetworkServer.active)
-            {
-                int seed = UnityEngine.Random.Range(0, 1000);
-                NetworkServer.SendToAll(DeckSyncMsg, new Global.Message() { message = seed.ToString() });
-                GenerateDeck(seed);
-            }
+            Debug.Log(i);
         }
     }
 }

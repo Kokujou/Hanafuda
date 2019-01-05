@@ -402,6 +402,7 @@ MonoBehaviour:
   SlideIn: {fileID: 224642390166135130}
   YesButton: {fileID: 114937283306468294}
   NoButton: {fileID: 114438917160996584}
+  Finished: 0
 --- !u!114 &114651565327966900
 MonoBehaviour:
   m_ObjectHideFlags: 1
