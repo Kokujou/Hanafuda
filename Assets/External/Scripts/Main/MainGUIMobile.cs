@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -105,20 +106,18 @@ namespace Hanafuda
                         if (Global.allYaku[yaku].Mask[0] == 1)
                             shownCards.AddRange(Global.allCards.FindAll(x =>
                                 !Global.allYaku[yaku].Namen.Contains(x.Title) && x.Typ == Global.allYaku[yaku].TypPref));
-                        var colCards = shownCards.FindAll(x =>
-                            ((Player)Players[tab]).CollectedCards.Exists(y => y.Title == x.Title));
+                        var colCards = shownCards.Intersect(Players[tab].CollectedCards).ToList();
                         shownCards.RemoveAll(x => colCards.Exists(y => y.Title == x.Title));
-                        for (var card = 0; card < shownCards.Count && card < Global.allYaku[yaku].minSize; card++)
+                        for (var card = 0; card < Global.allYaku[yaku].minSize; card++)
                         {
                             if (card % 6 == 5)
                             {
                                 GUILayout.EndHorizontal();
                                 GUILayout.BeginHorizontal();
                             }
-
                             if (card >= colCards.Count)
                             {
-                                var img = shownCards[card].Image.mainTexture;
+                                var img = shownCards[card - colCards.Count].Image.mainTexture;
                                 GUILayout.Label(img, GUILayout.Width(Screen.width / 6),
                                     GUILayout.Height(Screen.width / 6 * 1.6f));
                                 var filter = new Texture2D(1, 1);
