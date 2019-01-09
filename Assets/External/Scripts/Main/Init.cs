@@ -128,6 +128,8 @@ namespace Hanafuda
                     new Vector3(0, 180, 0), Animations.StandardScale / factor, (i + 18) * 0.2f));
                 //StartCoroutine(temp.transform.StandardAnimation( GameObject.Find("Feld").transform.position + new Vector3((int)(i/2), 0, 0), new Vector3(0, 180 * (1 - i), 0), temp.transform.localScale, 16 * 0.2f));
             }
+            if (!Turn)
+                StartCoroutine(Animations.AfterAnimation(OpponentTurn));
         }
 
         private void BuildHands()

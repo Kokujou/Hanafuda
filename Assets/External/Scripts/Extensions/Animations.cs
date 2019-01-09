@@ -9,12 +9,13 @@ namespace ExtensionMethods
 {
     public static class Animations
     {
-        public const float minBlinkAlpha = 0.5f;
-        public const float maxBlinkAlpha = .75f;
-        public const float OrthoCamSize = 41f;
-        public const float PlaneSize = 5f;
-        public const float OrthoPlaneSize = (OrthoCamSize * 2f) / PlaneSize;
-        public const float CardSize = OrthoPlaneSize / 1.6f;
+        public const float _minBlinkAlpha = 0.5f;
+        public const float _maxBlinkAlpha = .75f;
+        public const float _OrthoCamSize = 41f;
+        public const float _PlaneSize = 5f;
+        public const float _OrthoPlaneSize = (_OrthoCamSize * 2f) / _PlaneSize;
+        public const float _CardSize = _OrthoPlaneSize / 1.6f;
+        public const float _CardAngle = 20f;
         public static readonly Vector3 StandardScale = new Vector3(1, 1.6f, 1);
         /// <summary>
         /// Transparenz-Animation des Hilfs-Pfeils für die mobile Handkarten-Animation
@@ -27,9 +28,9 @@ namespace ExtensionMethods
                 var renderer = obj.GetComponent<SpriteRenderer>();
                 while (renderer.color.a == 0)
                     yield return null;
-                var alpha = Time.time * 3f % 5f / 10f + minBlinkAlpha;
+                var alpha = Time.time * 3f % 5f / 10f + _minBlinkAlpha;
                 renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b,
-                    alpha > maxBlinkAlpha ? maxBlinkAlpha - (alpha - maxBlinkAlpha) : alpha);
+                    alpha > _maxBlinkAlpha ? _maxBlinkAlpha - (alpha - _maxBlinkAlpha) : alpha);
                 yield return null;
             }
         }
@@ -145,8 +146,8 @@ namespace ExtensionMethods
             {
                 float offsetX = toSort[i].Object.transform.localScale.x;
                 float offsetY = toSort[i].Object.transform.localScale.y;
-                float cardWidth = CardSize * offsetX;
-                float cardHeight = CardSize * offsetY;
+                float cardWidth = _CardSize * offsetX;
+                float cardHeight = _CardSize * offsetY;
                 float alignY = (cardHeight + offsetY) * ((maxSize - 1) * 0.5f);
                 if (rowWise)
                     Global.instance.StartCoroutine(toSort[i].Object.transform.StandardAnimation(StartPos +
@@ -178,11 +179,11 @@ namespace ExtensionMethods
                     int id = hand.IndexOf(temp.transform.parent);
                     float max = toSort.Count - 1;
                     if (max == 0) max = 0.5f;
-                    Global.instance.StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, -id), temp.transform.parent.eulerAngles + new Vector3(0, 0, -60f + (120f / max) * (max - id)), temp.transform.parent.localScale, .6f, .3f, () =>
-                    {
-                        GameObject oldParent = temp.transform.parent.gameObject;
-                        temp.transform.parent = temp.transform.parent.parent;
-                        GameObject.Destroy(oldParent);
+                    Global.instance.StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, -id), temp.transform.parent.eulerAngles + new Vector3(0, 0, -(_CardAngle * max * 0.5f) + _CardAngle * (max - id)), temp.transform.parent.localScale, .6f, .3f, () =>
+                         {
+                             GameObject oldParent = temp.transform.parent.gameObject;
+                             temp.transform.parent = temp.transform.parent.parent;
+                             GameObject.Destroy(oldParent);
                         //temp.transform.localPosition = new Vector3(temp.transform.localPosition.x, temp.transform.localPosition.y, id/10f);
                     }));
                 }));
@@ -201,7 +202,7 @@ namespace ExtensionMethods
 
         public static IEnumerator CoordinateQueue(this List<Action> actions)
         {
-            bool actionRunning = false;
+            bool actionRunning = Global.MovingCards > 0;
             int actionIndex = -1;
             while (true)
             {

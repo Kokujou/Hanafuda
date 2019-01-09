@@ -50,7 +50,7 @@ namespace Hanafuda
             // Memo: Koikoi sagen!
             if (!parent.isFinal)
             {
-                var aHand = ((Player)parent.players[turn ? 0 : 1]).Hand;
+                var aHand = ((Player)parent.players[turn ? 1- Settings.PlayerID : Settings.PlayerID]).Hand;
                 for (var i = 0; i < aHand.Count; i++)
                 {
                     List<Move> ToBuild = new List<Move>();
@@ -90,7 +90,7 @@ namespace Hanafuda
         }
 
         // Memo: Konstruktion nur für einen Spieler einbauen: Jede 2. Karte ziehen.
-        public void BuildStateTree(int maxDepth = 16)
+        public void BuildStateTree(int maxDepth = 16, bool Turn = true)
         {
             StateTree.Clear();
             StateTree.Add(new List<VirtualBoard> { root });
@@ -106,7 +106,7 @@ namespace Hanafuda
                                 break;
                             else if (i == tasks.Count - 1)
                                 tasks.Clear();
-                    Task temp = new TaskFactory().StartNew(x => BuildChildNodes(x), new NodeParameters());
+                    Task temp = new TaskFactory().StartNew(x => BuildChildNodes(x), new NodeParameters() { level = level, node = node, turn = Turn });
                     tasks.Add(temp);
                 }
                 Task.WaitAll(tasks.ToArray());

@@ -5,6 +5,7 @@ using UnityEngine;
 using ExtensionMethods;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using System;
 
 namespace Hanafuda
 {
@@ -70,7 +71,7 @@ namespace Hanafuda
 
         public void OpponentTurn()
         {
-            _Turn = !_Turn;
+            _Turn = false;
             if (!Settings.Multiplayer)
             {
                 Move move = ((KI)players[1 - Settings.PlayerID]).MakeTurn(new VirtualBoard(this));
@@ -96,7 +97,7 @@ namespace Hanafuda
 
         public void SelectCard(Card card, bool fromDeck = false)
         {
-            List<Card> Source = fromDeck ? Deck : ((Player)players[Turn ? 0 : 1]).Hand;
+            List<Card> Source = fromDeck ? Deck : players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand;
             Collection.Add(card);
             // = Erster Aufruf
             if (Collection.Count == 1)
@@ -118,25 +119,21 @@ namespace Hanafuda
                 StartCoroutine(Animations.AfterAnimation(() => CollectCards(Collection)));
             }
             HoverMatches(Card.Months.Null);
+
+            List<Action> animationQueue = new List<Action>();
+            animationQueue.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
             if (!fromDeck)
             {
-                StartCoroutine(Animations.AfterAnimation(() =>
-                {
-                    Global.MovingCards++;
-                    StartCoroutine(((Player)players[Turn ? 0 : 1]).Hand.ResortCards(new CardLayout(true)));
-                    StartCoroutine(Field.ResortCards(new CardLayout(false)));
-                    StartCoroutine(Animations.AfterAnimation(() => { SelectCard(Deck[0], true); }));
-                    Global.MovingCards--;
-                }));
+                animationQueue.Add(() => StartCoroutine(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand.ResortCards(new CardLayout(true))));
+                animationQueue.Add(() => SelectCard(Deck[0], true));
             }
             else
-            {
-                StartCoroutine(Animations.AfterAnimation(CheckNewYaku));
-            }
+                animationQueue.Add(CheckNewYaku);
+
+            StartCoroutine(Animations.CoordinateQueue(animationQueue));
         }
         public void OnGUI()
         {
-            Debug.Log(string.Join(",", Settings.Players.Select(x => x.Hand.Count)));
             if (GUILayout.Button("X"))
                 ((Player)players[Settings.PlayerID]).CollectedCards = Global.allCards;
         }

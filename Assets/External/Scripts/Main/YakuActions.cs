@@ -10,17 +10,18 @@ namespace Hanafuda
         List<Yaku> NewYaku;
         private void CheckNewYaku()
         {
-            int oPoints = ((Player)(players[Turn ? 0 : 1])).tempPoints;
-            List<KeyValuePair<Yaku, int>> oYaku = ((Player)(players[Turn ? 0 : 1])).CollectedYaku;
-            ((Player)(players[Turn ? 0 : 1])).CollectedYaku = new List<KeyValuePair<Yaku, int>>(Yaku.GetYaku(((Player)(players[Turn ? 0 : 1])).CollectedCards).ToDictionary(x => x, x => 0));
+            int ID = Turn ? Settings.PlayerID : 1 - Settings.PlayerID;
+            int oPoints = ((Player)(players[ID])).tempPoints;
+            List<KeyValuePair<Yaku, int>> oYaku = ((Player)(players[ID])).CollectedYaku;
+            ((Player)(players[ID])).CollectedYaku = new List<KeyValuePair<Yaku, int>>(Yaku.GetYaku(((Player)(players[ID])).CollectedCards).ToDictionary(x => x, x => 0));
             NewYaku.Clear();
-            if (((Player)(players[Turn ? 0 : 1])).tempPoints > oPoints)
+            if (((Player)(players[ID])).tempPoints > oPoints)
             {
-                for (int i = 0; i < ((Player)(players[Turn ? 0 : 1])).CollectedYaku.Count; i++)
+                for (int i = 0; i < ((Player)(players[ID])).CollectedYaku.Count; i++)
                 {
-                    if (!oYaku.Exists(x => x.Key.Title == ((Player)(players[Turn ? 0 : 1])).CollectedYaku[i].Key.Title && x.Value == ((Player)(players[Turn ? 0 : 1])).CollectedYaku[i].Value))
+                    if (!oYaku.Exists(x => x.Key.Title == ((Player)(players[ID])).CollectedYaku[i].Key.Title && x.Value == ((Player)(players[ID])).CollectedYaku[i].Value))
                     {
-                        NewYaku.Add(((Player)(players[Turn ? 0 : 1])).CollectedYaku[i].Key);
+                        NewYaku.Add(((Player)(players[ID])).CollectedYaku[i].Key);
                     }
                 }
                 Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);

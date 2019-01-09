@@ -44,6 +44,7 @@ namespace Hanafuda
         }
         public void Update()
         {
+            Debug.Log(isActive);
             if (Board.Turn && isActive && Global.MovingCards == 0)
                 InputRoutine();
         }
@@ -72,6 +73,7 @@ namespace Hanafuda
         }
         private void CreateSlide()
         {
+            Debug.Log("Mobile Slide Created");
             Slide = Instantiate(Global.prefabCollection.PSlide, MainSceneVariables.variableCollection.Hand1M);
             Slide.transform.localPosition = new Vector3(0, -8, 10);
             SlideHand SlideScript = Slide.AddComponent<SlideHand>();
@@ -86,7 +88,7 @@ namespace Hanafuda
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit = new RaycastHit();
-            if (Input.GetMouseButtonDown(0) && Physics.Raycast(ray, out hit, 1 << LayerMask.NameToLayer("Feld")) && 
+            if (Input.GetMouseButtonDown(0) && Physics.Raycast(ray, out hit, 1 << LayerMask.NameToLayer("Feld")) &&
                 hit.collider.gameObject.name != card.Title)
             {
                 Card selected = hit.collider.gameObject.GetComponent<CardComponent>().card;

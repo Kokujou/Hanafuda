@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace Hanafuda
         public float Value;
         public bool isFinal;
         public bool HasNewYaku;
+        public bool Turn;
 
         public void SayKoikoi(bool koikoi)
         {
@@ -47,15 +49,23 @@ namespace Hanafuda
             Player activePlayer = players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID];
             Card handSelection = activePlayer.Hand.Find(x => x.Title == move.HandSelection);
 
-            List<Card> handMatches;
-            if (move.HandFieldSelection != "")
-                handMatches = Field.FindAll(x => x.Monat == handSelection.Monat);
-            else
-                handMatches = new List<Card>() { Field.Find(x => x.Title == move.HandFieldSelection) };
+            List<Card> handMatches = new List<Card>();
+            try
+            {
+                if (move.HandFieldSelection.Length <= 0)
+                    handMatches = Field.FindAll(x => x.Monat == handSelection.Monat);
+                else
+                    handMatches = new List<Card>() { Field.Find(x => x.Title == move.HandFieldSelection) };
+            }
+            catch(Exception e)
+            {
+                Debug.Log($"Hand: {handSelection.ToString()} Name: {move.HandSelection}");
+                throw e;
+            }
 
             Card deckSelection = Deck.Find(x => x.Title == move.DeckSelection);
             List<Card> deckMatches;
-            if (move.DeckFieldSelection != "")
+            if (move.DeckFieldSelection.Length <= 0)
                 deckMatches = Field.FindAll(x => x.Monat == deckSelection.Monat);
             else
                 deckMatches = new List<Card>() { Field.Find(x => x.Title == move.DeckFieldSelection) };
@@ -79,16 +89,17 @@ namespace Hanafuda
             }
 
             var Yakus = new List<Yaku>();
-            Yakus = Yaku.GetYaku(((Player)players[Turn ? 0 : 1]).CollectedCards.ToList());
+            int ID = Turn ? Settings.PlayerID : 1 - Settings.PlayerID;
+            Yakus = Yaku.GetYaku(((Player)players[ID]).CollectedCards.ToList());
             var nPoints = 0;
             for (var i = 0; i < Yakus.Count; i++)
             {
                 nPoints += Yakus[i].basePoints;
                 if (Yakus[i].addPoints != 0)
-                    nPoints += (((Player)players[Turn ? 0 : 1]).CollectedCards.Count(x => x.Typ == Yakus[i].TypPref) -
+                    nPoints += (((Player)players[ID]).CollectedCards.Count(x => x.Typ == Yakus[i].TypPref) -
                                 Yakus[i].minSize) * Yakus[i].addPoints;
             }
-            HasNewYaku = nPoints > ((Player)players[Turn ? 0 : 1]).tempPoints;
+            HasNewYaku = nPoints > ((Player)players[ID]).tempPoints;
         }
     }
 }

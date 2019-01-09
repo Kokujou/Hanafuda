@@ -38,8 +38,8 @@ namespace Hanafuda
             int maxSize = Settings.Mobile ? 3 : 2;
             float offsetX = Animations.StandardScale.x / scaleFactor;
             float offsetY = Animations.StandardScale.y / scaleFactor;
-            float cardWidth = Animations.CardSize * offsetX;
-            float cardHeight = Animations.CardSize * offsetY;
+            float cardWidth = Animations._CardSize * offsetX;
+            float cardHeight = Animations._CardSize * offsetY;
             float alignY = (cardHeight + offsetY) * (maxSize - 1) * 0.5f;
             Vector3 FieldPos = new Vector3((Field.Count / maxSize) * (cardWidth + offsetX), -alignY + (Field.Count % maxSize) * (cardHeight + offsetY), 0);
             StartCoroutine(card.Object.transform.StandardAnimation(Field3D.position + FieldPos, new Vector3(0, 180, 0),
@@ -70,12 +70,12 @@ namespace Hanafuda
                 {
                     parent = MainSceneVariables.variableCollection.PCCollections[(Turn ? 0 : 1) * 4 + (int)ToCollect[card].Typ];
                     int inCollection = ((Player)players[Turn ? 0 : 1]).CollectedCards.FindAll(x => x.Typ == ToCollect[card].Typ).Count;
-                    Vector3 insertPos = new Vector3((Animations.CardSize / 2) * (inCollection % 5), -(inCollection / 5) * 2f, 0);
+                    Vector3 insertPos = new Vector3((Animations._CardSize / 2) * (inCollection % 5), -(inCollection / 5) * 2f, 0);
                     destPos = parent.position + insertPos;
                     ToCollect[card].Object.transform.parent = parent;
                 }
                 StartCoroutine(ToCollect[card].Object.transform.StandardAnimation(destPos, destRot, destScale));
-                ((Player)players[Turn ? 0 : 1]).CollectedCards.Add(ToCollect[card]);
+                ((Player)players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectedCards.Add(ToCollect[card]);
                 Field.Remove(ToCollect[card]);
             }
             ToCollect.Clear();
@@ -92,7 +92,7 @@ namespace Hanafuda
             List<Action> actions = new List<Action>();
             actions.Add(() => SelectionToField(action.HandSelection));
             players[action.PlayerID].Hand.Remove(action.HandSelection);
-            actions.Add(() => players[action.PlayerID].Hand.ResortCards(new CardLayout(true)));
+            actions.Add(() => StartCoroutine(players[action.PlayerID].Hand.ResortCards(new CardLayout(true))));
 
             List<Card> HandCollection;
             if (action.HandMatches.Count == 1)
@@ -103,7 +103,7 @@ namespace Hanafuda
             if (HandCollection.Count != 1)
             {
                 actions.Add(() => CollectCards(HandCollection));
-                actions.Add(() => Field.ResortCards(new CardLayout(false)));
+                actions.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
             }
 
             actions.Add(() => SelectionToField(action.DeckSelection));
@@ -118,7 +118,7 @@ namespace Hanafuda
             if (DeckCollection.Count != 1)
             {
                 actions.Add(() => CollectCards(DeckCollection));
-                actions.Add(() => Field.ResortCards(new CardLayout(false)));
+                actions.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
             }
 
             if (action.HadYaku)
@@ -128,7 +128,7 @@ namespace Hanafuda
                 actions.Add(() => SayKoiKoi(action.Koikoi));
             }
 
-            actions.Add(() => { Turn = !Turn; });
+            actions.Add(() => { Turn = !Turn; Debug.Log($"AI Turn Finished {Turn}"); });
             StartCoroutine(Animations.CoordinateQueue(actions));
         }
     }

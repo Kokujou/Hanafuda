@@ -27,7 +27,6 @@ namespace Hanafuda
 
         public Func<VirtualBoard, Move> MakeTurn;
         public Mode mode;
-        public bool Turn;
         public KI(Mode Modus, string name) : base(name)
         {
             thisLock = new object();
@@ -136,8 +135,8 @@ namespace Hanafuda
 
         public Move OmniscientCalcTurn(VirtualBoard cRoot)
         {
-            Turn = false;
             root = cRoot;
+            root.Turn = true;
             BuildStateTree(1);
             //Bewertung möglicherweise in Threads?
             var maxValue = -100f;
