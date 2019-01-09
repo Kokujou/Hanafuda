@@ -56,9 +56,9 @@ namespace Hanafuda
                     List<Move> ToBuild = new List<Move>();
                     Move move = new Move();
                     move.HandSelection = aHand[i].Title;
-                    List<Card> handMatches = parent.Field.FindAll(x => x.Title == move.HandSelection);
+                    List<Card> handMatches = parent.Field.FindAll(x => x.Monat == aHand[i].Monat);
                     move.DeckSelection = parent.Deck[0].Title;
-                    List<Card> deckMatches = parent.Field.FindAll(x => x.Title == move.DeckSelection);
+                    List<Card> deckMatches = parent.Field.FindAll(x => x.Monat == parent.Deck[0].Monat);
                     if (handMatches.Count == 2)
                     {
                         for (var handChoice = 0; handChoice < 2; handChoice++)
@@ -71,13 +71,13 @@ namespace Hanafuda
                     else ToBuild.AddRange(AddDeckActions(deckMatches, move));
                     for (int build = 0; build < ToBuild.Count; build++)
                     {
-                        VirtualBoard child = new VirtualBoard(parent, move, turn);
-                        child.LastMove = move;
+                        VirtualBoard child = new VirtualBoard(parent, ToBuild[build], turn);
+                        child.LastMove = ToBuild[build];
                         if (child.HasNewYaku)
                         {
                             child.SayKoikoi(true);
-                            VirtualBoard finalChild = new VirtualBoard(parent, move, turn);
-                            finalChild.LastMove = move;
+                            VirtualBoard finalChild = new VirtualBoard(parent, ToBuild[build], turn);
+                            finalChild.LastMove = ToBuild[build];
                             finalChild.SayKoikoi(false);
                             lock (thisLock)
                                 StateTree[level + 1].Add(finalChild);

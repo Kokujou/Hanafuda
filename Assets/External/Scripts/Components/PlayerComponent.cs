@@ -44,7 +44,6 @@ namespace Hanafuda
         }
         public void Update()
         {
-            Debug.Log(isActive);
             if (Board.Turn && isActive && Global.MovingCards == 0)
                 InputRoutine();
         }
