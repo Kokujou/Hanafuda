@@ -53,8 +53,7 @@ namespace Hanafuda
             if (Turn)
             {
                 currentAction.SayKoikoi(koikoi);
-                if (Settings.Multiplayer)
-                    OpponentTurn();
+                OpponentTurn();
             }
             else
             {

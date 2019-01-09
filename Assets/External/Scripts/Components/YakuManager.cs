@@ -26,8 +26,8 @@ namespace Hanafuda
             get { return _Yaku; }
             set
             {
-                if (_Yaku?.name == "Kou")
-                    Destroy(_Yaku.gameObject);
+                if (_Yaku?.parent.name == "Kou")
+                    Destroy(_Yaku.parent.gameObject);
                 else if (_Yaku != null)
                     oldYaku = _Yaku;
                 _Yaku = value;
@@ -41,7 +41,7 @@ namespace Hanafuda
         public GameObject Main;
         public RectTransform SlideIn;
         public EventTrigger YesButton, NoButton;
-        public bool Finished=false;
+        public bool Finished = false;
         private GameObject _CherryBlossoms;
         public void Init(List<Yaku> queue, Spielfeld board)
         {
@@ -54,7 +54,7 @@ namespace Hanafuda
         {
             if (Queue?.Count > 0)
             {
-                if (Queue[0].TypPref == Card.Type.Lichter) return;
+                if (Queue[0].TypPref == Card.Type.Lichter || Yaku.parent.name == "Kou") return;
             }
             Yaku.localPosition = new Vector3(animLeft, 0, 0);
             if (oldYaku)
@@ -101,6 +101,12 @@ namespace Hanafuda
                 watch.Start();
                 animLeft = -200;
             }
+        }
+        public void Skip()
+        {
+            Destroy(oldYaku?.gameObject);
+            _oldYaku = null;
+            AskKoikoi();
         }
         public void AskKoikoi()
         {
