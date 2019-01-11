@@ -18,7 +18,7 @@ namespace Hanafuda
             if (ToInstantiate)
             {
                 GameObject obj = Instantiate(ToInstantiate);
-                if (Settings.Tutorial)
+                if (Settings.Tutorial && Settings.Mobile)
                 {
                     obj.AddComponent<Tutorial>();
                 }

@@ -132,6 +132,12 @@ namespace Hanafuda
             var watch = new System.Diagnostics.Stopwatch();
             watch.Start();
             var i = 0;
+            if(!Settings.Mobile)
+            {
+                TextMesh[] captions = Order.GetComponentsInChildren<TextMesh>();
+                for (int caption = 0; caption < captions.Length; caption++)
+                    captions[caption].text = "Gegner wählt\naus";
+            }
             while (watch.ElapsedMilliseconds < rndTime || (outcome != Card.Months.Null && tempDeck[i].Monat != outcome))
             {
                 BoxCollider col = tempDeck[i].Object.GetComponent<BoxCollider>();
@@ -147,19 +153,24 @@ namespace Hanafuda
             action.SingleSelection = tempDeck[i];
             action.PlayerID = 1;
             PlayCard(action);
+            if (!Settings.Mobile)
+            {
+                TextMesh[] captions = Order.GetComponentsInChildren<TextMesh>();
+                for (int caption = 0; caption < captions.Length; caption++)
+                    captions[caption].text = "Frühster Monat\ngewinnt";
+            }
         }
 
         public void PlayCard(Move action)
         {
             bool isHost = action.PlayerID == 1;
-            float targetX = 13, targetY = 18, targetScale = 1.5f, InfoX = isHost ? 0 : -24, InfoY = 41;
+            float targetX = 13, targetY = 18, targetScale = 1.5f, InfoY = 35;
             if (!Settings.Mobile)
             {
                 targetX = 55;
                 targetY = 0;
                 targetScale = 2;
-                InfoX = isHost ? 40 : -65;
-                InfoY = 30;
+                InfoY = 25;
             }
             Card SingleSelection = tempDeck.Find(x => x.Title == action.SingleSelection);
             Debug.Log($"Player{ action.PlayerID} zog {SingleSelection.Monat}");
@@ -172,7 +183,7 @@ namespace Hanafuda
             StartCoroutine(sel.transform.StandardAnimation(new Vector3(targetX * (isHost ? 1 : -1), targetY, 0),
                 new Vector3(0, 180, 0), Animations.StandardScale * targetScale, 0));
             var Info = Instantiate(Global.prefabCollection.PText);
-            Info.transform.position = new Vector3(InfoX, InfoY, 0);
+            Info.transform.position = new Vector3(targetX * (isHost ? 1 : -1), InfoY, 0);
             Info.GetComponent<TextMesh>().text = Settings.Players[action.PlayerID].Name;
             Info.GetComponentsInChildren<TextMesh>()[1].text = Settings.Players[action.PlayerID].Name;
             Infos[action.PlayerID] = Info;

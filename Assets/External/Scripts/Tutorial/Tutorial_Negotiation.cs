@@ -14,22 +14,10 @@ namespace Hanafuda
             NegMain.enabled = false;
             if (NegMain.Turn == -1)
                 NegMain.Start();
-            StartCoroutine(FindSlide());
+            if (Settings.Mobile)
+                StartCoroutine(FindSlide());
         }
-        private IEnumerator AfterOppSelection()
-        {
-            while (NegMain.Selections.Contains(null))
-                yield return null;
-            Destroy(HandMask.gameObject);
-            HandMask = null;
-            Destroy(Command.gameObject);
-            Command = null;
-            Destroy(Hide.gameObject);
-            Hide = null;
-            Command = Create3DText("frühster Monat\ngewinnt");
-            Command.transform.localPosition = Vector3.down * 15 + Vector3.back * 15;
-            Command.GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255f;
-        }
+
         private IEnumerator FindSlide()
         {
             SlideHand slide = null;
@@ -54,6 +42,21 @@ namespace Hanafuda
             Command = Create3DText("Durch Wischen\nKarte Auswählen");
             Command.transform.localPosition = new Vector3(0, 20, 0);
         }
+        private IEnumerator AfterOppSelection()
+        {
+            while (NegMain.Selections.Contains(null))
+                yield return null;
+            Destroy(HandMask.gameObject);
+            HandMask = null;
+            Destroy(Command.gameObject);
+            Command = null;
+            Destroy(Hide.gameObject);
+            Hide = null;
+            Command = Create3DText("frühster Monat\ngewinnt");
+            Command.transform.localPosition = Vector3.down * 15 + Vector3.back * 15;
+            Command.GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255f;
+        }
+
         private void ControlSelection(int selection)
         {
             Card selected = NegMain.tempDeck[selection];
