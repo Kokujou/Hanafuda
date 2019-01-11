@@ -23,10 +23,10 @@ namespace Hanafuda
         private GameObject[] Infos;
         private Card[] Hovered;
         private Communication PlayerInteraction;
-        private Card[] Selections;
-        private List<Card> tempDeck;
-        private int _Turn;
-        private int Turn
+        public Card[] Selections;
+        public List<Card> tempDeck;
+        private int _Turn = -1;
+        public int Turn
         {
             get { return _Turn; }
             set
@@ -40,7 +40,7 @@ namespace Hanafuda
         /// <summary>
         ///     Platzierung der repräsentativen Deck-Karten im Kreis und Initialisierung von Startpositionen
         /// </summary>
-        private void Start()
+        public void Start()
         {
             Selections = new Card[Settings.Players.Count];
             Infos = new GameObject[Settings.Players.Count];
@@ -73,7 +73,7 @@ namespace Hanafuda
                 var rnd = rand.Next(0, all.Count);
                 tempDeck.Add(all[rnd]);
                 Card.Months month = all[rnd].Monat;
-                all.RemoveAll(x=>x.Monat == month);
+                all.RemoveAll(x => x.Monat == month);
                 var go = Instantiate(Global.prefabCollection.PKarte, Kartenziehen.transform);
                 go.GetComponentsInChildren<MeshRenderer>()[0].material = tempDeck[i].Image;
                 go.name = tempDeck[i].Title;
@@ -108,7 +108,7 @@ namespace Hanafuda
                 cards[card]?.HoverCard();
             Hovered = cards;
         }
-        private void OnSelectItem(Card Selection)
+        public void OnSelectItem(Card Selection)
         {
             PlayerAction action = new PlayerAction();
             action.SingleSelection = Selection;
@@ -125,14 +125,14 @@ namespace Hanafuda
         /// </summary>
         /// <param name="sel">Wahl des Spielers</param>
         /// <returns></returns>
-        private IEnumerator AnimOponentChoice()
+        public IEnumerator AnimOpponentChoice(Card.Months outcome = Card.Months.Null)
         {
             yield return new WaitForSeconds(1);
             float rndTime = Random.Range(1000, 2000);
             var watch = new System.Diagnostics.Stopwatch();
             watch.Start();
             var i = 0;
-            while (watch.ElapsedMilliseconds < rndTime)
+            while (watch.ElapsedMilliseconds < rndTime || (outcome != Card.Months.Null && tempDeck[i].Monat != outcome))
             {
                 BoxCollider col = tempDeck[i].Object.GetComponent<BoxCollider>();
                 Global.prev?.HoverCard(true);
@@ -149,7 +149,7 @@ namespace Hanafuda
             PlayCard(action);
         }
 
-        private void PlayCard(Move action)
+        public void PlayCard(Move action)
         {
             bool isHost = action.PlayerID == 1;
             float targetX = 13, targetY = 18, targetScale = 1.5f, InfoX = isHost ? 0 : -24, InfoY = 41;
@@ -180,8 +180,8 @@ namespace Hanafuda
             for (int selection = 0; selection < Selections.Length; selection++)
                 if (Selections[selection] == null)
                 {
-                    if (!Settings.Multiplayer)
-                        StartCoroutine(AnimOponentChoice());
+                    if (!Settings.Multiplayer && GetComponent<Tutorial>() == null)
+                        StartCoroutine(AnimOpponentChoice());
                     return;
                 }
             StartCoroutine(GetResult());

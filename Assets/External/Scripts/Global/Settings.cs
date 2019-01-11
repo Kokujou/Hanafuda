@@ -50,6 +50,11 @@ namespace Hanafuda
         public static int PlayerID;
 
         /// <summary>
+        /// Indicates, whether Tutorial Mode is active
+        /// </summary>
+        public static bool Tutorial;
+
+        /// <summary>
         /// Ruft den Namen des aktuellen Spielers ab
         /// </summary>
         /// <returns></returns>

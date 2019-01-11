@@ -10,14 +10,27 @@ namespace Hanafuda
         public static VariableCollection variableCollection;
 
         // Use this for initialization
-        public GameObject obj;
+        public GameObject ToInstantiate;
         [SerializeField] public VariableCollection singleton;
         private void Start()
         {
             variableCollection = singleton;
-            if (obj) Instantiate(obj);
+            if (ToInstantiate)
+            {
+                GameObject obj = Instantiate(ToInstantiate);
+                if (Settings.Tutorial)
+                {
+                    obj.AddComponent<Tutorial>();
+                }
+            }
             else
+            {
                 variableCollection.Main = new GameObject("Board").AddComponent<Spielfeld>();
+                if (Settings.Tutorial)
+                {
+                    variableCollection.Main.gameObject.AddComponent<Tutorial>();
+                }
+            }
         }
 
         [Serializable]

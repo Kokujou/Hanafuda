@@ -355,6 +355,8 @@ MonoBehaviour:
     gKouYaku: {fileID: 1492468234595444, guid: 57ced8d467e3074449a907fb971bc79a, type: 2}
     PText: {fileID: 1771767747600700, guid: 823b7f92431231843a1db4ba516a913c, type: 2}
     Loading: {fileID: 1400980402427404, guid: d98d9ea20cea8c14289dc65175a38170, type: 2}
+    UIHide: {fileID: 1586136850898574, guid: 04e890e84ee64994a87c2da109b52348, type: 2}
+    UIMask: {fileID: 1182528299148930, guid: 58c9c74543aac10408f9566af26ad166, type: 2}
   AllCards:
   - {fileID: 11400000, guid: c5e3397eb63894048a8a3b9f9359f5e4, type: 2}
   - {fileID: 11400000, guid: 49502d594415026439c607ed3fdd2517, type: 2}

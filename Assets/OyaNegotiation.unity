@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.5198084, g: 0.42299533, b: 0.36814418, a: 1}
+  m_IndirectSpecularColor: {r: 0.52223283, g: 0.42508188, b: 0.37003198, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -218,8 +218,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f641c11f7c32eef4483a9b584d3a39df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obj: {fileID: 1283139743005896, guid: 77f8cc0ab25ffe745a9142e84515005d, type: 2}
+  ToInstantiate: {fileID: 1283139743005896, guid: 77f8cc0ab25ffe745a9142e84515005d,
+    type: 2}
   singleton:
+    BoxX: 0
+    Main: {fileID: 0}
     ExCol: {fileID: 0}
     ExColBack: {fileID: 0}
     Hand1: {fileID: 0}
@@ -231,7 +234,6 @@ MonoBehaviour:
     Deck: {fileID: 0}
     MDeck: {fileID: 0}
     EffectCamera: {fileID: 0}
-    BoxX: 0
     PCCollections: []
 --- !u!1 &1755952247
 GameObject:

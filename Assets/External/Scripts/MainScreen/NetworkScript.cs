@@ -55,18 +55,28 @@ namespace Hanafuda
             layout.addToLine(P1);
             layout.addLine(new Global.GridLayout.Label(1, "Spielmodus", true), 1);
             layout.addLine(PlayMode, 1);
+
             SinglePlayer.addLine(new Global.GridLayout.Label(1, "Künstliche Intelligenz", true), 1);
             SinglePlayer.addLine(KIMode, 1);
-            SinglePlayer.addLine(new Global.GridLayout.Empty(1), 1);
-            SinglePlayer.addToLine(new Global.GridLayout.Button(2, () =>
+            SinglePlayer.addLine(new Global.GridLayout.Button(2, () =>
             {
                 Settings.Rounds6 = Global.GridLayout.Toggles[0][0];
                 Settings.KIMode = KIMode.Selected;
                 Settings.Players = new List<Player>() { new Player(P1.Text), new Player("Computer") };
                 Settings.PlayerID = 0;
                 SceneManager.LoadScene("OyaNegotiation");
-            }, "Spiel Starten"));
-            SinglePlayer.addToLine(new Global.GridLayout.Empty(1));
+            }, "Spiel Starten"), 1);
+            SinglePlayer.addToLine(new Global.GridLayout.Button(2, ()=>
+            {
+                Settings.Rounds6 = true;
+                Settings.KIMode = -1;
+                Settings.Players = new List<Player>() { new Player(P1.Text), new Player("Computer") };
+                Settings.PlayerID = 0;
+                Settings.Multiplayer = false;
+                Settings.Tutorial = true;
+                SceneManager.LoadScene("OyaNegotiation");
+            }, "Tutorial"));
+
             MultiPlayer.addLine(new Global.GridLayout.Empty(1), 1);
             MultiPlayer.addToLine(new Global.GridLayout.Button(4, () =>
             {
