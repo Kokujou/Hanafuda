@@ -18,7 +18,8 @@ namespace Hanafuda
 
         public void SayKoikoi(bool koikoi)
         {
-            isFinal = true;
+            isFinal = !koikoi;
+            LastMove.Koikoi = koikoi;
         }
         public VirtualBoard(Spielfeld root)
         {
@@ -89,17 +90,19 @@ namespace Hanafuda
             }
 
             var Yakus = new List<Yaku>();
-            int ID = Turn ? Settings.PlayerID : 1 - Settings.PlayerID;
-            Yakus = Yaku.GetYaku(((Player)players[ID]).CollectedCards.ToList());
+            Yakus = Yaku.GetYaku(activePlayer.CollectedCards.ToList());
             var nPoints = 0;
             for (var i = 0; i < Yakus.Count; i++)
             {
                 nPoints += Yakus[i].basePoints;
                 if (Yakus[i].addPoints != 0)
-                    nPoints += (((Player)players[ID]).CollectedCards.Count(x => x.Typ == Yakus[i].TypPref) -
+                    nPoints += (activePlayer.CollectedCards.Count(x => x.Typ == Yakus[i].TypPref) -
                                 Yakus[i].minSize) * Yakus[i].addPoints;
             }
-            HasNewYaku = nPoints > ((Player)players[ID]).tempPoints;
+            HasNewYaku = nPoints > activePlayer.tempPoints;
+
+            LastMove = move;
+            LastMove.HadYaku = HasNewYaku;
         }
     }
 }

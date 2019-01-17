@@ -65,7 +65,12 @@ namespace Hanafuda
                 }
             }
             if ((!Settings.Multiplayer || !Turn) && !koikoi)
+            {
+                /*
+                 * Win-Loose-Animation
+                 */
                 SceneManager.LoadScene("Finish");
+            }
         }
 
         public void OpponentTurn()
@@ -89,7 +94,6 @@ namespace Hanafuda
             if (move.PlayerID == Settings.PlayerID) return;
             PlayerAction action = move;
             action.PlayerID = move.PlayerID;
-            Debug.Log($"HFSelection: {move.HandFieldSelection} DFSelection: {move.DeckFieldSelection}");
             AnimateAction(action);
             currentAction = new PlayerAction();
             currentAction.Init(this);
@@ -134,8 +138,10 @@ namespace Hanafuda
         }
         public void OnGUI()
         {
-            if (GUILayout.Button("X"))
+            if (GUILayout.Button("Cheat Player"))
                 ((Player)players[Settings.PlayerID]).CollectedCards = Global.allCards;
+            if (GUILayout.Button("Cheat Opp."))
+                players[1 - Settings.PlayerID].CollectedCards = Global.allCards;
         }
     }
 }

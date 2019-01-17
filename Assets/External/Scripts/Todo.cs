@@ -7,4 +7,7 @@
  * - Spielverlauf visualisieren
  * - KI
  * - Penetrationstests
+ * - Sammlung bei PC-Version überarbeiten
+ * - Deck-Feld-Auswahl Markierung fehlerhaft
+ * - Überarbeiten der Animationen
 */

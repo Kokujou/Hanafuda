@@ -72,12 +72,10 @@ namespace Hanafuda
                     for (int build = 0; build < ToBuild.Count; build++)
                     {
                         VirtualBoard child = new VirtualBoard(parent, ToBuild[build], turn);
-                        child.LastMove = ToBuild[build];
                         if (child.HasNewYaku)
                         {
                             child.SayKoikoi(true);
                             VirtualBoard finalChild = new VirtualBoard(parent, ToBuild[build], turn);
-                            finalChild.LastMove = ToBuild[build];
                             finalChild.SayKoikoi(false);
                             lock (thisLock)
                                 StateTree[level + 1].Add(finalChild);

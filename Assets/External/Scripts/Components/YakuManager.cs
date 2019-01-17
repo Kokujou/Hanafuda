@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Hanafuda
 {
@@ -27,13 +28,17 @@ namespace Hanafuda
             set
             {
                 if (_Yaku?.parent.name == "Kou")
+                {
                     Destroy(_Yaku.parent.gameObject);
+                    SlideIn.gameObject.SetActive(true);
+                }
                 else if (_Yaku != null)
                     oldYaku = _Yaku;
                 _Yaku = value;
                 Queue.RemoveAt(0);
             }
         }
+        private float totalWidth;
         private float animLeft = -200;
         private readonly System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
         private List<Yaku> Queue = null;
@@ -49,16 +54,30 @@ namespace Hanafuda
             Board = board;
             board.gameObject.SetActive(false);
             _CherryBlossoms = Instantiate(Global.prefabCollection.CherryBlossoms);
+            totalWidth = GetComponent<RectTransform>().sizeDelta.x / GetComponent<Canvas>().scaleFactor;
+            SlideIn.sizeDelta = new Vector2(totalWidth * 2, 100);
+            SlideIn.GetComponent<Image>().material.mainTextureScale = new Vector2(totalWidth / 50f, 1);
+            SlideIn.gameObject.SetActive(false);
+            animLeft = -totalWidth;
         }
         public void AlignYaku()
         {
             if (Queue?.Count > 0)
             {
-                if (Queue[0].TypPref == Card.Type.Lichter || Yaku.parent.name == "Kou") return;
+                if (Queue[0].TypPref == Card.Type.Lichter || Yaku.parent.name == "Kou")
+                {
+                    return;
+                }
             }
             Yaku.localPosition = new Vector3(animLeft, 0, 0);
             if (oldYaku)
-                oldYaku.localPosition = new Vector3(animLeft + 200, 0, 0);
+            {
+                oldYaku.localPosition = new Vector3(animLeft + totalWidth, 0, 0);
+                SlideIn.GetComponent<RectTransform>().anchoredPosition = new Vector3(animLeft, 0, 0);
+            }
+            else
+                SlideIn.GetComponent<RectTransform>().anchoredPosition = new Vector3(animLeft - totalWidth, 0, 0);
+
         }
         private void Update()
         {
@@ -67,7 +86,7 @@ namespace Hanafuda
             {
                 //allowInput = false;
                 if (animLeft < 0)
-                    animLeft += 3;
+                    animLeft += totalWidth / 50f;
                 else if (animLeft != 0)
                     animLeft = 0;
             }
@@ -99,7 +118,7 @@ namespace Hanafuda
                 Yaku = handler.Main;
                 watch.Reset();
                 watch.Start();
-                animLeft = -200;
+                animLeft = -totalWidth;
             }
         }
         public void Skip()
@@ -113,7 +132,6 @@ namespace Hanafuda
             Queue = null;
             Destroy(Yaku.parent.gameObject);
             Main.SetActive(true);
-            SlideIn.sizeDelta = new Vector2(1000, 500);
             EventTrigger.Entry entry = new EventTrigger.Entry
             {
                 eventID = EventTriggerType.PointerDown

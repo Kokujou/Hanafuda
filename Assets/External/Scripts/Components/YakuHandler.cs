@@ -19,48 +19,11 @@ namespace Hanafuda
             Ameshikou,
             Gokou
         }
-        public RectTransform SlideIn, Cards, Main;
+        public RectTransform Cards, Main;
         public Text Title_Text, Title_Shadow, Subtitle_Text, Subtitle_Shadow;
         public List<Image> Lights;
         public List<Sprite> Captions;
         public Image Caption;
-        /*public void AskKoikoi()
-        {
-            initKoikoi = false;
-            Destroy(GameObject.FindGameObjectWithTag("oldYaku"));
-            GameObject Koikoi = Instantiate(Global.prefabCollection.Koikoi);
-            Koikoi.name = "Koikoi";
-            float cWidth = FindObjectOfType<Canvas>().GetComponent<RectTransform>().rect.width;
-            GameObject.Find("Koikoi/SlideIn").GetComponent<RectTransform>().sizeDelta = new Vector2(cWidth / 0.2f, 500);
-            EventTrigger.Entry entry = new EventTrigger.Entry
-            {
-                eventID = EventTriggerType.PointerDown
-            };
-            entry.callback.AddListener((data) =>
-            {
-                initKoikoi = false;
-                ((Player)Board.players[Board.Turn ? 0 : 1]).Koikoi++;
-                StartCoroutine(Global.prefabCollection.KoikoiText.KoikoiAnimation(() =>
-                {
-                    allowInput = true;
-                    Board.Turn = !Board.Turn;
-                    PlayMode = 1;
-                }));
-                Destroy(Koikoi);
-            });
-            GameObject.Find("Koikoi/YesButton").GetComponent<EventTrigger>().triggers.Add(entry);
-            entry = new EventTrigger.Entry
-            {
-                eventID = EventTriggerType.PointerDown
-            };
-            entry.callback.AddListener((data) =>
-            {
-                initKoikoi = false;
-                Global.players = Board.players.Cast<Player>().ToList();
-                SceneManager.LoadScene("Finish");
-            });
-            GameObject.Find("Koikoi/NoButton").GetComponent<EventTrigger>().triggers.Add(entry);
-        }*/
 
         public void AddYaku(Yaku Yaku)
         {
@@ -74,7 +37,6 @@ namespace Hanafuda
                 Title_Shadow.font = Global.prefabCollection.EdoFont;
                 Title_Text.font = Global.prefabCollection.EdoFont;
             }
-            SlideIn.sizeDelta = new Vector2(1000, 500);
             Title_Shadow.text = Yaku.JName;
             Title_Text.text = Yaku.JName;
             Subtitle_Shadow.text = Yaku.Title;
@@ -83,6 +45,9 @@ namespace Hanafuda
 
         public void FixedYaku(Yaku Yaku, List<Card> Collection)
         {
+            const int CardWidth = 25;
+            const int CardOffset = 10;
+            int CardSpace = CardWidth + CardOffset;
             SetupText(Yaku);
             List<Card> temp = new List<Card>();
             if (Yaku.Mask[1] == 1)
@@ -95,7 +60,9 @@ namespace Hanafuda
                 GameObject card = new GameObject(yakuCard.ToString());
                 RectTransform rect = card.AddComponent<RectTransform>();
                 rect.SetParent(parent, false);
-                rect.localPosition = new Vector3((Yaku.minSize / 2f) * -35 + 35 * yakuCard + 17.5f, 0);
+                if (Yaku.minSize > 5)
+                    CardSpace = CardWidth + 4;
+                rect.localPosition = new Vector3((Yaku.minSize / 2f) * -CardSpace + CardSpace * yakuCard + CardSpace / 2f, 0);
                 rect.sizeDelta = new Vector2(25, 40);
                 GameObject shadow = new GameObject("Shadow");
                 shadow.transform.SetParent(card.transform, false);
@@ -116,6 +83,7 @@ namespace Hanafuda
 
         public void KouYaku(Yaku Yaku, List<Card> Collection)
         {
+            transform.localScale = (1f / transform.parent.GetComponent<Canvas>().scaleFactor) * Vector3.one;
             Caption.sprite = Captions[(int)Enum.Parse(typeof(LightYaku), Yaku.Title)];
             List<Card> Matches = Global.allCards.FindAll(y => y.Typ == Card.Type.Lichter);
             for (int cardID = 0; cardID < 5; cardID++)

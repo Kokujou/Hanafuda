@@ -231,7 +231,7 @@ namespace Hanafuda
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
-                if (Input.GetMouseButtonDown(0) && selected.Title.Length > 0)
+                if (Input.GetMouseButtonDown(0) && selected?.Title.Length > 0)
                 {
                     PlayerAction action = new PlayerAction();
                     action.SingleSelection = selected;
