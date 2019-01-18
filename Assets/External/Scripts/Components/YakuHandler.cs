@@ -49,11 +49,11 @@ namespace Hanafuda
             const int CardOffset = 10;
             int CardSpace = CardWidth + CardOffset;
             SetupText(Yaku);
-            List<Card> temp = new List<Card>();
+            List<Card> yakuCards = new List<Card>();
             if (Yaku.Mask[1] == 1)
-                temp.AddRange(Collection.FindAll(x => Yaku.Namen.Contains(x.Title)));
+                yakuCards.AddRange(Collection.FindAll(x => Yaku.Namen.Contains(x.Title)));
             if (Yaku.Mask[0] == 1)
-                temp.AddRange(Collection.FindAll(x => x.Typ == Yaku.TypPref));
+                yakuCards.AddRange(Collection.FindAll(x => x.Typ == Yaku.TypPref));
             Transform parent = Cards.transform;
             for (int yakuCard = 0; yakuCard < Yaku.minSize; yakuCard++)
             {
@@ -73,7 +73,7 @@ namespace Hanafuda
                 GameObject Image = new GameObject("Image");
                 Image.transform.SetParent(card.transform, false);
                 Image img = Image.AddComponent<Image>();
-                Texture2D tex = (Texture2D)temp[yakuCard].Image.mainTexture;
+                Texture2D tex = (Texture2D)yakuCards[yakuCard].Image.mainTexture;
                 img.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f));
                 rect = img.GetComponent<RectTransform>();
                 rect.localPosition = new Vector3(0, 0);

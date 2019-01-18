@@ -38,12 +38,13 @@ namespace Hanafuda
                 Queue.RemoveAt(0);
             }
         }
+
         private float totalWidth;
         private float animLeft = -200;
         private readonly System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
         private List<Yaku> Queue = null;
         private Spielfeld Board;
-        public GameObject Main;
+        public GameObject Main, SkipButton;
         public RectTransform SlideIn;
         public EventTrigger YesButton, NoButton;
         public bool Finished = false;
@@ -55,21 +56,18 @@ namespace Hanafuda
             board.gameObject.SetActive(false);
             _CherryBlossoms = Instantiate(Global.prefabCollection.CherryBlossoms);
             totalWidth = GetComponent<RectTransform>().sizeDelta.x / GetComponent<Canvas>().scaleFactor;
-            SlideIn.sizeDelta = new Vector2(totalWidth * 2, 100);
-            SlideIn.GetComponent<Image>().material.mainTextureScale = new Vector2(totalWidth / 50f, 1);
-            SlideIn.gameObject.SetActive(false);
             animLeft = -totalWidth;
+            SlideIn.sizeDelta = new Vector2(totalWidth * 2, 100);
+            SlideIn.anchoredPosition = new Vector3(-totalWidth * 2, 0, 0);
+            SlideIn.GetComponent<Image>().material.mainTextureScale = new Vector2(totalWidth / 50f, 1);
+            SlideIn.gameObject.SetActive(Queue[0].TypPref != Card.Type.Lichter);
+
         }
         public void AlignYaku()
         {
-            if (Queue?.Count > 0)
-            {
-                if (Queue[0].TypPref == Card.Type.Lichter || Yaku?.parent.name == "Kou")
-                {
-                    return;
-                }
-            }
-            else return;
+            if (!Yaku || Queue == null || Yaku.parent.name == "Kou")
+                return;
+            Debug.Log(Yaku.parent.name);
             Yaku.localPosition = new Vector3(animLeft, 0, 0);
             if (oldYaku)
             {
@@ -132,7 +130,9 @@ namespace Hanafuda
         {
             Queue = null;
             Destroy(Yaku.parent.gameObject);
+            Destroy(SkipButton);
             SlideIn.gameObject.SetActive(true);
+            SlideIn.anchoredPosition = Vector3.zero;
             Main.SetActive(true);
             EventTrigger.Entry entry = new EventTrigger.Entry
             {

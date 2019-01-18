@@ -144,7 +144,7 @@ namespace Hanafuda
         {
             if (GUILayout.Button("Cheat Player"))
             {
-                Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(new List<Yaku>() { Global.allYaku[0] }, this);
+                players[Settings.PlayerID].CollectedCards = Global.allCards;
             }
             if (GUILayout.Button("Cheat Opp."))
                 players[1 - Settings.PlayerID].CollectedCards = Global.allCards;
