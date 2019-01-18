@@ -27,16 +27,16 @@ namespace Hanafuda
         public static List<Player> players = new List<Player>();
         public List<Card> AllCards = new List<Card>();
         public List<Yaku> AllYaku = new List<Yaku>();
+        public Texture2D[] Skins;
         private void Awake()
         {
             instance = this;
             DontDestroyOnLoad(this);
             allYaku = AllYaku;
             allCards = AllCards;
-            var skins = Resources.LoadAll<Texture2D>("Images/").Where(x => x.name.StartsWith("Back")).ToArray();
-            CardSkins = new Sprite[skins.Length];
-            for (var i = 0; i < skins.Length; i++)
-                CardSkins[i] = Sprite.Create(skins[0], new Rect(0, 0, skins[i].width, skins[i].height),
+            CardSkins = new Sprite[Skins.Length];
+            for (var i = 0; i < Skins.Length; i++)
+                CardSkins[i] = Sprite.Create(Skins[0], new Rect(0, 0, Skins[i].width, Skins[i].height),
                     new Vector2(.5f, .5f));
             prefabCollection = singleton;
             /*

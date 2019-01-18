@@ -38,7 +38,11 @@ namespace Hanafuda
                     StartCoroutine(Animations.AfterAnimation(() => CollectCards(Collection)));
                     break;
                 case 3:
-                    card.FadeCard();
+                    for (int match = 0; match < matches.Count; match++)
+                    {
+                        if (matches[match] != card)
+                            matches[match].FadeCard(true);
+                    }
                     gameObject.GetComponent<PlayerComponent>().RequestFieldSelection(card, fromDeck);
                     return false;
                 default:
@@ -139,7 +143,9 @@ namespace Hanafuda
         public void OnGUI()
         {
             if (GUILayout.Button("Cheat Player"))
-                ((Player)players[Settings.PlayerID]).CollectedCards = Global.allCards;
+            {
+                Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(new List<Yaku>() { Global.allYaku[0] }, this);
+            }
             if (GUILayout.Button("Cheat Opp."))
                 players[1 - Settings.PlayerID].CollectedCards = Global.allCards;
         }

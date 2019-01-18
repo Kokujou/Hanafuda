@@ -64,11 +64,12 @@ namespace Hanafuda
         {
             if (Queue?.Count > 0)
             {
-                if (Queue[0].TypPref == Card.Type.Lichter || Yaku.parent.name == "Kou")
+                if (Queue[0].TypPref == Card.Type.Lichter || Yaku?.parent.name == "Kou")
                 {
                     return;
                 }
             }
+            else return;
             Yaku.localPosition = new Vector3(animLeft, 0, 0);
             if (oldYaku)
             {
@@ -131,6 +132,7 @@ namespace Hanafuda
         {
             Queue = null;
             Destroy(Yaku.parent.gameObject);
+            SlideIn.gameObject.SetActive(true);
             Main.SetActive(true);
             EventTrigger.Entry entry = new EventTrigger.Entry
             {
@@ -139,6 +141,7 @@ namespace Hanafuda
             entry.callback.AddListener((data) =>
             {
                 Board.players[Settings.PlayerID].Koikoi++;
+                Destroy(SlideIn.gameObject);
                 StartCoroutine(Global.prefabCollection.KoikoiText.KoikoiAnimation(() =>
                 {
                     Destroy(_CherryBlossoms);

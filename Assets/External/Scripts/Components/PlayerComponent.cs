@@ -91,6 +91,8 @@ namespace Hanafuda
                 hit.collider.gameObject.name != card.Title)
             {
                 Card selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
+                for (int i = 0; i < Board.Field.Count; i++)
+                    Board.Field[i].FadeCard(false);
                 Board.SelectCard(selected, fromDeck);
             }
         }

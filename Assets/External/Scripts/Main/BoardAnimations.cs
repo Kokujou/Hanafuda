@@ -61,18 +61,21 @@ namespace Hanafuda
             else
             {
                 destRot = new Vector3(0, 180, 0);
-                destScale = Animations.StandardScale / 2f;
+                destScale = Animations.StandardScale;
             }
             for (int card = 0; card < ToCollect.Count; card++)
             {
                 Transform parent = null;
                 if (!Settings.Mobile)
                 {
-                    parent = MainSceneVariables.variableCollection.PCCollections[(Turn ? 0 : 1) * 4 + (int)ToCollect[card].Typ];
-                    int inCollection = ((Player)players[Turn ? 0 : 1]).CollectedCards.FindAll(x => x.Typ == ToCollect[card].Typ).Count;
-                    Vector3 insertPos = new Vector3((Animations._CardSize / 2) * (inCollection % 5), -(inCollection / 5) * 2f, 0);
-                    destPos = parent.position + insertPos;
+                    Card.Type type = ToCollect[card].Typ;
+                    parent = MainSceneVariables.variableCollection.PCCollections[(Turn ? 0 : 1) * 4 + (int)type];
+                    int inCollection = parent.GetComponentsInChildren<BoxCollider>().Length;
+                    Vector3 insertPos = new Vector3((Animations._CardSize / 2f) * (int)(inCollection % 5), -(int)(inCollection / 5) * 5, -inCollection);
                     ToCollect[card].Object.transform.parent = parent;
+                    destPos = parent.position + insertPos;
+
+                    ToCollect[card].Object.layer = 0;
                 }
                 StartCoroutine(ToCollect[card].Object.transform.StandardAnimation(destPos, destRot, destScale));
                 ((Player)players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectedCards.Add(ToCollect[card]);
@@ -98,7 +101,7 @@ namespace Hanafuda
             if (action.HandMatches.Count == 1)
                 HandCollection = new List<Card>(action.HandMatches);
             else
-                HandCollection = new List<Card>(Field.FindAll(x=>x.Monat == action.HandSelection.Monat));
+                HandCollection = new List<Card>(Field.FindAll(x => x.Monat == action.HandSelection.Monat));
             HandCollection.Add(action.HandSelection);
             if (HandCollection.Count != 1)
             {
@@ -113,7 +116,11 @@ namespace Hanafuda
             if (action.DeckMatches.Count == 1)
                 DeckCollection = new List<Card>(action.DeckMatches);
             else
+            {
                 DeckCollection = new List<Card>(Field.FindAll(x => x.Monat == action.DeckSelection.Monat));
+                if (HandCollection.Count == 1 && HandCollection[0].Monat == action.DeckSelection.Monat)
+                    DeckCollection.Add(HandCollection[0]);
+            }
             DeckCollection.Add(action.DeckSelection);
             if (DeckCollection.Count != 1)
             {

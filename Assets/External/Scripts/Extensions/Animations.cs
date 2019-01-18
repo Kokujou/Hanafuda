@@ -68,7 +68,12 @@ namespace ExtensionMethods
             GameObject koi = GameObject.Instantiate(toInstantiate);
             koi.transform.position = Vector3.zero;
             koi.transform.localScale = Vector3.zero;
-            yield return koi.transform.StandardAnimation(koi.transform.position, koi.transform.eulerAngles, new Vector3(9.6f, 2.4f, 2.4f));
+            Vector3 destScale;
+            if (Settings.Mobile)
+                destScale = new Vector3(5f, 2.4f, 2.4f);
+            else
+                destScale = new Vector3(9.6f, 2.4f, 2.4f);
+            yield return koi.transform.StandardAnimation(koi.transform.position, koi.transform.eulerAngles, destScale);
             yield return koi.transform.StandardAnimation(koi.transform.position, koi.transform.eulerAngles, Vector3.zero, 1.5f, AddFunc: () =>
             {
                 GameObject.Destroy(koi);
