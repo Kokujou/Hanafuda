@@ -15,6 +15,7 @@ namespace Hanafuda
         public bool isFinal;
         public bool HasNewYaku;
         public bool Turn;
+        public int parentID;
 
         public void SayKoikoi(bool koikoi)
         {
@@ -38,9 +39,10 @@ namespace Hanafuda
         /// <param name="parent"></param>
         /// <param name="move"></param>
         /// <param name="Turn"></param>
-        public VirtualBoard(VirtualBoard parent, Move move, bool Turn)
+        public VirtualBoard(VirtualBoard parent, Move move, bool Turn, int parentNode)
         {
             //WICHTIG! Einsammeln bei Kartenzug!
+            parentID = parentNode;
             Deck = new List<Card>(parent.Deck);
             Field = new List<Card>(parent.Field);
             Value = 0f;

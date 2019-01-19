@@ -26,6 +26,8 @@ namespace Hanafuda
         private GameObject Loading;
         public GUISkin skin;
 
+        private System.Diagnostics.Process process;
+
         private void Update()
         {
             layout.Width = resolution.x * 0.9f;

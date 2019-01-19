@@ -13,7 +13,8 @@ namespace Hanafuda
         public VirtualBoard root;
         public List<List<VirtualBoard>> StateTree = new List<List<VirtualBoard>>();
         public object thisLock;
-        private readonly List<Task> tasks = new List<Task>();
+        private readonly List<Task<object>> tasks = new List<Task<object>>();
+        private System.Diagnostics.Process process;
 
         [Serializable]
         public class NodeParameters
@@ -21,6 +22,13 @@ namespace Hanafuda
             public int level;
             public int node;
             public bool turn;
+        }
+        [Serializable]
+        public class NodeReturn
+        {
+            public int level;
+            public bool turn;
+            public List<VirtualBoard> states = new List<VirtualBoard>();
         }
 
         private static List<Move> AddDeckActions(List<Card> deckMatches, Move root)
@@ -39,77 +47,134 @@ namespace Hanafuda
                 ToBuild.Add(root);
             return ToBuild;
         }
-        private void BuildChildNodes(object param)
+
+        private async Task<List<VirtualBoard>> BoardFromMove(Move move, object param)
+        {
+            List<VirtualBoard> result = new List<VirtualBoard>();
+            NodeParameters parameters = (NodeParameters)param;
+            int level = parameters.level;
+            int node = parameters.node;
+            bool turn = parameters.turn;
+            VirtualBoard parent = StateTree[level][parameters.node];
+            VirtualBoard child = new VirtualBoard(parent, move, turn, node);
+            if (child.HasNewYaku)
+            {
+                child.SayKoikoi(true);
+                VirtualBoard finalChild = new VirtualBoard(parent, move, turn, node);
+                finalChild.SayKoikoi(false);
+                result.Add(finalChild);
+            }
+            result.Add(child);
+            return result;
+        }
+
+        private async Task<List<VirtualBoard>> BuildNode(Card HandSelection, object param)
+        {
+            List<Move> ToBuild = new List<Move>();
+            Move move = new Move();
+            NodeParameters parameters = (NodeParameters)param;
+            List<VirtualBoard> result = new List<VirtualBoard>();
+            VirtualBoard parent = StateTree[parameters.level][parameters.node];
+            move.HandSelection = HandSelection.Title;
+            List<Card> handMatches = parent.Field.FindAll(x => x.Monat == HandSelection.Monat);
+            move.DeckSelection = parent.Deck[0].Title;
+            List<Card> deckMatches = parent.Field.FindAll(x => x.Monat == parent.Deck[0].Monat);
+            if (handMatches.Count == 2)
+            {
+                for (var handChoice = 0; handChoice < 2; handChoice++)
+                {
+                    Move handMove = new Move(move);
+                    handMove.HandFieldSelection = handMatches[handChoice].Title;
+                    ToBuild.AddRange(AddDeckActions(deckMatches, handMove));
+                }
+            }
+            else ToBuild.AddRange(AddDeckActions(deckMatches, move));
+            for (int build = 0; build < ToBuild.Count; build++)
+            {
+                result.AddRange(await BoardFromMove(ToBuild[build], param));
+            }
+            return result;
+        }
+
+        private async Task<object> BuildChildNodes(object param)
         {
             Console.WriteLine("Test");
             NodeParameters parameters = (NodeParameters)param;
             int level = parameters.level;
+            int node = parameters.node;
             bool turn = parameters.turn;
             VirtualBoard parent = StateTree[level][parameters.node];
+            NodeReturn result = new NodeReturn();
+            result.level = level;
+            result.turn = turn;
             // Memo: matches = 0
             // Memo: Koikoi sagen!
             if (!parent.isFinal)
             {
-                var aHand = ((Player)parent.players[turn ? 1- Settings.PlayerID : Settings.PlayerID]).Hand;
+                var aHand = ((Player)parent.players[turn ? 1 - Settings.PlayerID : Settings.PlayerID]).Hand;
+                List<Task<List<VirtualBoard>>> tasks = new List<Task<List<VirtualBoard>>>();
                 for (var i = 0; i < aHand.Count; i++)
                 {
-                    List<Move> ToBuild = new List<Move>();
-                    Move move = new Move();
-                    move.HandSelection = aHand[i].Title;
-                    List<Card> handMatches = parent.Field.FindAll(x => x.Monat == aHand[i].Monat);
-                    move.DeckSelection = parent.Deck[0].Title;
-                    List<Card> deckMatches = parent.Field.FindAll(x => x.Monat == parent.Deck[0].Monat);
-                    if (handMatches.Count == 2)
-                    {
-                        for (var handChoice = 0; handChoice < 2; handChoice++)
-                        {
-                            Move handMove = new Move(move);
-                            handMove.HandFieldSelection = handMatches[handChoice].Title;
-                            ToBuild.AddRange(AddDeckActions(deckMatches, handMove));
-                        }
-                    }
-                    else ToBuild.AddRange(AddDeckActions(deckMatches, move));
-                    for (int build = 0; build < ToBuild.Count; build++)
-                    {
-                        VirtualBoard child = new VirtualBoard(parent, ToBuild[build], turn);
-                        if (child.HasNewYaku)
-                        {
-                            child.SayKoikoi(true);
-                            VirtualBoard finalChild = new VirtualBoard(parent, ToBuild[build], turn);
-                            finalChild.SayKoikoi(false);
-                            lock (thisLock)
-                                StateTree[level + 1].Add(finalChild);
-                        }
-                        lock (thisLock)
-                            StateTree[level + 1].Add(child);
-                    }
+                    tasks.Add(BuildNode(aHand[i], param));
                 }
+                Task.WaitAll(tasks.ToArray());
+                for (int i = 0; i < tasks.Count; i++)
+                    result.states.AddRange(tasks[i].Result);
             }
+            return result;
         }
 
         // Memo: Konstruktion nur für einen Spieler einbauen: Jede 2. Karte ziehen.
         public void BuildStateTree(int maxDepth = 16, bool Turn = true)
         {
+            process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = "CMD.EXE", RedirectStandardInput = true, UseShellExecute = false });
+            process.StandardInput.WriteLine("echo off");
+            process.StandardInput.WriteLine("cls");
             StateTree.Clear();
             StateTree.Add(new List<VirtualBoard> { root });
             for (var i = 0; i < maxDepth; i++)
                 StateTree.Add(new List<VirtualBoard>());
-            for (var level = 0; level < maxDepth; level++, Turn = !Turn)
+            Task<object> firstTask = new Task<object>(x => BuildChildNodes(x).Result, (new NodeParameters() { level = 0, node = 0, turn = Turn }));
+            firstTask.Start();
+            tasks.Add(firstTask);
+            while (tasks.Count > 0 && StateTree.Last().Count == 0)
+            {
+                Task.WaitAny(tasks.ToArray());
+                List<Task<object>> newTasks = new List<Task<object>>();
+                for (int task = tasks.Count - 1; task >= 0; task--)
+                {
+                    if (tasks[task].IsCompleted)
+                    {
+                        NodeReturn result = (NodeReturn)tasks[task].Result;
+                        tasks.RemoveAt(task);
+                        StateTree[result.level + 1].AddRange(result.states);
+                        for (int i = 0; i < result.states.Count; i++)
+                        {
+                            Task<object> newTask = new Task<object>(x => BuildChildNodes(x).Result, (object)new NodeParameters() { level = result.level + 1, node = StateTree[result.level + 1].Count - (i + 1), turn = !result.turn });
+                            newTask.Start();
+                            newTasks.Add(newTask);
+                        }
+                        int last = 0;
+                        for (int i = StateTree.Count - 1; i >= 0; i--)
+                            if (StateTree[i].Count > 0)
+                            {
+                                last = i;
+                                break;
+                            }
+                        process.StandardInput.WriteLine($"State Tree Level: {last}, Content: {StateTree[last].Count} ^");
+                    }
+                }
+                tasks.AddRange(newTasks);
+
+            }
+            /*for (var level = 0; level < maxDepth; level++, Turn = !Turn)
             {
                 for (var node = 0; node < StateTree[level].Count; node++)
                 {
-                    while (tasks.Count > 10000)
-                        for (var i = 0; i < tasks.Count; i++)
-                            if (!tasks[i].IsCompleted)
-                                break;
-                            else if (i == tasks.Count - 1)
-                                tasks.Clear();
-                    Task temp = new TaskFactory().StartNew(x => BuildChildNodes(x), new NodeParameters() { level = level, node = node, turn = Turn });
-                    tasks.Add(temp);
+                    tasks.Add(BuildChildNodes(new NodeParameters() { level = level, node = node, turn = Turn }));
                 }
-                Task.WaitAll(tasks.ToArray());
-            }
-            Task.WaitAll(tasks.ToArray());
+                await Task.WhenAll(tasks);
+            }*/
         }
     }
 }

@@ -49,7 +49,10 @@ namespace Hanafuda
                      *      -> Mögliche Interaktion der beiden Bäume
                      *  - Problem: Unbekannte Deck-Karten -> Arbeit nur mit Feldkarten möglich
                      *  - Alternative: Zufälliger Zug aus verdeckten Karten -> sehr fehleranfällig!
+                     *  - Ehrlichere KI: Aufbau des KI-Baums + Statistische Wahl der Gegnerzüge.
+                     *      - Aufbau auch über 2-3 mögliche Züge denkbar
                      */
+                    MakeTurn = SearchTurn;
                     break;
                 case Mode.Statistic:
                     /*
@@ -65,103 +68,26 @@ namespace Hanafuda
                      *  - Besondere Beachtung vom Einsammeln durch Kartenzug -> Erweiterung der Möglichkeiten der Handkarten
                      *  -> Bewertungsfunktion
                      */
+                    MakeTurn = StatisticCalcTurn;
                     break;
             }
         }
-
-        public float OmniscientRateState(VirtualBoard State)
-        {
-            /* Beachte:
-             * - Koikoi = true? / isFinal?
-             * - Unsicherheit des Gegners beachten!
-             * - KI = player[1]
-             * - Erweiterte Erreichbarkeit der Karten: Ziehbar, aber auch Einsammelbar?
-             * - Blockade von durch Einsammeln von Karten (Einsammeln von wichtigen Deckkarten nicht mehr möglich)...
-             */
-            /* Wichtige Werte inklusive:
-             * - Handkarten, Feldkarten, Deckkarten, Sammlung
-             * - Temporäre Punkte
-             * - Gesamtpunktzahl - Einfluss auf Koikoi
-             */
-            return 0f;
-            var oPossibleYaku = new List<Yaku>(); //NEU!
-            var pPossibleYaku = new List<Yaku>();
-            var oReachableCards = new List<Card>();
-            var pReachableCards = new List<Card>();
-            var oKoikoi = 0f;
-            var oNextYakuWkt = 0f;
-            float result = 0;
-            var oCardsToYaku = 0;
-            var pCardsToYaku = 0;
-            oReachableCards.AddRange(State.Deck);
-            oReachableCards.AddRange(((Player)State.players[0]).Hand);
-            oReachableCards.AddRange(State.Field);
-            oReachableCards.AddRange(((Player)State.players[0]).CollectedCards);
-            pReachableCards.AddRange(State.Deck.FindAll(x => State.Deck.IndexOf(x) % 2 == 0));
-            pReachableCards.AddRange(((Player)State.players[1]).Hand);
-            pReachableCards.AddRange(State.Field);
-            pReachableCards.AddRange(((Player)State.players[1]).CollectedCards);
-            pPossibleYaku.AddRange(Yaku.GetYaku(pReachableCards));
-            Yaku.DistinctYakus(pPossibleYaku);
-            for (var i = 0; i < ((Player)State.players[1]).CollectedYaku.Count; i++)
-            {
-                var addPossible = ((Player)State.players[1]).CollectedYaku[i].Key.addPoints != 0;
-                if (pReachableCards.Count(x => x.Typ == ((Player)State.players[1]).CollectedYaku[i].Key.TypPref) ==
-                    Global.allCards.Count(x => x.Typ == ((Player)State.players[1]).CollectedYaku[i].Key.TypPref))
-                    addPossible = false;
-                pPossibleYaku.RemoveAll(x =>
-                    x.Title == ((Player)State.players[1]).CollectedYaku[i].Key.Title && !addPossible);
-            }
-
-            oPossibleYaku.AddRange(Yaku.GetYaku(oReachableCards));
-            Yaku.DistinctYakus(oPossibleYaku);
-            for (var i = 0; i < ((Player)State.players[0]).CollectedYaku.Count; i++)
-            {
-                var addPossible = ((Player)State.players[0]).CollectedYaku[i].Key.addPoints != 0;
-                if (oReachableCards.Count(x => x.Typ == ((Player)State.players[0]).CollectedYaku[i].Key.TypPref) ==
-                    Global.allCards.Count(x => x.Typ == ((Player)State.players[0]).CollectedYaku[i].Key.TypPref))
-                    addPossible = false;
-                oPossibleYaku.RemoveAll(x =>
-                    x.Title == ((Player)State.players[0]).CollectedYaku[i].Key.Title && !addPossible);
-            }
-
-            return result;
-        }
-
         public float StochasticRateState(VirtualBoard State)
         {
             return 0;
         }
 
-        public Move OmniscientCalcTurn(VirtualBoard cRoot)
+        public Move StatisticCalcTurn(VirtualBoard root)
         {
-            root = cRoot;
-            root.Turn = true;
-            BuildStateTree(1);
-            //Bewertung möglicherweise in Threads?
-            var maxValue = -100f;
-            Move selectedMove = null;
-            for (var i = 0; i < StateTree[1].Count; i++)
-            {
-                StateTree[1][i].Value = OmniscientRateState(StateTree[1][i]);
-                if (StateTree[1][i].Value > maxValue)
-                {
-                    maxValue = StateTree[1][i].Value;
-                    selectedMove = StateTree[1][i].LastMove;
-                }
-            }
-            return selectedMove;
-        }
-
-        public int[] StatisticCalcTurn(VirtualBoard root)
-        {
-            int[] result = { };
+            Move result = new Move();
             return result;
         }
 
-        public int[] SearchTurn()
+        public Move SearchTurn(VirtualBoard board)
         {
-            int[] result = { };
+            root = board;
+            Move result = new Move();
+            BuildStateTree();
             return result;
         }
     }
