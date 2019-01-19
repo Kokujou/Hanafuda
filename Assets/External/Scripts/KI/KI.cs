@@ -87,7 +87,7 @@ namespace Hanafuda
         {
             root = board;
             Move result = new Move();
-            BuildStateTree();
+            BuildStateTree(SkipOpponent:true);
             return result;
         }
     }

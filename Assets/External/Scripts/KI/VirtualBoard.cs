@@ -90,7 +90,7 @@ namespace Hanafuda
                 Field.RemoveAll(x => handMatches.Contains(x));
                 activePlayer.CollectedCards.AddRange(deckMatches);
             }
-
+            /*
             var Yakus = new List<Yaku>();
             Yakus = Yaku.GetYaku(activePlayer.CollectedCards.ToList());
             var nPoints = 0;
@@ -102,7 +102,8 @@ namespace Hanafuda
                                 Yakus[i].minSize) * Yakus[i].addPoints;
             }
             HasNewYaku = nPoints > activePlayer.tempPoints;
-
+            */
+            HasNewYaku = false;
             LastMove = move;
             LastMove.HadYaku = HasNewYaku;
         }

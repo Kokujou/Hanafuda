@@ -96,7 +96,7 @@ namespace Hanafuda
             return result;
         }
 
-        private async Task<object> BuildChildNodes(object param)
+        private object BuildChildNodes(object param)
         {
             Console.WriteLine("Test");
             NodeParameters parameters = (NodeParameters)param;
@@ -125,8 +125,10 @@ namespace Hanafuda
         }
 
         // Memo: Konstruktion nur für einen Spieler einbauen: Jede 2. Karte ziehen.
-        public void BuildStateTree(int maxDepth = 16, bool Turn = true)
+        public void BuildStateTree(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false)
         {
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
             process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = "CMD.EXE", RedirectStandardInput = true, UseShellExecute = false });
             process.StandardInput.WriteLine("echo off");
             process.StandardInput.WriteLine("cls");
@@ -134,9 +136,10 @@ namespace Hanafuda
             StateTree.Add(new List<VirtualBoard> { root });
             for (var i = 0; i < maxDepth; i++)
                 StateTree.Add(new List<VirtualBoard>());
-            Task<object> firstTask = new Task<object>(x => BuildChildNodes(x).Result, (new NodeParameters() { level = 0, node = 0, turn = Turn }));
+            Task<object> firstTask = new Task<object>(x => BuildChildNodes(x), (new NodeParameters() { level = 0, node = 0, turn = Turn }));
             firstTask.Start();
             tasks.Add(firstTask);
+            List<Task<object>> pendingTasks = new List<Task<object>>();
             while (tasks.Count > 0 && StateTree.Last().Count == 0)
             {
                 Task.WaitAny(tasks.ToArray());
@@ -150,9 +153,14 @@ namespace Hanafuda
                         StateTree[result.level + 1].AddRange(result.states);
                         for (int i = 0; i < result.states.Count; i++)
                         {
-                            Task<object> newTask = new Task<object>(x => BuildChildNodes(x).Result, (object)new NodeParameters() { level = result.level + 1, node = StateTree[result.level + 1].Count - (i + 1), turn = !result.turn });
-                            newTask.Start();
-                            newTasks.Add(newTask);
+                            Task<object> newTask = new Task<object>(x => BuildChildNodes(x), (object)new NodeParameters() { level = result.level + 1, node = StateTree[result.level + 1].Count - (i + 1), turn = SkipOpponent ? Turn : !result.turn });
+                            if (tasks.Count < 8)
+                            {
+                                newTask.Start();
+                                newTasks.Add(newTask);
+                            }
+                            else
+                                pendingTasks.Add(newTask);
                         }
                         int last = 0;
                         for (int i = StateTree.Count - 1; i >= 0; i--)
@@ -161,12 +169,20 @@ namespace Hanafuda
                                 last = i;
                                 break;
                             }
-                        process.StandardInput.WriteLine($"State Tree Level: {last}, Content: {StateTree[last].Count} ^");
+                    }
+                    if(tasks.Count < 8)
+                    {
+                        for (int i = 0; i < pendingTasks.Count; i++)
+                            pendingTasks[i].Start();
+                        tasks.AddRange(pendingTasks);
+                        pendingTasks = new List<Task<object>>();
                     }
                 }
                 tasks.AddRange(newTasks);
 
             }
+            process.StandardInput.WriteLine($"Time to Completion: {watch.Elapsed.TotalSeconds} ^");
+
             /*for (var level = 0; level < maxDepth; level++, Turn = !Turn)
             {
                 for (var node = 0; node < StateTree[level].Count; node++)
