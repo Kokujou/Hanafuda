@@ -46,49 +46,62 @@ namespace Hanafuda
             Deck = new List<Card>(parent.Deck);
             Field = new List<Card>(parent.Field);
             Value = 0f;
+
             players = new List<Player>();
             for (int player = 0; player < parent.players.Count; player++)
                 players.Add(new Player(parent.players[player]));
             Player activePlayer = players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID];
-            Card handSelection = activePlayer.Hand.Find(x => x.Title == move.HandSelection);
 
+            Card handSelection = activePlayer.Hand.Find(x => x.Title == move.HandSelection);
             List<Card> handMatches = new List<Card>();
-            try
-            {
-                if (move.HandFieldSelection.Length <= 0)
-                    handMatches = Field.FindAll(x => x.Monat == handSelection.Monat);
-                else
-                    handMatches = new List<Card>() { Field.Find(x => x.Title == move.HandFieldSelection) };
-            }
-            catch(Exception e)
-            {
-                Debug.Log($"Hand: {handSelection.ToString()} Name: {move.HandSelection}");
-                throw e;
-            }
 
             Card deckSelection = Deck.Find(x => x.Title == move.DeckSelection);
-            List<Card> deckMatches;
-            if (move.DeckFieldSelection.Length <= 0)
-                deckMatches = Field.FindAll(x => x.Monat == deckSelection.Monat);
-            else
-                deckMatches = new List<Card>() { Field.Find(x => x.Title == move.DeckFieldSelection) };
+            List<Card> deckMatches = new List<Card>();
+
+            List<Card> newField = new List<Card>();
+
+            for (int i = 0; i < Field.Count; i++)
+            {
+                int oldMatches = handMatches.Count + deckMatches.Count;
+                if (move.HandFieldSelection.Length <= 0)
+                {
+                    if (Field[i].Monat == handSelection.Monat)
+                        handMatches.Add(Field[i]);
+                }
+                else if (Field[i].Title == move.HandFieldSelection)
+                    handMatches.Add(Field[i]);
+                if (move.DeckFieldSelection.Length <= 0)
+                {
+                    if (Field[i].Monat == deckSelection.Monat)
+                        deckMatches.Add(Field[i]);
+                }
+                else if (Field[i].Title == move.DeckFieldSelection)
+                    deckMatches.Add(Field[i]);
+                if (oldMatches >= handMatches.Count + deckMatches.Count)
+                    newField.Add(Field[i]);
+            }
+            Field = newField;
 
             activePlayer.Hand.Remove(handSelection);
-            Field.Add(handSelection);
             if (handMatches.Count > 0)
             {
                 handMatches.Add(handSelection);
-                Field.RemoveAll(x => handMatches.Contains(x));
                 activePlayer.CollectedCards.AddRange(handMatches);
+            }
+            else
+            {
+                Field.Add(handSelection);
             }
 
             Deck.Remove(deckSelection);
-            Field.Add(deckSelection);
             if (deckMatches.Count > 0)
             {
                 deckMatches.Add(deckSelection);
-                Field.RemoveAll(x => handMatches.Contains(x));
                 activePlayer.CollectedCards.AddRange(deckMatches);
+            }
+            else
+            {
+                Field.Add(deckSelection);
             }
             /*
             var Yakus = new List<Yaku>();

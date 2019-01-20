@@ -32,7 +32,7 @@ namespace Hanafuda
                     PlayerInteraction.BroadcastSeed(UnityEngine.Random.Range(0, 10000));
             }
             else
-                GenerateDeck();
+                GenerateDeck(5);
         }
 
         private void GenerateDeck(int seed = -1)
