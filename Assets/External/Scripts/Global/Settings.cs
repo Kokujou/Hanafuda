@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -75,6 +76,8 @@ namespace Hanafuda
                 return $"12 Rounds | {Players[0].Name}";
         }
 
-        public static NetworkClient Client;
+
+        public static Communication.TCPClient Client;
+        public static Communication.TCPServer Server;
     }
 }

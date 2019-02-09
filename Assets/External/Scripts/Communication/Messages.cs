@@ -48,4 +48,12 @@ namespace Hanafuda
     {
         bool value;
     }
+    public class Base
+    {
+        public short MsgType;
+        public Base(short msgType)
+        {
+            MsgType = msgType;
+        }
+    }
 }

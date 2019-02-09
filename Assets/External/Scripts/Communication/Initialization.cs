@@ -6,32 +6,23 @@ using UnityEngine.Networking.Match;
 using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
+using System.Net.Sockets;
+using System.Net;
+using System.Text;
+using ExtensionMethods;
 
 namespace Hanafuda
 {
     public partial class Communication
     {
         private const int MaxPlayer = 2;
-        private const int PingMsg = 130;
-        private const int MoveSyncMsg = 131;
-        private const int DeckSyncMsg = 132;
-        private const int AddPlayerMsg = 133;
-        private const int PlayerSyncMsg = 134;
+        private const short PingMsg = 130;
+        private const short MoveSyncMsg = 131;
+        private const short DeckSyncMsg = 132;
+        private const short AddPlayerMsg = 133;
+        private const short PlayerSyncMsg = 134;
 
         private List<Player> connected;
-
-
-        private IEnumerator KeepAlive()
-        {
-            while (true)
-            {
-                if (NetworkServer.active)
-                    while (!NetworkServer.SendToAll(PingMsg, new Ping())) ;
-                else
-                    while (!Settings.Client.Send(PingMsg, new Ping())) ;
-                yield return new WaitForSeconds(1);
-            }
-        }
 
         public void RegisterHandlers()
         {
@@ -39,10 +30,10 @@ namespace Hanafuda
             Settings.Client.RegisterHandler(MoveSyncMsg, ReceiveMove);
             Settings.Client.RegisterHandler(MsgType.Disconnect, OnDisconnect);
             Settings.Client.RegisterHandler(PingMsg, x => { });
-            if (NetworkServer.active)
+            if (TCPServer.Active)
             {
-                NetworkServer.RegisterHandler(MoveSyncMsg, BroadcastMove);
-                NetworkServer.RegisterHandler(PingMsg, x => { });
+                Settings.Server.RegisterHandler(MoveSyncMsg, BroadcastMove);
+                Settings.Server.RegisterHandler(PingMsg, x => { });
             }
         }
 
@@ -56,34 +47,35 @@ namespace Hanafuda
             Settings.PlayerID = 0;
             Settings.Players = new List<Player>() { new Player(player) };
             Settings.Rounds6 = rounds6;
+            Settings.Server = new TCPServer(2);
+            Settings.Server.RegisterHandler(AddPlayerMsg, AddPlayer);
+            connected = new List<Player>();
+            Settings.Client = new TCPClient("127.0.0.1", 9000);
             NetworkManager.singleton.StartMatchMaker();
             NetworkManager.singleton.autoCreatePlayer = false;
-            NetworkManager.singleton.matchMaker.CreateMatch(Settings.GetMatchName(), 2, true, "", "", "", 0, 0, WaitForPlayers);
+            NetworkManager.singleton.matchMaker.CreateMatch(Settings.GetMatchName(), 2, true, "", new WebClient().DownloadString("http://icanhazip.com").Trim(), "", 0, 0, WaitForPlayers);
         }
         private void WaitForPlayers(bool success, string extendedInfo, MatchInfo matchInfo)
         {
             if (success)
             {
-                NetworkServer.Listen(matchInfo, 9000);
-                NetworkServer.RegisterHandler(AddPlayerMsg, AddPlayer);
-                connected = new List<Player>();
-                Settings.Client = ClientScene.ConnectLocalServer();
-                Settings.Client.RegisterHandler(MsgType.Connect, WaitForStart);
+                WaitForStart();
             }
             else
             {
                 Debug.LogError("Create match failed");
             }
         }
-        private void AddPlayer(NetworkMessage msg)
+        private async void AddPlayer(byte[] msg)
         {
-            string name = msg.ReadMessage<PlayerList>().players[0];
+            string name = msg.Deserialize<string>();
             connected.Add(new Player(name));
+            Debug.Log($"Player Added:{name}");
             if (connected.Count == MaxPlayer)
             {
                 Debug.Log("Alle Spieler verbunden");
-                NetworkServer.UnregisterHandler(AddPlayerMsg);
-                NetworkServer.SendToAll(PlayerSyncMsg, new PlayerList { players = connected.Select(x => x.Name).ToArray() });
+                Settings.Server.UnregisterHandler(AddPlayerMsg);
+                await Settings.Server.SendToAll(PlayerSyncMsg, new PlayerList { players = connected.Select(x => x.Name).ToArray() });
             }
             else
                 Debug.Log(connected.Count);
@@ -95,6 +87,7 @@ namespace Hanafuda
         /// <param name="partner">Partnername (=Matchname)</param>
         public void SearchMatch(string player, string partner, bool rounds6)
         {
+            TcpListener listener = new TcpListener(IPAddress.Any, 9000);
             Settings.Players = new List<Player>() { new Player(partner), new Player(player) };
             Settings.PlayerID = 1;
             Settings.Rounds6 = rounds6;
@@ -110,6 +103,10 @@ namespace Hanafuda
                     NetworkManager.singleton.matchName = matches[0].name;
                     NetworkManager.singleton.matchSize = (uint)matches[0].currentSize;
                     NetworkManager.singleton.matchMaker.JoinMatch(matches[0].networkId, "", "", "", 0, 0, WaitForConnection);
+                    Debug.Log(matches[0].directConnectInfos[0].publicAddress);
+                    TCPClient client = new TCPClient(matches[0].directConnectInfos[0].publicAddress, 9000);
+                    Settings.Client = client;
+                    Debug.Log("Client Created");
                 }
                 else
                 {
@@ -123,28 +120,24 @@ namespace Hanafuda
         {
             if (success)
             {
-                NetworkClient client = new NetworkClient();
-                client.RegisterHandler(MsgType.Connect, WaitForStart);
-                client.Connect(matchInfo);
-                Settings.Client = client;
+                WaitForStart();
             }
             else
             {
                 Debug.LogError("Join/Create match failed");
             }
         }
-        private void WaitForStart(NetworkMessage msg)
+        private async void WaitForStart()
         {
-            Settings.Client.UnregisterHandler(MsgType.Connect);
             Settings.Client.RegisterHandler(PlayerSyncMsg, SyncAndStart);
-            Settings.Client.Send(AddPlayerMsg, new PlayerList { players = new string[] { Settings.GetName() } });
+            await Settings.Client.Send(AddPlayerMsg, Settings.GetName());
             Debug.Log("Send Add Player");
         }
-        private void SyncAndStart(NetworkMessage msg)
+        private void SyncAndStart(byte[] msg)
         {
             Debug.Log("SyncAndStart");
             Settings.Client.UnregisterHandler(PlayerSyncMsg);
-            string[] names = msg.ReadMessage<PlayerList>().players;
+            string[] names = msg.Deserialize<string[]>();
             Settings.PlayerID = names.ToList().IndexOf(Settings.GetName());
             Settings.Players.Clear();
             for (int name = 0; name < names.Length; name++)
@@ -152,7 +145,6 @@ namespace Hanafuda
                 Settings.Players.Add(new Player(names[name]));
                 Debug.Log(Settings.Players[name].Name);
             }
-            StartCoroutine(KeepAlive());
             SceneManager.LoadScene("OyaNegotiation");
         }
     }

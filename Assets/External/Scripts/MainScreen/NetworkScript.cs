@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Net;
+using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
 using UnityEngine.SceneManagement;
+using UnityEngine.Android;
 
 
 namespace Hanafuda
@@ -38,6 +41,7 @@ namespace Hanafuda
 
         private void Start()
         {
+
             layout = new Global.GridLayout(Screen.currentResolution.width * 0.5f,
                 Screen.currentResolution.height * 0.7f, Screen.currentResolution.width / 2,
                 Screen.currentResolution.height / 2, 10, 10);
@@ -103,7 +107,7 @@ namespace Hanafuda
         /// <summary>
         ///     Graphische Benutzeroberfläche für Spieleinstellungen
         /// </summary>
-        private void OnGUI()
+        private async void OnGUI()
         {
             if (!Running)
             {
@@ -117,6 +121,7 @@ namespace Hanafuda
             {
                 Loading = Instantiate(Global.prefabCollection.Loading);
             }
+
         }
     }
 }
