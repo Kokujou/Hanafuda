@@ -14,6 +14,10 @@ namespace Hanafuda
         public Action<int> OnDeckSync = x => Global.NoAction();
         public Action<Move> OnMoveSync = x => Global.NoAction();
 
+        private void OnDisconnect(NetworkMessage msg)
+        {
+            Instantiate(Global.prefabCollection.PText).GetComponent<TextMesh>().text ="Verbindungsfehler";
+        }
         private void ReceiveSeed(NetworkMessage msg)
         {
             int seed = msg.ReadMessage<Seed>().seed;

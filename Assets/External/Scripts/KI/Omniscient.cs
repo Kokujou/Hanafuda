@@ -51,6 +51,7 @@ namespace Hanafuda
             float result = 0;
             var oCardsToYaku = 0;
             var pCardsToYaku = 0;
+            return result;
             oReachableCards.AddRange(State.Deck);
             oReachableCards.AddRange(((Player)State.players[0]).Hand);
             oReachableCards.AddRange(State.Field);

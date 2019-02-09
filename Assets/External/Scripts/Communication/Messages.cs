@@ -44,4 +44,8 @@ namespace Hanafuda
     {
         public int seed;
     }
+    public class Ping : MessageBase
+    {
+        bool value;
+    }
 }

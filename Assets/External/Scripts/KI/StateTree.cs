@@ -121,11 +121,9 @@ namespace Hanafuda
             Task<object> firstTask = new Task<object>(x => BuildChildNodes(x), (new NodeParameters() { level = 0, node = 0, turn = Turn }));
             firstTask.Start();
             tasks.Add(firstTask);
-            List<Task<object>> pendingTasks = new List<Task<object>>();
             while (tasks.Count > 0 && StateTree.Last().Count == 0)
             {
                 Task.WaitAny(tasks.ToArray());
-                List<Task<object>> newTasks = new List<Task<object>>();
                 for (int task = tasks.Count - 1; task >= 0; task--)
                 {
                     if (tasks[task].IsCompleted)
@@ -133,29 +131,21 @@ namespace Hanafuda
                         NodeReturn result = (NodeReturn)tasks[task].Result;
                         tasks.RemoveAt(task);
                         StateTree[result.level + 1].AddRange(result.states);
+                        if (result.level + 1 >= maxDepth) continue;
                         for (int i = 0; i < result.states.Count; i++)
                         {
                             Task<object> newTask = new Task<object>(x => BuildChildNodes(x), (object)new NodeParameters() { level = result.level + 1, node = StateTree[result.level + 1].Count - (i + 1), turn = SkipOpponent ? Turn : !result.turn });
                                 newTask.Start();
-                                newTasks.Add(newTask);
                         }
                     }
                 }
-                tasks.AddRange(newTasks);
 
             }
             //process.StandardInput.WriteLine($"Time to Completion: {watch.Elapsed.TotalSeconds} ^");
+            /*
             GameObject text = GameObject.Instantiate(Global.prefabCollection.PText);
             text.GetComponentsInChildren<TextMesh>()[0].text = watch.Elapsed.TotalSeconds.ToString();
-            text.GetComponentsInChildren<TextMesh>()[1].text = watch.Elapsed.TotalSeconds.ToString();
-            /*for (var level = 0; level < maxDepth; level++, Turn = !Turn)
-            {
-                for (var node = 0; node < StateTree[level].Count; node++)
-                {
-                    tasks.Add(BuildChildNodes(new NodeParameters() { level = level, node = node, turn = Turn }));
-                }
-                await Task.WhenAll(tasks);
-            }*/
+            text.GetComponentsInChildren<TextMesh>()[1].text = watch.Elapsed.TotalSeconds.ToString();*/
         }
     }
 }

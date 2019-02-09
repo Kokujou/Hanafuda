@@ -9,6 +9,7 @@
  * - KI
  * - Penetrationstests
  * - (Sammlung bei PC-Version überarbeiten)
- * - Überarbeiten der Animationen
+ * - Markierung bei 2er-Auswahl bei Hand->Feld fehlerhaft
  * - Überarbeitung der PC-UI
+ * - (Idee: Array für Spielfeld -> Füllen der leeren Plätze)
 */

@@ -135,7 +135,7 @@ namespace Hanafuda
                 actions.Add(() => SayKoiKoi(action.Koikoi));
             }
 
-            actions.Add(() => { Turn = !Turn; Debug.Log($"AI Turn Finished {Turn}"); });
+            actions.Add(() => { Turn = !Turn; gameObject.GetComponent<PlayerComponent>().Reset(); Debug.Log($"AI Turn Finished {Turn}"); });
             StartCoroutine(Animations.CoordinateQueue(actions));
         }
     }

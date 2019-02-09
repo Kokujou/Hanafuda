@@ -85,7 +85,6 @@ namespace Hanafuda
                 Move move = ((KI)players[1 - Settings.PlayerID]).MakeTurn(new VirtualBoard(this));
                 move.PlayerID = 1 - Settings.PlayerID;
                 ApplyMove(move);
-                gameObject.GetComponent<PlayerComponent>().Reset();
             }
             else
             {

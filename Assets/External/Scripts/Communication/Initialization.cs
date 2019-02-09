@@ -4,12 +4,15 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
 using UnityEngine.SceneManagement;
+using System;
+using System.Collections;
 
 namespace Hanafuda
 {
     public partial class Communication
     {
         private const int MaxPlayer = 2;
+        private const int PingMsg = 130;
         private const int MoveSyncMsg = 131;
         private const int DeckSyncMsg = 132;
         private const int AddPlayerMsg = 133;
@@ -17,12 +20,30 @@ namespace Hanafuda
 
         private List<Player> connected;
 
+
+        private IEnumerator KeepAlive()
+        {
+            while (true)
+            {
+                if (NetworkServer.active)
+                    while (!NetworkServer.SendToAll(PingMsg, new Ping())) ;
+                else
+                    while (!Settings.Client.Send(PingMsg, new Ping())) ;
+                yield return new WaitForSeconds(1);
+            }
+        }
+
         public void RegisterHandlers()
         {
             Settings.Client.RegisterHandler(DeckSyncMsg, ReceiveSeed);
             Settings.Client.RegisterHandler(MoveSyncMsg, ReceiveMove);
+            Settings.Client.RegisterHandler(MsgType.Disconnect, OnDisconnect);
+            Settings.Client.RegisterHandler(PingMsg, x => { });
             if (NetworkServer.active)
+            {
                 NetworkServer.RegisterHandler(MoveSyncMsg, BroadcastMove);
+                NetworkServer.RegisterHandler(PingMsg, x => { });
+            }
         }
 
         /// <summary>
@@ -131,6 +152,7 @@ namespace Hanafuda
                 Settings.Players.Add(new Player(names[name]));
                 Debug.Log(Settings.Players[name].Name);
             }
+            StartCoroutine(KeepAlive());
             SceneManager.LoadScene("OyaNegotiation");
         }
     }

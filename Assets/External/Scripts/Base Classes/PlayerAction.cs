@@ -9,7 +9,6 @@ namespace Hanafuda
     {
         public Card SingleSelection;
         public int PlayerID;
-        public int ActionID;
         public bool HadYaku;
         public Card HandSelection;
         public Card DeckSelection = null;
@@ -44,7 +43,6 @@ namespace Hanafuda
         {
             Board = board;
             PlayerID = Settings.PlayerID;
-            ActionID = (int)(Time.timeSinceLevelLoad * 100);
         }
         public List<Card> SelectFromHand(Card selection)
         {
@@ -146,7 +144,6 @@ namespace Hanafuda
         {
             Move move = new Move();
             move.PlayerID = action.PlayerID;
-            move.MoveID = action.ActionID;
             if (action.SingleSelection)
             {
                 move.SingleSelection = action.SingleSelection.name;
@@ -181,7 +178,6 @@ namespace Hanafuda
             action.HadYaku = move.HadYaku;
             action.Koikoi = move.Koikoi;
             action.PlayerID = move.PlayerID;
-            action.ActionID = move.MoveID;
             return action;
         }
     }
