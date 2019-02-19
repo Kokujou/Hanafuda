@@ -8,6 +8,7 @@ TagManager:
   - Yaku
   - oldYaku
   - Foreground
+  - Bullet
   layers:
   - Default
   - TransparentFX

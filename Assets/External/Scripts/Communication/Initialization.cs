@@ -1,16 +1,11 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.Networking.Match;
 using UnityEngine.SceneManagement;
 using System;
-using System.Collections;
-using System.Net.Sockets;
-using System.Net;
-using System.Text;
-using ExtensionMethods;
 using Photon.Pun;
+using Photon.Realtime;
+using UnityEngine.UI;
 
 namespace Hanafuda
 {
@@ -27,6 +22,7 @@ namespace Hanafuda
 
         private Action OnMasterConnection = () => { };
 
+        public Transform PlayerListParent;
 
         /// <summary>
         /// Erstellt ein Match auf den Namen des Hosts
@@ -40,7 +36,7 @@ namespace Hanafuda
             Settings.Rounds6 = rounds6;
             connected = new List<Player>();
             PhotonNetwork.ConnectUsingSettings();
-            OnMasterConnection = () => PhotonNetwork.CreateRoom(Settings.GetMatchName(), new Photon.Realtime.RoomOptions() { MaxPlayers = 2 });
+            OnMasterConnection = () => PhotonNetwork.CreateRoom(Settings.GetMatchName(), new RoomOptions() { MaxPlayers = 2 });
         }
 
         public override void OnConnectedToMaster()
@@ -79,14 +75,21 @@ namespace Hanafuda
         /// Matchsuche nach Namen
         /// </summary>
         /// <param name="partner">Partnername (=Matchname)</param>
-        public void SearchMatch(string player, string partner, bool rounds6)
+        public void JoinLobby(string player, bool rounds6)
         {
-            Settings.Players = new List<Player>() { new Player(partner), new Player(player) };
-            Settings.PlayerID = 1;
-            Settings.Rounds6 = rounds6;
-            Settings.Multiplayer = true;
+            Settings.Players = new List<Player>() { new Player(player) };
             PhotonNetwork.ConnectUsingSettings();
-            OnMasterConnection = () => PhotonNetwork.JoinRoom(Settings.GetMatchName());
+            OnMasterConnection = () => PhotonNetwork.JoinLobby();
+        }
+
+        public void JoinMatch(string matchName)
+        {
+            string[] matchSplit = matchName.Split('|');
+            Settings.Players.Insert(0, new Player(matchSplit[1].Trim()));
+            Settings.PlayerID = 1;
+            Settings.Rounds6 = matchSplit[0].StartsWith("6") ? true : false;
+            Settings.Multiplayer = true;
+            PhotonNetwork.JoinRoom(Settings.GetMatchName());
         }
 
         [PunRPC]
@@ -101,6 +104,29 @@ namespace Hanafuda
                 Debug.Log(Settings.Players[name].Name);
             }
             SceneManager.LoadScene("OyaNegotiation");
+        }
+
+        public override void OnRoomListUpdate(List<RoomInfo> roomList)
+        {
+            if (!PlayerListParent) return;
+            foreach (RoomInfo room in roomList)
+            {
+                GameObject match;
+                if (!room.RemovedFromList && room.IsOpen && room.PlayerCount < room.MaxPlayers)
+                {
+                    match = Instantiate(Global.prefabCollection.UIMatch, PlayerListParent);
+                    match.name = room.Name;
+                    match.GetComponent<Button>().onClick.AddListener(() => JoinMatch(match.name));
+                    Text[] captions = match.GetComponentsInChildren<Text>();
+                    string[] roomSplit = room.Name.Split('|');
+                    captions[0].text = roomSplit[1].Trim();
+                    captions[1].text = roomSplit[0].Trim();
+                }
+                else
+                {
+                    Destroy(PlayerListParent.GetComponentsInChildren<Button>().ToList().Find(x => x.name == room.Name).gameObject);
+                }
+            }
         }
     }
 }
