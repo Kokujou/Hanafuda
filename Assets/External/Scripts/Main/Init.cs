@@ -6,6 +6,7 @@ using System.Linq;
 using System;
 using Random = System.Random;
 using UnityEngine.Networking;
+using Photon.Pun;
 
 namespace Hanafuda
 {
@@ -27,8 +28,10 @@ namespace Hanafuda
             if (Settings.Multiplayer)
             {
                 PlayerInteraction.OnDeckSync = GenerateDeck;
+                PlayerInteraction.DeckSyncSet = true;
                 PlayerInteraction.OnMoveSync = ApplyMove;
-                if (NetworkServer.active)
+                PlayerInteraction.MoveSyncSet = true;
+                if (PhotonNetwork.IsMasterClient)
                     PlayerInteraction.BroadcastSeed(UnityEngine.Random.Range(0, 10000));
             }
             else

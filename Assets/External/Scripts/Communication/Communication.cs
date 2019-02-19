@@ -1,8 +1,11 @@
 ﻿using ExtensionMethods;
+using Photon.Pun;
+using Photon.Realtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
@@ -10,51 +13,76 @@ using UnityEngine.SceneManagement;
 
 namespace Hanafuda
 {
-    public partial class Communication : MonoBehaviour
+    public partial class Communication : MonoBehaviourPunCallbacks
     {
         public Action<int> OnDeckSync = x => Global.NoAction();
         public Action<Move> OnMoveSync = x => Global.NoAction();
 
-        private void OnDisconnect(byte[] msg)
+        public bool DeckSyncSet = false;
+        public bool MoveSyncSet = false;
+
+        public const float _ConnectionTimeout = 10;
+
+        private void HandleDisconnect()
         {
-            Instantiate(Global.prefabCollection.PText).GetComponent<TextMesh>().text ="Verbindungsfehler";
+
         }
-        private void ReceiveSeed(byte[] msg)
+
+        private IEnumerator ReconnectLoop()
         {
-            int seed = msg.Deserialize<int>();
+            float start = Time.unscaledTime;
+            while(!PhotonNetwork.IsConnected && Time.unscaledTime - start < _ConnectionTimeout)
+            {
+                PhotonNetwork.ReconnectAndRejoin();
+                yield return null;
+            }
+            if(!PhotonNetwork.IsConnected)
+            {
+                HandleDisconnect();
+            }
+        }
+
+        public override void OnDisconnected(DisconnectCause cause)
+        {
+            if (cause == DisconnectCause.DisconnectByClientLogic || 
+                cause == DisconnectCause.DisconnectByServerLogic) return;
+            Instantiate(Global.prefabCollection.PText).GetComponent<TextMesh>().text = cause.ToString();
+            StartCoroutine(ReconnectLoop());
+        }
+
+        [PunRPC]
+        private async Task ReceiveSeed(int seed, PhotonMessageInfo info)
+        {
+            while (!DeckSyncSet) await Task.Yield();
+            Debug.Log("Received Random Seed");
             OnDeckSync(seed);
             OnDeckSync = x => Global.NoAction();
+            DeckSyncSet = false;
         }
-        private void ReceiveMove(byte[] msg)
+
+        [PunRPC]
+        private async Task ReceiveMove(byte[] message, PhotonMessageInfo info)
         {
-            Move action = msg.Deserialize<Move>();
+            
+            while (!MoveSyncSet) await Task.Yield();
+            Move action = message.Deserialize<Move>();
             OnMoveSync(action);
         }
 
-        private async void BroadcastMove(byte[] msg)
+        private void BroadcastMove(Move action)
         {
-            await Settings.Server.SendToAll(MoveSyncMsg, msg.Deserialize<Move>());
+            PhotonView.Get(this).RPC("ReceiveMove", RpcTarget.AllBuffered, (object)action.Serialize());
         }
 
-        public async void BroadcastSeed(int seed)
+        public void BroadcastSeed(int seed)
         {
-            await Settings.Server.SendToAll(DeckSyncMsg, new Seed { seed = seed });
+            PhotonView.Get(this).RPC("ReceiveSeed", RpcTarget.AllBuffered, seed);
         }
 
-        public async void SendAction(Move action)
+        public void SendAction(Move action)
         {
-            await Settings.Client.Send(MoveSyncMsg, action);
+            BroadcastMove(action);
         }
 
-        private IEnumerator DoTillSuccess(Func<bool> action)
-        {
-            int i = 0;
-            while (!action())
-            {
-                i++;
-                yield return null;
-            }
-            Debug.Log(i);
-        }
     }
 }

@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
+using Photon.Pun;
 
 /*
  * Todo:
@@ -49,10 +50,11 @@ namespace Hanafuda
             var seed = Random.Range(0, 100);
             if (Settings.Multiplayer)
             {
-                PlayerInteraction.RegisterHandlers();
                 PlayerInteraction.OnDeckSync = LoadDeck;
+                PlayerInteraction.DeckSyncSet = true;
                 PlayerInteraction.OnMoveSync = PlayCard;
-                if (NetworkServer.active)
+                PlayerInteraction.MoveSyncSet = true;
+                if (PhotonNetwork.IsMasterClient)
                     PlayerInteraction.BroadcastSeed(seed);
             }
             else
@@ -132,7 +134,7 @@ namespace Hanafuda
             var watch = new System.Diagnostics.Stopwatch();
             watch.Start();
             var i = 0;
-            if(!Settings.Mobile)
+            if (!Settings.Mobile)
             {
                 TextMesh[] captions = Order.GetComponentsInChildren<TextMesh>();
                 for (int caption = 0; caption < captions.Length; caption++)
@@ -236,7 +238,10 @@ namespace Hanafuda
                     PlayerAction action = new PlayerAction();
                     action.SingleSelection = selected;
                     action.PlayerID = Settings.PlayerID;
-                    PlayCard(action);
+                    if (Settings.Multiplayer)
+                        PlayerInteraction.SendAction(action);
+                    else
+                        PlayCard(action);
                 }
                 else if (Physics.Raycast(ray, out hit, 1 << LayerMask.NameToLayer("Card")) &&
                          selected?.Title != hit.collider.gameObject.GetComponent<CardComponent>().card.Title)

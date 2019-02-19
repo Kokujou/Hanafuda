@@ -6,7 +6,8 @@ using UnityEngine.Networking;
 
 namespace Hanafuda
 {
-    public class Move : MessageBase
+    [Serializable]
+    public class Move
     {
         public string SingleSelection = "";
         public string HandSelection = "";
@@ -29,31 +30,6 @@ namespace Hanafuda
             Koikoi = copy.Koikoi;
             PlayerID = copy.PlayerID;
             MoveID = copy.MoveID;
-        }
-    }
-    public class Response : MessageBase
-    {
-        public int PlayerID;
-        public int MessageID;
-    }
-    public class PlayerList : MessageBase
-    {
-        public string[] players;
-    }
-    public class Seed : MessageBase
-    {
-        public int seed;
-    }
-    public class Ping : MessageBase
-    {
-        bool value;
-    }
-    public class Base
-    {
-        public short MsgType;
-        public Base(short msgType)
-        {
-            MsgType = msgType;
         }
     }
 }
