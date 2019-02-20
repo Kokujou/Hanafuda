@@ -39,13 +39,14 @@ namespace Hanafuda
 
         public void OnNameChanged(string name)
         {
-                Name = name.Replace("|","").ToLower();
+            Name = name.Replace("|", "").ToLower();
         }
 
         public void SingleplayerStart()
         {
             Settings.Players = new List<Player>() { new Player(Name), new Player("Computer") };
             Settings.PlayerID = 0;
+            Settings.Multiplayer = false;
             SceneManager.LoadScene("OyaNegotiation");
         }
 
@@ -58,6 +59,10 @@ namespace Hanafuda
         public void SearchMatch()
         {
             Global.instance.gameObject.GetComponent<Communication>().JoinLobby(Name, Settings.Rounds6);
+        }
+
+        private void Start()
+        {
         }
     }
 }

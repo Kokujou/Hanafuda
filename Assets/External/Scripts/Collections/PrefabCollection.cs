@@ -14,7 +14,9 @@ namespace Hanafuda
         {
             public Font EdoFont;
             public GUISkin MGUISkin, IngameSkin, FinishSkin;
-            public GameObject PKarte, PSlide, CherryBlossoms, YakuManager, KoikoiText, gAddYaku, gFixedYaku, gKouYaku, PText, Loading, UIHide, UIMask, UIMatch;
+            public GameObject PKarte, PSlide;
+            public GameObject CherryBlossoms, YakuManager, KoikoiText, gAddYaku, gFixedYaku, gKouYaku;
+            public GameObject Loading, PText, UIHide, UIMask, UIMatch, UIMessageBox, UIButton;
         }
 
         // Use this for initialization

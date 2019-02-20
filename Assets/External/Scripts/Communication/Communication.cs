@@ -25,26 +25,33 @@ namespace Hanafuda
 
         private void HandleDisconnect()
         {
-
+            Destroy(Global.instance.gameObject);
+            SceneManager.LoadScene("Startup");
         }
 
         private IEnumerator ReconnectLoop()
         {
+            string caption = "";
+            MessageBox box = Instantiate(Global.prefabCollection.UIMessageBox).GetComponentInChildren<MessageBox>();
+            box.Setup("Verbindungsverlust", caption, destroyCallback: () => PhotonNetwork.IsConnected);
             float start = Time.unscaledTime;
-            while(!PhotonNetwork.IsConnected && Time.unscaledTime - start < _ConnectionTimeout)
+            int elapsed = 0;
+            while (!PhotonNetwork.IsConnected && elapsed < _ConnectionTimeout)
             {
+                elapsed = (int)(Time.unscaledTime - start);
+                caption = "Die Verbindung zum Mitspieler wurde getrennt. Es wird nun versucht sie wieder herzustellen. \n\n" +
+                $"In {_ConnectionTimeout - elapsed} Sekunden wird das Spiel abgebrochen.";
+                box.Content.text = caption;
                 PhotonNetwork.ReconnectAndRejoin();
                 yield return null;
             }
-            if(!PhotonNetwork.IsConnected)
-            {
+            if (!PhotonNetwork.IsConnected)
                 HandleDisconnect();
-            }
         }
 
         public override void OnDisconnected(DisconnectCause cause)
         {
-            if (cause == DisconnectCause.DisconnectByClientLogic || 
+            if (cause == DisconnectCause.DisconnectByClientLogic ||
                 cause == DisconnectCause.DisconnectByServerLogic) return;
             Instantiate(Global.prefabCollection.PText).GetComponent<TextMesh>().text = cause.ToString();
             StartCoroutine(ReconnectLoop());
@@ -63,7 +70,7 @@ namespace Hanafuda
         [PunRPC]
         private async Task ReceiveMove(byte[] message, PhotonMessageInfo info)
         {
-            
+
             while (!MoveSyncSet) await Task.Yield();
             Move action = message.Deserialize<Move>();
             OnMoveSync(action);
@@ -83,6 +90,5 @@ namespace Hanafuda
         {
             BroadcastMove(action);
         }
-
     }
 }
