@@ -30,7 +30,7 @@ namespace Hanafuda
         public int minSize;
         public List<string> Namen = new List<string>();
         public Card.Type TypPref;
-        
+
         public int CompareTo(Yaku other)
         {
             return Global.allYaku.IndexOf(this).CompareTo(Global.allYaku.IndexOf(other));
@@ -74,7 +74,7 @@ namespace Hanafuda
         {
             try
             {
-                if (this == (List<Card>) Right)
+                if (this == (List<Card>)Right)
                     return true;
                 return false;
             }

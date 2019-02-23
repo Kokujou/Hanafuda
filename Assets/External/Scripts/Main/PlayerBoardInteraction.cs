@@ -54,12 +54,13 @@ namespace Hanafuda
         }
         public void SayKoiKoi(bool koikoi)
         {
-            if (Turn)
+            bool turn = Turn;
+            if (Settings.Multiplayer && Turn)
             {
                 currentAction.SayKoikoi(koikoi);
                 OpponentTurn();
             }
-            else
+            else if (!Turn)
             {
                 if (koikoi)
                 {
@@ -68,11 +69,17 @@ namespace Hanafuda
                      */
                 }
             }
-            if ((!Settings.Multiplayer || !Turn) && !koikoi)
+            if (!koikoi)
             {
                 /*
                  * Win-Loose-Animation
                  */
+                Settings.Players[0].tempPoints = 0;
+                Settings.Players[1].tempPoints = 0;
+                if (turn)
+                    Settings.Players[Settings.PlayerID].CalcPoints();
+                else
+                    Settings.Players[1 - Settings.PlayerID].CalcPoints();
                 SceneManager.LoadScene("Finish");
             }
         }
@@ -147,6 +154,12 @@ namespace Hanafuda
             }
             if (GUILayout.Button("Cheat Opp."))
                 players[1 - Settings.PlayerID].CollectedCards = Global.allCards;
+            if (GUILayout.Button("LoadFinish"))
+            {
+                Settings.Players[0].CalcPoints();
+                Settings.Players[1].CalcPoints();
+                SceneManager.LoadScene("Finish");
+            }
         }
     }
 }

@@ -75,9 +75,5 @@ namespace Hanafuda
             else
                 return $"12 Rounds | {Players[0].Name}";
         }
-
-
-        public static Communication.TCPClient Client;
-        public static Communication.TCPServer Server;
     }
 }

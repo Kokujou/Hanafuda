@@ -11,4 +11,5 @@
  * - Markierung bei 2er-Auswahl bei Hand->Feld fehlerhaft
  * - Überarbeitung der PC-UI
  * - (Idee: Array für Spielfeld -> Füllen der leeren Plätze)
+ * - Unentschieden behandeln
 */

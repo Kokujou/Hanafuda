@@ -21,6 +21,7 @@ namespace Hanafuda
         {
             if (Settings.Mobile)
                 UpdateMobile();
+
         }
 
         private void OnGUI()
