@@ -25,6 +25,8 @@ namespace Hanafuda
             PlayerInteraction = Global.instance.GetComponent<Communication>();
             currentAction = new PlayerAction();
             currentAction.Init(this);
+            Deck = new List<Card>();
+            Field = new List<Card>();
             if (Settings.Multiplayer)
             {
                 PlayerInteraction.OnDeckSync = GenerateDeck;
@@ -42,12 +44,13 @@ namespace Hanafuda
         {
             gameObject.AddComponent<PlayerComponent>().Init(players);
             var rnd = seed == -1 ? new Random() : new Random(seed);
-            for (var i = 0; i < Global.allCards.Count; i++)
+            List<int> indices = Enumerable.Range(0, Global.allCards.Count).ToList();
+            Deck.Clear();
+            for (var i = indices.Count-1; i >=0; i--)
             {
-                var rand = rnd.Next(0, Global.allCards.Count);
-                while (Deck.Exists(x => x.Title == Global.allCards[rand].Title))
-                    rand = rnd.Next(0, Global.allCards.Count);
-                Deck.Add(Global.allCards[rand]);
+                var rand = rnd.Next(0, indices.Count);
+                Deck.Add(Global.allCards[indices[rand]]);
+                indices.RemoveAt(rand);
             }
             FieldSetup();
         }
@@ -90,9 +93,9 @@ namespace Hanafuda
             }
             else
             {
+                for (int i = 0; i < Settings.Players.Count; i++)
+                    (Settings.Players[i]).Reset();
                 Init(Settings.Players);
-                for (int i = 0; i < players.Count; i++)
-                    ((Player)players[i]).Reset();
             }
         }
 

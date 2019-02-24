@@ -150,10 +150,10 @@ namespace Hanafuda
         {
             if (GUILayout.Button("Cheat Player"))
             {
-                players[Settings.PlayerID].CollectedCards = Global.allCards;
+                players[Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
             }
             if (GUILayout.Button("Cheat Opp."))
-                players[1 - Settings.PlayerID].CollectedCards = Global.allCards;
+                players[1 - Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
             if (GUILayout.Button("LoadFinish"))
             {
                 Settings.Players[0].CalcPoints();

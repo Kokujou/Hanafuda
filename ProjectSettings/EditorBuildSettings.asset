@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/OyaNegotiation.unity
     guid: d9b5b22204420ae43a93225a2e0f1289
   - enabled: 1
-    path: Assets/Singleplayer.unity
+    path: Assets/Main.unity
     guid: e7cb92b934e740e4cbf3194262f789da
   - enabled: 1
     path: Assets/Finish.unity

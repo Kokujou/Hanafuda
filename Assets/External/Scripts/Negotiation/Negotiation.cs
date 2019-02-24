@@ -218,7 +218,7 @@ namespace Hanafuda
             Settings.PlayerID = Settings.Players.IndexOf(self);
             yield return new WaitForSeconds(3f);
             StopAllCoroutines();
-            SceneManager.LoadScene("Singleplayer");
+            SceneManager.LoadScene("Main");
         }
 
 

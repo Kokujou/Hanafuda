@@ -2,23 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Hanafuda
 {
-    public class GameResultMobile : MonoBehaviour
+    public class GameResult : MonoBehaviour
     {
         public Text P1Name;
         public Text P2Name;
         public Text WinnerName;
         public RectTransform P1PointGrid;
         public RectTransform P2PointGrid;
-        public RectTransform YakuCol1;
-        public RectTransform YakuCol2;
+        public RectTransform[] YakuColumns;
         public GameObject YakuPrefab;
 
         public Color WinnerColor;
         public Color LooserColor;
+
+        private int _Column;
+        private int Column { get => _Column; set { if (value >= YakuColumns.Length) _Column = 0; else _Column = value; } }
 
         // Start is called before the first frame update
         void Start()
@@ -51,39 +54,7 @@ namespace Hanafuda
             Settings.Players[0].pTotalPoints.Add(Settings.Players[0].tempPoints);
             Settings.Players[1].pTotalPoints.Add(Settings.Players[1].tempPoints);
 
-
-            bool inCol1 = true;
-            foreach (KeyValuePair<Yaku, int> yaku in winner.CollectedYaku)
-            {
-                GameObject obj = Instantiate(YakuPrefab, inCol1 ? YakuCol1 : YakuCol2);
-                RawImage card = obj.GetComponentInChildren<RawImage>();
-                obj.GetComponentInChildren<Text>().text = yaku.Key.Title + $" - {yaku.Value}P";
-
-                List<Card> yakuCards = new List<Card>();
-                if (yaku.Key.Mask[1] == 1)
-                    yakuCards.AddRange(winner.CollectedCards.FindAll(x => yaku.Key.Namen.Contains(x.Title)));
-                if (yaku.Key.Mask[0] == 1)
-                    yakuCards.AddRange(winner.CollectedCards.FindAll(x => !yaku.Key.Namen.Contains(x.Title) && x.Typ == yaku.Key.TypPref));
-                if (yakuCards.Count < yaku.Key.minSize) Debug.Log("Invalid Player Collection");
-
-                RawImage secondRowCard = null;
-                if (yaku.Key.minSize > 5)
-                    secondRowCard = Instantiate(card.transform.parent.gameObject, card.transform.parent.parent).GetComponentInChildren<RawImage>();
-                for (int i = 0; i < yaku.Key.minSize || i % 5 != 0; i++)
-                {
-                    RawImage currentCard;
-                    if (i == 0) currentCard = card;
-                    else if (i < 5) currentCard = Instantiate(card.gameObject, card.transform.parent).GetComponent<RawImage>();
-                    else if (i == 5) currentCard = secondRowCard;
-                    else currentCard = Instantiate(secondRowCard.gameObject, secondRowCard.transform.parent).GetComponent<RawImage>();
-                    if (i < yaku.Key.minSize)
-                        currentCard.texture = yakuCards[i].Image.mainTexture;
-                    else
-                        currentCard.color = new Color(0,0,0,0);
-                }
-
-                inCol1 = !inCol1;
-            }
+            SetupYakus(winner);
 
             for (int i = 0; i < 6; i++)
             {
@@ -96,10 +67,50 @@ namespace Hanafuda
             Settings.Rounds++;
         }
 
-        // Update is called once per frame
-        void Update()
+        private void SetupYakus(Player winner)
         {
+            Column = 0;
+            foreach (KeyValuePair<Yaku, int> yaku in winner.CollectedYaku)
+            {
+                GameObject obj = Instantiate(YakuPrefab, YakuColumns[Column]);
+                RawImage card = obj.GetComponentInChildren<RawImage>();
+                obj.GetComponentInChildren<Text>().text = yaku.Key.Title + $" - {yaku.Value}P";
 
+                List<Card> yakuCards = new List<Card>();
+                if (yaku.Key.Mask[1] == 1)
+                    yakuCards.AddRange(winner.CollectedCards.FindAll(x => yaku.Key.Namen.Contains(x.Title)));
+                if (yaku.Key.Mask[0] == 1)
+                    yakuCards.AddRange(winner.CollectedCards.FindAll(x => !yaku.Key.Namen.Contains(x.Title) && x.Typ == yaku.Key.TypPref));
+                if (yakuCards.Count < yaku.Key.minSize) Debug.Log("Invalid Player Collection");
+
+                RawImage secondRowCard = null;
+                if (yaku.Key.minSize > 5)
+                {
+                    ((RectTransform)obj.transform).sizeDelta += Vector2.up * (60f / 1.6f);
+                    GameObject secondRow = Instantiate(card.transform.parent.gameObject, card.transform.parent.parent);
+                    secondRowCard = secondRow.GetComponentInChildren<RawImage>();
+                }
+                for (int i = 0; i < yaku.Key.minSize || i % 5 != 0; i++)
+                {
+                    RawImage currentCard;
+                    if (i == 0) currentCard = card;
+                    else if (i < 5) currentCard = Instantiate(card.gameObject, card.transform.parent).GetComponent<RawImage>();
+                    else if (i == 5) currentCard = secondRowCard;
+                    else currentCard = Instantiate(secondRowCard.gameObject, secondRowCard.transform.parent).GetComponent<RawImage>();
+                    if (i < yaku.Key.minSize)
+                        currentCard.texture = yakuCards[i].Image.mainTexture;
+                    else
+                        currentCard.color = new Color(0, 0, 0, 0);
+                }
+
+                Column++;
+            }
+        }
+
+        public void Continue()
+        {
+            if (Settings.Rounds < (Settings.Rounds6 ? 6 : 12))
+                SceneManager.LoadScene("Main");
         }
     }
 }
