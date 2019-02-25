@@ -55,32 +55,42 @@ namespace Hanafuda
         public void SayKoiKoi(bool koikoi)
         {
             bool turn = Turn;
-            if (Settings.Multiplayer && Turn)
+
+            if (Settings.Multiplayer && turn)
             {
                 currentAction.SayKoikoi(koikoi);
                 OpponentTurn();
             }
-            else if (!Turn)
-            {
-                if (koikoi)
-                {
-                    /*
-                     * Koikoi-Animation Einblenden
-                     */
-                }
-            }
+            else if (turn && koikoi)
+                OpponentTurn();
+
             if (!koikoi)
             {
-                /*
-                 * Win-Loose-Animation
-                 */
                 Settings.Players[0].tempPoints = 0;
                 Settings.Players[1].tempPoints = 0;
                 if (turn)
+                {
+                    /*
+                     * Win-Animation
+                     */
                     Settings.Players[Settings.PlayerID].CalcPoints();
+                }
                 else
+                {
+                    /*
+                     * Loose-Animation
+                     */
                     Settings.Players[1 - Settings.PlayerID].CalcPoints();
+                }
                 SceneManager.LoadScene("Finish");
+            }
+            else
+            {
+                /*
+                 * Koikoi-Behandlung für Spieler bzw. Gegner
+                 */
+                if (turn) ;
+                else;
             }
         }
 
