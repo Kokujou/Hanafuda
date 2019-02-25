@@ -6,6 +6,41 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
+/*
+ * Theoretischer Zustandsbaum:
+ *  - Mögliche Kombination mit unwissender mathematischer KI im ersten Zug!
+ *  - Basis: Zusammenstellung aller Yaku bzgl. bekannter und unbekannter Karten
+ *  - In jedem Zug: 
+ *      - Berechnung aller erreichbaren Karten inklusive deren Wahrscheinlichkeit
+ *          - Über Berechnung von Sammelwahrscheinlichkeit von Tupeln <Monat; 0,2,4 eingesammelt> 
+ *              - Wahrscheinlichkeit der gespielten Karte eingesammelt = 1, wenn > 0
+ *              - Erhöhte Wahrscheinlichkeit für alle ursprünglich auf dem feld liegenden Karten
+ *                  -> Sinkende Wahrscheinlichkeit für große Baumlänge
+ *          - Kombination meherer Monats-Einträge über Produktregel
+ *      - Anschließend: Berechnung der daraus resultierenden Yaku inklusive Wahrscheinlichkeit
+ *      - Entgültiger Wert: Wahrscheinlichkeit eines Yaku in diesem Zug
+ *          - Beanchte: Addpoints, Whkt einen Yaku mehrfach zu erzielen!
+ *  - Weiterverfolgung eines Zuges, wenn:
+ *      - Die neu erreichten Karten zu Yaku mit hoher Gesamtwahrscheinlichkeit gehören
+ *          - Bsp: Kasu ausschließen
+ *  - Qualität eines direkten Folgezuges: Gesamtwahrscheinlichkeit einen Yaku zu erzielen vor dem Gegner
+ *  - Für Gegner:
+ *      - Berechne Alle erreichbaren Yaku aus erreichbaren Karten
+ *      - Dann berechne Monate, die mindestens in einem Yaku enthalten sind -> Mindestdauer
+ *  - Zusatz: In jedem Zug: abziehen von sehr wahrscheinlichen Karten vom Gegnerpool
+ *      -> Neuberechnung der Mindesdauer
+ *  - In jedem Zug: Mindestdauer bis Yaku für Gegner
+ *      - Gewicht verringern, wenn Eigene Yakudauer länger (?)
+ *  - Nullzüge werden ignoriert, da unsinnig und unwahrscheinlich
+ */
+
+/*
+ * Vollständiger Zustandsbaum:
+ *  - Nutzung eines echten Spielfeldes
+ *  - Vermeidung des vollständigen Aufbaus, sondern lediglich bis Tiefe 1 oder 2 (mit Gegner)
+ *  
+ */
+
 namespace Hanafuda
 {
     public partial class KI
