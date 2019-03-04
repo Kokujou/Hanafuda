@@ -105,7 +105,7 @@ namespace Hanafuda
                                 Global.allCards.FindAll(x => Global.allYaku[yaku].Namen.Contains(x.Title)));
                         if (Global.allYaku[yaku].Mask[0] == 1)
                             shownCards.AddRange(Global.allCards.FindAll(x =>
-                                !Global.allYaku[yaku].Namen.Contains(x.Title) && x.Typ == Global.allYaku[yaku].TypPref));
+                                !Global.allYaku[yaku].Namen.Contains(x.Title) && x.Typ == Global.allYaku[yaku].TypePref));
                         var colCards = shownCards.Intersect(Players[tab].CollectedCards).ToList();
                         shownCards.RemoveAll(x => colCards.Exists(y => y.Title == x.Title));
                         for (var card = 0; card < Global.allYaku[yaku].minSize; card++)

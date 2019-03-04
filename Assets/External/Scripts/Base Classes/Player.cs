@@ -39,7 +39,7 @@ namespace Hanafuda
             tempPoints = copy.tempPoints;
             TotalPoints = copy.TotalPoints;
         }
-        public Player(string name)
+        public Player(string name)  
         {
             Name = name;
             Koikoi = 0;
@@ -76,7 +76,7 @@ namespace Hanafuda
                 var old = nPoints;
                 nPoints += CollectedYaku[i].Key.basePoints;
                 if (CollectedYaku[i].Key.addPoints != 0)
-                    nPoints += (CollectedCards.Count(x => x.Typ == CollectedYaku[i].Key.TypPref) -
+                    nPoints += (CollectedCards.Count(x => x.Typ == CollectedYaku[i].Key.TypePref) -
                                 CollectedYaku[i].Key.minSize) * CollectedYaku[i].Key.addPoints;
                 CollectedYaku[i] = new KeyValuePair<Yaku, int>(CollectedYaku[i].Key, nPoints - old);
             }

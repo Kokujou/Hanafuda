@@ -11,4 +11,5 @@
  * - (Idee: Array für Spielfeld -> Füllen der leeren Plätze)
  * - Unentschieden behandeln 
  * - Entgültigen Gewinner nach Ablauf der Runden anzeigen
+ * - Initial-Gewinne oder Neumischen behandeln!
 */

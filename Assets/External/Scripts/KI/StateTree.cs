@@ -17,6 +17,7 @@ using UnityEngine;
  *              - Erhöhte Wahrscheinlichkeit für alle ursprünglich auf dem feld liegenden Karten
  *                  -> Sinkende Wahrscheinlichkeit für große Baumlänge
  *          - Kombination meherer Monats-Einträge über Produktregel
+ *          - Beachtung von Zügen vom Deck!
  *      - Anschließend: Berechnung der daraus resultierenden Yaku inklusive Wahrscheinlichkeit
  *      - Entgültiger Wert: Wahrscheinlichkeit eines Yaku in diesem Zug
  *          - Beanchte: Addpoints, Whkt einen Yaku mehrfach zu erzielen!

@@ -50,7 +50,7 @@ namespace Hanafuda
         }
         public override void OnJoinRoomFailed(short returnCode, string message)
         {
-            Debug.Log("Dem Raum konnte nicht beigetreten werden.");
+            Debug.Log("Dem Raum konnte nicht beigetreten werden." + message + returnCode);
         }
         public override void OnCreateRoomFailed(short returnCode, string message)
         {

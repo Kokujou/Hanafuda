@@ -101,45 +101,6 @@ namespace Hanafuda
                 $"{yakuAction}";
         }
 
-        public void Apply()
-        {
-            if (DeckSelection)
-                ApplyDeckSelection();
-            else
-                ApplyHandSelection();
-        }
-        private void ApplyHandSelection()
-        {
-            int ID = Board.Turn ? Settings.PlayerID : 1 - Settings.PlayerID;
-            List<Card> Hand = ((Player)Board.players[ID]).Hand;
-            Hand.Remove(HandSelection);
-            if (HandMatches.Count > 0)
-            {
-                List<Card> Collection = ((Player)Board.players[ID]).CollectedCards;
-                Collection.AddRange(HandMatches);
-                Collection.Add(HandSelection);
-            }
-            else
-            {
-                Board.Field.Add(HandSelection);
-            }
-        }
-        private void ApplyDeckSelection()
-        {
-
-            Board.Deck.RemoveAll(x => x.Title == DeckSelection.Title);
-            if (DeckMatches.Count > 0)
-            {
-                List<Card> Collection = ((Player)Board.players[Board.Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectedCards;
-                Collection.AddRange(DeckMatches);
-                Collection.Add(DeckSelection);
-            }
-            else
-            {
-                Board.Field.Add(DeckSelection);
-            }
-        }
-
         public static implicit operator Move(PlayerAction action)
         {
             Move move = new Move();

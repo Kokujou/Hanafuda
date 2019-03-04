@@ -24,7 +24,6 @@ namespace Hanafuda
         public static List<Card> allCards = new List<Card>();
         public static List<Yaku> allYaku = new List<Yaku>();
         public static List<string> Spielverlauf = new List<string>();
-        public static List<Player> players = new List<Player>();
         public List<Card> AllCards = new List<Card>();
         public List<Yaku> AllYaku = new List<Yaku>();
         public Texture2D[] Skins;

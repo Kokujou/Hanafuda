@@ -142,7 +142,6 @@ namespace Hanafuda
         {
             for (int player = 0; player < players.Count; player++)
             {
-
                 bool active = player == Settings.PlayerID;
                 for (int card = 0; card < 8; card++)
                 {

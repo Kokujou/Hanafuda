@@ -53,7 +53,7 @@ namespace Hanafuda
             if (Yaku.Mask[1] == 1)
                 yakuCards.AddRange(Collection.FindAll(x => Yaku.Namen.Contains(x.Title)));
             if (Yaku.Mask[0] == 1)
-                yakuCards.AddRange(Collection.FindAll(x => x.Typ == Yaku.TypPref));
+                yakuCards.AddRange(Collection.FindAll(x => x.Typ == Yaku.TypePref));
             Transform parent = Cards.transform;
             for (int yakuCard = 0; yakuCard < Yaku.minSize; yakuCard++)
             {

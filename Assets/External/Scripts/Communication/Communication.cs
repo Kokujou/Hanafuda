@@ -33,10 +33,10 @@ namespace Hanafuda
         {
             string caption = "";
             MessageBox box = Instantiate(Global.prefabCollection.UIMessageBox).GetComponentInChildren<MessageBox>();
-            box.Setup("Verbindungsverlust", caption, destroyCallback: () => PhotonNetwork.IsConnected);
+            box.Setup("Verbindungsverlust", caption, destroyCallback: () => PhotonNetwork.IsConnectedAndReady);
             float start = Time.unscaledTime;
             int elapsed = 0;
-            while (!PhotonNetwork.IsConnected && elapsed < _ConnectionTimeout)
+            while (!PhotonNetwork.IsConnectedAndReady && elapsed < _ConnectionTimeout)
             {
                 elapsed = (int)(Time.unscaledTime - start);
                 caption = "Die Verbindung zum Mitspieler wurde getrennt. Es wird nun versucht sie wieder herzustellen. \n\n" +
@@ -45,15 +45,13 @@ namespace Hanafuda
                 PhotonNetwork.ReconnectAndRejoin();
                 yield return null;
             }
-            if (!PhotonNetwork.IsConnected)
+            if (!PhotonNetwork.IsConnectedAndReady)
                 HandleDisconnect();
         }
 
         public override void OnDisconnected(DisconnectCause cause)
         {
-            if (cause == DisconnectCause.DisconnectByClientLogic ||
-                cause == DisconnectCause.DisconnectByServerLogic) return;
-            Instantiate(Global.prefabCollection.PText).GetComponent<TextMesh>().text = cause.ToString();
+            if (cause == DisconnectCause.DisconnectByClientLogic) return;
             StartCoroutine(ReconnectLoop());
         }
 

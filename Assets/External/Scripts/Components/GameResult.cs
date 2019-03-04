@@ -80,7 +80,7 @@ namespace Hanafuda
                 if (yaku.Key.Mask[1] == 1)
                     yakuCards.AddRange(winner.CollectedCards.FindAll(x => yaku.Key.Namen.Contains(x.Title)));
                 if (yaku.Key.Mask[0] == 1)
-                    yakuCards.AddRange(winner.CollectedCards.FindAll(x => !yaku.Key.Namen.Contains(x.Title) && x.Typ == yaku.Key.TypPref));
+                    yakuCards.AddRange(winner.CollectedCards.FindAll(x => !yaku.Key.Namen.Contains(x.Title) && x.Typ == yaku.Key.TypePref));
                 if (yakuCards.Count < yaku.Key.minSize) Debug.Log("Invalid Player Collection");
 
                 RawImage secondRowCard = null;
@@ -110,7 +110,9 @@ namespace Hanafuda
         public void Continue()
         {
             if (Settings.Rounds < (Settings.Rounds6 ? 6 : 12))
+            {
                 SceneManager.LoadScene("Main");
+            }
         }
     }
 }

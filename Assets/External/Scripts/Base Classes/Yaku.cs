@@ -29,7 +29,7 @@ namespace Hanafuda
 
         public int minSize;
         public List<string> Namen = new List<string>();
-        public Card.Type TypPref;
+        public Card.Type TypePref;
 
         public int CompareTo(Yaku other)
         {
@@ -88,41 +88,27 @@ namespace Hanafuda
         {
             if (Right.Count >= Left.minSize)
             {
-                if (Left.Mask[0] == 1)
+                int typeMatches = 0;
+                bool[] containsCards = new bool[Left.Namen.Count];
+                for (int i = 0; i < Right.Count; i++)
                 {
-                    var temp = 0;
-                    var contains = false;
-                    for (var i = 0; i < Right.Count; i++)
+                    if (Right[i].Typ == Left.TypePref)
+                        typeMatches++;
+                    if (Left.Mask[1] != 0)
                     {
-                        if (Right[i].Typ == Left.TypPref)
-                            temp++;
-                        if (Left.Namen.Contains(Right[i].Title) && Left.Mask[1] != 0)
-                            contains = true;
+                        int index = Left.Namen.FindIndex(x => x == Right[i].Title);
+                        if (index >= 0)
+                            containsCards[index] = true;
                     }
-
-                    if (temp >= Left.minSize && (contains && Left.Mask[1] == 1 || !contains && Left.Mask[1] == -1 ||
-                                                 Left.Mask[1] == 0))
-                        return true;
-                    return false;
                 }
-
-                if (Left.Mask[0] == 0 && Left.Mask[1] == 1)
-                {
-                    var names = new List<string>(Left.Namen);
-                    for (var i = 0; i < Right.Count; i++)
-                        if (names.Contains(Right[i].Title))
-                            names.Remove(Right[i].Title);
-                    if (names.Count == 0)
-                        return true;
-                    return false;
-                }
+                bool contains = !Array.Exists(containsCards, x => x == false);
+                if (Left.Mask[0] == 1 && typeMatches < Left.minSize) return false;
+                if (Left.Mask[1] != 0)
+                    return (Left.Mask[1] == 1 && contains) || (Left.Mask[1] == -1 && !contains);
+                return true;
             }
             else
-            {
                 return false;
-            }
-
-            return false;
         }
 
         public static bool operator !=(Yaku Left, List<Card> Right)
@@ -153,7 +139,7 @@ namespace Hanafuda
 
         public bool Contains(Card card)
         {
-            if (Namen.Contains(card.Title) && Mask[1] == 1 || TypPref == card.Typ && Mask[0] == 1)
+            if (Namen.Contains(card.Title) && Mask[1] == 1 || TypePref == card.Typ && Mask[0] == 1)
                 return true;
             return false;
         }

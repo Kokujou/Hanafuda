@@ -41,16 +41,44 @@ namespace Hanafuda
              * - Handkarten, Feldkarten, Deckkarten, Sammlung
              * - Temporäre Punkte
              * - Gesamtpunktzahl - Einfluss auf Koikoi
+             * 
+             * Grundidee: Whkt des Erreichens eines Yaku vor dem Gegner
              */
-            var oPossibleYaku = new List<Yaku>(); //NEU!
-            var pPossibleYaku = new List<Yaku>();
-            var oReachableCards = new List<Card>();
-            var pReachableCards = new List<Card>();
-            var oKoikoi = 0f;
-            var oNextYakuWkt = 0f;
-            float result = 0;
-            var oCardsToYaku = 0;
-            var pCardsToYaku = 0;
+
+            if (State.isFinal) return 1;
+            float result = 0f;
+
+            int RoundsLeft = 0;
+
+            //Beachte: Übereinstimmung mit den max. 8 Monaten aus der Hand!
+            List<Card> oReachableCards = new List<Card>();
+            List<Card> pReachableCards = new List<Card>();
+
+            // Abzüglich Deckkarten da für Gegner unbekannt -> unwichtig für Strategie
+            List<Yaku> oPossibleYaku = new List<Yaku>();
+            List<Yaku> pPossibleYaku = new List<Yaku>();
+
+            //Gegnerische Karten, die nicht mit Deck oder Feld gepaart werden können
+            List<Card> OCardsToField = new List<Card>();
+
+            //Karten die vor Spielende gezogen werden
+            List<Card> ReachableDeckCards = new List<Card>();
+
+            List<Card> CollectedCards = new List<Card>();
+
+            float oKoikoi = 0f;
+
+            int pNextYakuIn = 0;
+            int oNextYakuIn = 0;
+
+            int pPoints = 0;
+            int oPoints = 0;
+            
+            // Wenn 0: Gegner muss Karte aufs Feld legen -> Erhöhung erreichbarer Karten
+            int oPlayableCards = 0;
+
+            bool DeckIntervenes = false;
+
             return result;
             oReachableCards.AddRange(State.Deck);
             oReachableCards.AddRange(((Player)State.players[0]).Hand);
@@ -65,8 +93,8 @@ namespace Hanafuda
             for (var i = 0; i < ((Player)State.players[1]).CollectedYaku.Count; i++)
             {
                 var addPossible = ((Player)State.players[1]).CollectedYaku[i].Key.addPoints != 0;
-                if (pReachableCards.Count(x => x.Typ == ((Player)State.players[1]).CollectedYaku[i].Key.TypPref) ==
-                    Global.allCards.Count(x => x.Typ == ((Player)State.players[1]).CollectedYaku[i].Key.TypPref))
+                if (pReachableCards.Count(x => x.Typ == ((Player)State.players[1]).CollectedYaku[i].Key.TypePref) ==
+                    Global.allCards.Count(x => x.Typ == ((Player)State.players[1]).CollectedYaku[i].Key.TypePref))
                     addPossible = false;
                 pPossibleYaku.RemoveAll(x =>
                     x.Title == ((Player)State.players[1]).CollectedYaku[i].Key.Title && !addPossible);
@@ -77,8 +105,8 @@ namespace Hanafuda
             for (var i = 0; i < ((Player)State.players[0]).CollectedYaku.Count; i++)
             {
                 var addPossible = ((Player)State.players[0]).CollectedYaku[i].Key.addPoints != 0;
-                if (oReachableCards.Count(x => x.Typ == ((Player)State.players[0]).CollectedYaku[i].Key.TypPref) ==
-                    Global.allCards.Count(x => x.Typ == ((Player)State.players[0]).CollectedYaku[i].Key.TypPref))
+                if (oReachableCards.Count(x => x.Typ == ((Player)State.players[0]).CollectedYaku[i].Key.TypePref) ==
+                    Global.allCards.Count(x => x.Typ == ((Player)State.players[0]).CollectedYaku[i].Key.TypePref))
                     addPossible = false;
                 oPossibleYaku.RemoveAll(x =>
                     x.Title == ((Player)State.players[0]).CollectedYaku[i].Key.Title && !addPossible);
@@ -86,6 +114,6 @@ namespace Hanafuda
 
             return result;
         }
-    
+
     }
 }

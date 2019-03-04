@@ -112,7 +112,7 @@ namespace Hanafuda
                                         else if (card >= Global.allYaku[yaku].Namen.Count)
                                         {
                                             var cards = Sets.FindAll(x =>
-                                                x.Typ == Global.allYaku[yaku].TypPref &&
+                                                x.Typ == Global.allYaku[yaku].TypePref &&
                                                 !Global.allYaku[yaku].Namen.Contains(x.Title));
                                             if (card - Global.allYaku[yaku].Namen.Count < cards.Count)
                                             {
@@ -123,7 +123,7 @@ namespace Hanafuda
                                             else
                                             {
                                                 var aCards = Global.allCards.FindAll(x =>
-                                                    x.Typ == Global.allYaku[yaku].TypPref &&
+                                                    x.Typ == Global.allYaku[yaku].TypePref &&
                                                     !Global.allYaku[yaku].Namen.Contains(x.Title) &&
                                                     !Sets.Exists(y => y.Title == x.Title));
                                                 var t = aCards[card - Global.allYaku[yaku].Namen.Count - cards.Count]
@@ -147,7 +147,7 @@ namespace Hanafuda
                                     }
                                     else
                                     {
-                                        var cards = Sets.FindAll(x => x.Typ == Global.allYaku[yaku].TypPref);
+                                        var cards = Sets.FindAll(x => x.Typ == Global.allYaku[yaku].TypePref);
                                         if (card < cards.Count)
                                         {
                                             var t = cards[card].Image.mainTexture;
@@ -156,7 +156,7 @@ namespace Hanafuda
                                         else
                                         {
                                             var aCards = Global.allCards.FindAll(x =>
-                                                x.Typ == Global.allYaku[yaku].TypPref &&
+                                                x.Typ == Global.allYaku[yaku].TypePref &&
                                                 !Sets.Exists(y => y.Title == x.Title));
                                             var t = aCards[card - cards.Count].Image.mainTexture;
                                             GUI.DrawTexture(
