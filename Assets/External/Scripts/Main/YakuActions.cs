@@ -14,6 +14,7 @@ namespace Hanafuda
             int oPoints = ((Player)(players[ID])).tempPoints;
             List<KeyValuePair<Yaku, int>> oYaku = ((Player)(players[ID])).CollectedYaku;
             ((Player)(players[ID])).CollectedYaku = new List<KeyValuePair<Yaku, int>>(Yaku.GetYaku(((Player)(players[ID])).CollectedCards).ToDictionary(x => x, x => 0));
+            if (ID != Settings.PlayerID) return;
             NewYaku.Clear();
             if (((Player)(players[ID])).tempPoints > oPoints)
             {

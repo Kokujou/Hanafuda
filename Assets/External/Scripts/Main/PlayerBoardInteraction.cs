@@ -73,6 +73,7 @@ namespace Hanafuda
                     /*
                      * Win-Animation
                      */
+                    players[Settings.PlayerID].CollectedYaku = new List<KeyValuePair<Yaku, int>>(Yaku.GetYaku(players[Settings.PlayerID].CollectedCards).ToDictionary(x => x, x => 0));
                     Settings.Players[Settings.PlayerID].CalcPoints();
                 }
                 else
@@ -80,6 +81,7 @@ namespace Hanafuda
                     /*
                      * Loose-Animation
                      */
+                    players[1 - Settings.PlayerID].CollectedYaku = new List<KeyValuePair<Yaku, int>>(Yaku.GetYaku(players[1 - Settings.PlayerID].CollectedCards).ToDictionary(x => x, x => 0));
                     Settings.Players[1 - Settings.PlayerID].CalcPoints();
                 }
                 SceneManager.LoadScene("Finish");

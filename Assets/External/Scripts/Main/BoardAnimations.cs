@@ -132,7 +132,6 @@ namespace Hanafuda
             {
                 if (action.Koikoi)
                     players[action.PlayerID].Koikoi++;
-                else CheckNewYaku();
                 actions.Add(() => SayKoiKoi(action.Koikoi));
             }
 
