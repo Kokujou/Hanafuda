@@ -36,7 +36,7 @@ namespace Hanafuda
             Settings.Rounds6 = rounds6;
             connected = new List<Player>();
             PhotonNetwork.ConnectUsingSettings();
-            OnMasterConnection = () => PhotonNetwork.CreateRoom(Settings.GetMatchName(), new RoomOptions() { MaxPlayers = 2 });
+            OnMasterConnection = () => PhotonNetwork.CreateRoom(Settings.GetMatchName(), new RoomOptions() { MaxPlayers = 2, EmptyRoomTtl = 60, PlayerTtl = 60 });
         }
 
         public override void OnConnectedToMaster()
