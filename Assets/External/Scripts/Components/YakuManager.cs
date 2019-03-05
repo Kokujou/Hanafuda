@@ -67,7 +67,6 @@ namespace Hanafuda
         {
             if (!Yaku || Queue == null || Yaku.parent.name == "Kou")
                 return;
-            Debug.Log(Yaku.parent.name);
             Yaku.localPosition = new Vector3(animLeft, 0, 0);
             if (oldYaku)
             {

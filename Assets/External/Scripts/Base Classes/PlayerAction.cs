@@ -10,22 +10,12 @@ namespace Hanafuda
         public Card SingleSelection;
         public int PlayerID;
         public bool HadYaku;
-        public Card HandSelection;
+        public Card HandSelection = null;
         public Card DeckSelection = null;
+        public Card HandFieldSelection = null;
+        public Card DeckFieldSelection = null;
         public List<Card> HandMatches = new List<Card>();
-        public List<Card> _DeckMatches = new List<Card>();
-        public List<Card> DeckMatches
-        {
-            get { return _DeckMatches; }
-            set
-            {
-                _DeckMatches = value;
-                if (value.Count != 2)
-                {
-                    //GetNewYaku();
-                }
-            }
-        }
+        public List<Card> DeckMatches = new List<Card>();
         public bool Koikoi = false;
         private Spielfeld Board;
 
@@ -44,25 +34,28 @@ namespace Hanafuda
             Board = board;
             PlayerID = Settings.PlayerID;
         }
-        public List<Card> SelectFromHand(Card selection)
+        public void SelectFromHand(Card selection)
         {
             HandSelection = selection;
             HandMatches = Board.Field.FindAll(x => x.Monat == selection.Monat);
-            return HandMatches;
         }
         public void SelectHandMatch(Card selection)
         {
-            HandMatches = new List<Card>() { selection };
+            HandFieldSelection = selection;
+            HandMatches.Clear();
         }
-        public List<Card> DrawCard()
+        public void DrawCard(Card selection = null)
         {
-            DeckSelection = Board.Deck[0];
+            if (selection)
+                DeckSelection = selection;
+            else
+                DeckSelection = Board.Deck[0];
             DeckMatches = Board.Field.FindAll(x => x.Monat == DeckSelection.Monat);
-            return DeckMatches;
         }
         public void SelectDeckMatch(Card fieldSelection)
         {
-            DeckMatches = new List<Card>() { fieldSelection };
+            DeckFieldSelection = fieldSelection;
+            DeckMatches.Clear();
         }
 
         public override string ToString()
@@ -113,9 +106,9 @@ namespace Hanafuda
             {
                 move.HandSelection = action.HandSelection.Title;
                 move.DeckSelection = action.DeckSelection.Title;
-                if (action.HandMatches.Count == 1)
+                if (action.HandFieldSelection)
                     move.HandFieldSelection = action.HandMatches[0].Title;
-                if (action.DeckMatches.Count == 1)
+                if (action.DeckFieldSelection)
                     move.DeckFieldSelection = action.DeckMatches[0].Title;
                 move.HadYaku = action.HadYaku;
                 move.Koikoi = action.Koikoi;
@@ -123,19 +116,20 @@ namespace Hanafuda
             return move;
         }
 
-        public static implicit operator PlayerAction(Move move)
+        public static PlayerAction FromMove(Move move, Spielfeld board)
         {
             PlayerAction action = new PlayerAction();
+            action.Init(board);
             if (move.HandSelection.Length > 0)
-                action.HandSelection = Global.allCards.Find(x => x.Title == move.HandSelection);
+                action.SelectFromHand(Global.allCards.Find(x => x.Title == move.HandSelection));
             if (move.SingleSelection.Length > 0)
                 action.SingleSelection = Global.allCards.Find(x => x.Title == move.SingleSelection);
             if (move.HandFieldSelection.Length > 0)
-                action.HandMatches = new List<Card>() { Global.allCards.Find(x => x.Title == move.HandFieldSelection) };
+                action.SelectHandMatch(Global.allCards.Find(x => x.Title == move.HandFieldSelection));
             if (move.DeckSelection.Length > 0)
-                action.DeckSelection = Global.allCards.Find(x => x.Title == move.DeckSelection);
+                action.DrawCard(Global.allCards.Find(x => x.Title == move.DeckSelection));
             if (move.DeckFieldSelection.Length > 0)
-                action.DeckMatches = new List<Card>() { Global.allCards.Find(x => x.Title == move.DeckFieldSelection) };
+                action.SelectDeckMatch(Global.allCards.Find(x => x.Title == move.DeckFieldSelection));
             action.HadYaku = move.HadYaku;
             action.Koikoi = move.Koikoi;
             action.PlayerID = move.PlayerID;

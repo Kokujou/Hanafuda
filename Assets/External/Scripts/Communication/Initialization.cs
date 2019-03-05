@@ -70,8 +70,6 @@ namespace Hanafuda
                 Debug.Log("Alle Spieler verbunden");
                 info.photonView.RPC("SyncAndStart", RpcTarget.AllBuffered, (object)connected.Select(x => x.Name).ToArray());
             }
-            else
-                Debug.Log(connected.Count);
         }
 
         /// <summary>
@@ -101,13 +99,12 @@ namespace Hanafuda
             if (info.SentServerTime > Settings.LastTime)
                 Settings.LastTime = info.SentServerTime;
             else return;
-            Debug.Log("SyncAndStart");
+            Debug.Log("Players Completed, Starting Game");
             Settings.PlayerID = names.ToList().IndexOf(Settings.GetName());
             Settings.Players.Clear();
             for (int name = 0; name < names.Length; name++)
             {
                 Settings.Players.Add(new Player(names[name]));
-                Debug.Log(Settings.Players[name].Name);
             }
             SceneManager.LoadScene("OyaNegotiation");
         }

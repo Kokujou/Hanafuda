@@ -175,7 +175,6 @@ namespace Hanafuda
                 InfoY = 25;
             }
             Card SingleSelection = tempDeck.Find(x => x.Title == action.SingleSelection);
-            Debug.Log($"Player{ action.PlayerID} zog {SingleSelection.Monat}");
             Selections[action.PlayerID] = SingleSelection;
             Global.prev = null;
             GameObject sel = SingleSelection.Object;

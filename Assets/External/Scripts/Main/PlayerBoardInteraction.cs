@@ -116,6 +116,7 @@ namespace Hanafuda
             if (move.PlayerID == Settings.PlayerID) return;
             PlayerAction action = move;
             action.PlayerID = move.PlayerID;
+            Debug.Log(action.ToString());
             AnimateAction(action);
             currentAction = new PlayerAction();
             currentAction.Init(this);

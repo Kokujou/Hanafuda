@@ -32,7 +32,6 @@ namespace Hanafuda
 
         public void SelectionToField(Card card)
         {
-            Debug.Log("Lege " + card.Title + "aufs Feld.");
             card.Object.transform.parent = Field3D.transform;
             float scaleFactor = Settings.Mobile ? 1.5f : 1;
             int maxSize = Settings.Mobile ? 3 : 2;
@@ -49,7 +48,6 @@ namespace Hanafuda
 
         public void CollectCards(List<Card> ToCollect)
         {
-            Debug.Log("Sammle ein: " + string.Join(", ", ToCollect.Select(x => x.Title)));
             HoverMatches(Card.Months.Null);
             Vector3 destPos = Vector3.zero;
             Vector3 destRot = Vector3.zero;
@@ -138,7 +136,7 @@ namespace Hanafuda
             actions.Add(() =>
             {
                 Turn = !Turn; gameObject.GetComponent<PlayerComponent>().Reset();
-                Debug.Log($"AI Turn Finished {Turn}");
+                Debug.Log($"Opponent Turn Finished.");
             });
             StartCoroutine(Animations.CoordinateQueue(actions));
         }
