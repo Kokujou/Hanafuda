@@ -20,6 +20,8 @@ namespace Hanafuda
         public Color WinnerColor;
         public Color LooserColor;
 
+        private Player winner;
+
         private int _Column;
         private int Column { get => _Column; set { if (value >= YakuColumns.Length) _Column = 0; else _Column = value; } }
 
@@ -32,7 +34,6 @@ namespace Hanafuda
             P1Name.text = Settings.Players[0].Name;
             P2Name.text = Settings.Players[1].Name;
 
-            Player winner;
             if (Settings.Players[0].tempPoints > Settings.Players[1].tempPoints)
             {
                 winner = Settings.Players[0];
@@ -51,6 +52,7 @@ namespace Hanafuda
             }
             WinnerName.text = $"Sieger - {winner.Name}";
             WinnerName.color = WinnerColor;
+
             Settings.Players[0].pTotalPoints.Add(Settings.Players[0].tempPoints);
             Settings.Players[1].pTotalPoints.Add(Settings.Players[1].tempPoints);
 
@@ -111,6 +113,12 @@ namespace Hanafuda
         {
             if (Settings.Rounds < (Settings.Rounds6 ? 6 : 12))
             {
+                int winnerIndex = Settings.Players.IndexOf(winner);
+                if(winnerIndex != 0)
+                {
+                    Settings.Players.RemoveAt(winnerIndex);
+                    Settings.Players.Insert(0, winner);
+                }
                 SceneManager.LoadScene("Main");
             }
         }
