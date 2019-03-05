@@ -23,6 +23,8 @@ namespace Hanafuda
 
         public const float _ConnectionTimeout = 10;
 
+        private List<Action> Pending = new List<Action>();
+
         private void HandleDisconnect()
         {
             Destroy(Global.instance.gameObject);
@@ -42,11 +44,17 @@ namespace Hanafuda
                 caption = "Die Verbindung zum Mitspieler wurde getrennt. Es wird nun versucht sie wieder herzustellen. \n\n" +
                 $"In {_ConnectionTimeout - elapsed} Sekunden wird das Spiel abgebrochen.";
                 box.Content.text = caption;
-                PhotonNetwork.ReconnectAndRejoin();
+                if (PhotonNetwork.NetworkingClient.LoadBalancingPeer.PeerState == ExitGames.Client.Photon.PeerStateValue.Disconnected)
+                    PhotonNetwork.ReconnectAndRejoin();
                 yield return null;
             }
             if (!PhotonNetwork.IsConnectedAndReady)
                 HandleDisconnect();
+            else
+            {
+                foreach (Action action in Pending)
+                    action();
+            }
         }
 
         public override void OnDisconnected(DisconnectCause cause)
@@ -58,7 +66,7 @@ namespace Hanafuda
         [PunRPC]
         private async Task ReceiveSeed(int seed, PhotonMessageInfo info)
         {
-            if (info.SentServerTime >= Settings.LastTime)
+            if (info.SentServerTime > Settings.LastTime)
                 Settings.LastTime = info.SentServerTime;
             else return;
             while (!DeckSyncSet) await Task.Yield();
@@ -71,7 +79,7 @@ namespace Hanafuda
         [PunRPC]
         private async Task ReceiveMove(byte[] message, PhotonMessageInfo info)
         {
-            if (info.SentServerTime >= Settings.LastTime)
+            if (info.SentServerTime > Settings.LastTime)
                 Settings.LastTime = info.SentServerTime;
             else return;
             while (!MoveSyncSet) await Task.Yield();
@@ -81,12 +89,21 @@ namespace Hanafuda
 
         private void BroadcastMove(Move action)
         {
-            PhotonView.Get(this).RPC("ReceiveMove", RpcTarget.AllBuffered, (object)action.Serialize());
+            Action sending = () => PhotonView.Get(this).RPC("ReceiveMove", RpcTarget.AllBuffered, (object)action.Serialize());
+            if (PhotonNetwork.IsConnectedAndReady)
+                sending();
+            else
+                Pending.Add(sending);
+
         }
 
         public void BroadcastSeed(int seed)
         {
-            PhotonView.Get(this).RPC("ReceiveSeed", RpcTarget.AllBuffered, seed);
+            Action sending = () => PhotonView.Get(this).RPC("ReceiveSeed", RpcTarget.AllBuffered, seed);
+            if (PhotonNetwork.IsConnectedAndReady)
+                sending();
+            else
+                Pending.Add(sending);
         }
 
         public void SendAction(Move action)
