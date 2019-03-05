@@ -58,6 +58,9 @@ namespace Hanafuda
         [PunRPC]
         private async Task ReceiveSeed(int seed, PhotonMessageInfo info)
         {
+            if (info.SentServerTime >= Settings.LastTime)
+                Settings.LastTime = info.SentServerTime;
+            else return;
             while (!DeckSyncSet) await Task.Yield();
             Debug.Log("Received Random Seed");
             OnDeckSync(seed);
@@ -68,7 +71,9 @@ namespace Hanafuda
         [PunRPC]
         private async Task ReceiveMove(byte[] message, PhotonMessageInfo info)
         {
-
+            if (info.SentServerTime >= Settings.LastTime)
+                Settings.LastTime = info.SentServerTime;
+            else return;
             while (!MoveSyncSet) await Task.Yield();
             Move action = message.Deserialize<Move>();
             OnMoveSync(action);

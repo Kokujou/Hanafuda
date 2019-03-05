@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -63,6 +64,11 @@ namespace Hanafuda
         {
             return Players[PlayerID].Name;
         }
+
+        /// <summary>
+        /// Datum der letzten vom Server erhaltenen Nachricht
+        /// </summary>
+        public static double LastTime;
 
         /// <summary>
         /// Gibt einen String zurück, der den Match-Namen im Multiplayer-Modus repräsentiert

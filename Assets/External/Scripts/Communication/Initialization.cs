@@ -60,6 +60,9 @@ namespace Hanafuda
         [PunRPC]
         private void AddPlayer(string name, PhotonMessageInfo info)
         {
+            if (info.SentServerTime >= Settings.LastTime)
+                Settings.LastTime = info.SentServerTime;
+            else return;
             connected.Add(new Player(name));
             Debug.Log($"Player Added:{name}");
             if (connected.Count == MaxPlayer)
@@ -95,6 +98,9 @@ namespace Hanafuda
         [PunRPC]
         private void SyncAndStart(string[] names, PhotonMessageInfo info)
         {
+            if (info.SentServerTime >= Settings.LastTime)
+                Settings.LastTime = info.SentServerTime;
+            else return;
             Debug.Log("SyncAndStart");
             Settings.PlayerID = names.ToList().IndexOf(Settings.GetName());
             Settings.Players.Clear();
