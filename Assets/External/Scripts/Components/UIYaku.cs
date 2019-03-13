@@ -11,11 +11,37 @@ namespace Hanafuda
         public GameObject YakuPrefab;
         public Transform[] YakuColumns;
 
+        private List<KeyValuePair<Transform, Yaku>> YakuTransforms = new List<KeyValuePair<Transform, Yaku>>();
 
         private void Start()
         {
             BuildFromCards(new List<Card>());
+            AddCards(new List<Card>() { Global.allCards[0] });
         }
+
+        public void AddCards(List<Card> cards)
+        {
+            for (int i = 0; i < YakuTransforms.Count; i++)
+            {
+                RawImage[] images = YakuTransforms[i].Key.GetComponentsInChildren<RawImage>();
+                foreach (Card card in cards)
+                {
+                    if (YakuTransforms[i].Value.Contains(card))
+                    {
+                        foreach (RawImage image in images)
+                        {
+                            if (image.color.r < .9f)
+                            {
+                                image.texture = card.Image.mainTexture;
+                                image.color = Color.white;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         public void BuildFromCards(List<Card> cards, List<KeyValuePair<Yaku, int>> yakus = null)
         {
             int Column = 0;
@@ -23,6 +49,7 @@ namespace Hanafuda
             foreach (KeyValuePair<Yaku, int> yaku in yakus)
             {
                 GameObject obj = Instantiate(YakuPrefab, YakuColumns[Column]);
+                YakuTransforms.Add(new KeyValuePair<Transform, Yaku>(obj.transform, yaku.Key));
                 RawImage card = obj.GetComponentInChildren<RawImage>();
                 obj.GetComponentInChildren<Text>().text = yaku.Key.Title + $" - {yaku.Value}P";
 
@@ -30,16 +57,8 @@ namespace Hanafuda
                 List<Card> YakuCards = new List<Card>();
                 List<Card> nYakucards = new List<Card>();
 
-                if (yaku.Key.Mask[1] == 1)
-                {
-                    cYakuCards.AddRange(cards.FindAll(x => yaku.Key.Namen.Contains(x.Title)));
-                    YakuCards.AddRange(Global.allCards.FindAll(x => yaku.Key.Namen.Contains(x.Title)));
-                }
-                if (yaku.Key.Mask[0] == 1)
-                {
-                    cYakuCards.AddRange(cards.FindAll(x => !yaku.Key.Namen.Contains(x.Title) && x.Typ == yaku.Key.TypePref));
-                    YakuCards.AddRange(Global.allCards.FindAll(x => !yaku.Key.Namen.Contains(x.Title) && x.Typ == yaku.Key.TypePref));
-                }
+                cYakuCards.AddRange(cards.FindAll(x => yaku.Key.Contains(x)));
+                YakuCards.AddRange(Global.allCards.FindAll(x => yaku.Key.Contains(x)));
                 nYakucards = YakuCards.Where(x => !cYakuCards.Contains(x)).ToList();
 
                 for (int i = 0; i < yaku.Key.minSize; i++)

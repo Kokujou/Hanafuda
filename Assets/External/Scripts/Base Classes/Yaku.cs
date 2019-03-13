@@ -139,9 +139,13 @@ namespace Hanafuda
 
         public bool Contains(Card card)
         {
-            if (Namen.Contains(card.Title) && Mask[1] == 1 || TypePref == card.Typ && Mask[0] == 1)
+            if(Mask[1] == 1 && Namen.Contains(card.Title))
                 return true;
-            return false;
+            if ((Mask[1] == 1 && !Namen.Contains(card.Title) && Mask[0] == 0)
+                || (Mask[0] == 1 && TypePref != card.Typ)
+                || (Mask[1] == -1 && Namen.Contains(card.Title)))
+                return false;
+            return true;
         }
         public override string ToString()
         {
