@@ -45,7 +45,7 @@ namespace Hanafuda
         }
         public void Update()
         {
-            if (Board.Turn && isActive && Global.MovingCards == 0 && EventSystem.current.IsPointerOverGameObject())
+            if (Board.Turn && isActive && Global.MovingCards == 0 && !EventSystem.current.IsPointerOverGameObject())
                 InputRoutine();
         }
         public void HandInteraction()

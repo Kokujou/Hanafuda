@@ -16,6 +16,7 @@ namespace Hanafuda
         public RectTransform P2PointGrid;
         public RectTransform[] YakuColumns;
         public GameObject YakuPrefab;
+        public UIYaku YakuInfo;
 
         public Color WinnerColor;
         public Color LooserColor;
@@ -56,7 +57,7 @@ namespace Hanafuda
             Settings.Players[0].pTotalPoints.Add(Settings.Players[0].tempPoints);
             Settings.Players[1].pTotalPoints.Add(Settings.Players[1].tempPoints);
 
-            SetupYakus(winner);
+            YakuInfo.BuildFromCards(winner.CollectedCards, winner.CollectedYaku, -45);
 
             for (int i = 0; i < 6; i++)
             {

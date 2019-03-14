@@ -13,11 +13,6 @@ namespace Hanafuda
 
         private List<KeyValuePair<Transform, Yaku>> YakuTransforms = new List<KeyValuePair<Transform, Yaku>>();
 
-        private void Start()
-        {
-            BuildFromCards(new List<Card>());
-        }
-
         public void AddCards(List<Card> cards)
         {
             for (int i = 0; i < YakuTransforms.Count; i++)
@@ -41,7 +36,7 @@ namespace Hanafuda
             }
         }
 
-        public void BuildFromCards(List<Card> cards, List<KeyValuePair<Yaku, int>> yakus = null)
+        public void BuildFromCards(List<Card> cards, List<KeyValuePair<Yaku, int>> yakus = null, float GridSpacingX = 10, float GridSpacingY = 10)
         {
             int Column = 0;
             if (yakus == null) yakus = Global.allYaku.ToDictionary(x => x, x => 0).ToList();
@@ -51,6 +46,8 @@ namespace Hanafuda
                 YakuTransforms.Add(new KeyValuePair<Transform, Yaku>(obj.transform, yaku.Key));
                 RawImage card = obj.GetComponentInChildren<RawImage>();
                 obj.GetComponentInChildren<Text>().text = yaku.Key.Title + $" - {yaku.Value}P";
+
+                obj.GetComponentInChildren<GridLayoutGroup>().spacing = new Vector2(GridSpacingX, GridSpacingY);
 
                 List<Card> cYakuCards = new List<Card>();
                 List<Card> YakuCards = new List<Card>();
