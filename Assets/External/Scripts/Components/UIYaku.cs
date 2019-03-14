@@ -16,7 +16,6 @@ namespace Hanafuda
         private void Start()
         {
             BuildFromCards(new List<Card>());
-            AddCards(new List<Card>() { Global.allCards[0] });
         }
 
         public void AddCards(List<Card> cards)

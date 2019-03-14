@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using ExtensionMethods;
+using UnityEngine.EventSystems;
 
 namespace Hanafuda
 {
@@ -37,6 +38,7 @@ namespace Hanafuda
         private void Update()
         {
             if (!Initialized) return;
+            if (EventSystem.current && EventSystem.current.IsPointerOverGameObject()) return;
             if (ToHover != 0)
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
