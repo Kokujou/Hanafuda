@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,14 +17,20 @@ namespace Hanafuda {
         {
             P1Text.text = Settings.Players[0].Name;
             P2Text.text = Settings.Players[1].Name;
+            if (!Settings.Mobile) gameObject.SetActive(false);
         }
 
-        public void AddCards(int id, List<Card> cards)
+        public UIYaku GetYakuList(int id)
         {
-            if (id == 0)
-                P1Yakus.AddCards(cards);
-            else if (id == 1)
-                P2Yakus.AddCards(cards);
+            if (id == 0) return P1Yakus;
+            else if (id == 1) return P2Yakus;
+            else return null;
         }
+
+        public void ToggleView(GameObject view)
+        {
+            view.SetActive(!view.activeSelf);
+        }
+
     }
 }

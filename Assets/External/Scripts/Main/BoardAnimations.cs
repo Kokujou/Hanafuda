@@ -79,7 +79,7 @@ namespace Hanafuda
                 ((Player)players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectedCards.Add(ToCollect[card]);
                 Field.Remove(ToCollect[card]);
             }
-            InfoUI.AddCards(Turn ? Settings.PlayerID : 1 - Settings.PlayerID, ToCollect);
+            InfoUI.GetYakuList(Turn ? Settings.PlayerID : 1 - Settings.PlayerID).AddCards(ToCollect);
             ToCollect.Clear();
             HoverHand(null);
         }

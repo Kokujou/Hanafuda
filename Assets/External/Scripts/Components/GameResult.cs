@@ -57,7 +57,10 @@ namespace Hanafuda
             Settings.Players[0].pTotalPoints.Add(Settings.Players[0].tempPoints);
             Settings.Players[1].pTotalPoints.Add(Settings.Players[1].tempPoints);
 
-            YakuInfo.BuildFromCards(winner.CollectedCards, winner.CollectedYaku, -45);
+            if (Settings.Mobile)
+                YakuInfo.BuildFromCards(winner.CollectedCards, winner.CollectedYaku, -45);
+            else
+                SetupYakus(winner);
 
             for (int i = 0; i < 6; i++)
             {

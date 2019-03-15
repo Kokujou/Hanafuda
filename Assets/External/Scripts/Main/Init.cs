@@ -79,12 +79,15 @@ namespace Hanafuda
             }
             else
             {
-                MainSceneVariables.variableCollection.ExCol.gameObject.SetActive(false);
                 Hand1 = MainSceneVariables.variableCollection.Hand1;
                 Hand2 = MainSceneVariables.variableCollection.Hand2;
                 Field3D = MainSceneVariables.variableCollection.Feld;
                 Deck3D = MainSceneVariables.variableCollection.Deck;
+                InfoUI = Instantiate(Global.prefabCollection.GameInfoPC).GetComponentInChildren<GameInfo>();
             }
+            InfoUI.GetYakuList(0).BuildFromCards(new List<Card>());
+            InfoUI.GetYakuList(1).BuildFromCards(new List<Card>());
+
             if (Settings.Rounds == 0)
             {
                 if (Settings.Multiplayer)
