@@ -13,4 +13,6 @@
  * - Entgültigen Gewinner nach Ablauf der Runden anzeigen
  * - Initial-Gewinne oder Neumischen behandeln!
  * - Korrekte Zugübermittlung prüfen, potenzielle Fehler!
+ * - Memo: Randomseed wieder randomisieren
+ * - Yakueinblendung skalieren
 */

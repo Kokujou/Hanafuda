@@ -56,12 +56,17 @@ namespace Hanafuda
             board.gameObject.SetActive(false);
             _CherryBlossoms = Instantiate(Global.prefabCollection.CherryBlossoms);
             totalWidth = GetComponent<RectTransform>().sizeDelta.x / GetComponent<Canvas>().scaleFactor;
+            if (Settings.Mobile)
+            {
+                GetComponent<CanvasScaler>().matchWidthOrHeight = 0;
+                totalWidth = GetComponent<CanvasScaler>().referenceResolution.x;
+            }
             animLeft = -totalWidth;
             SlideIn.sizeDelta = new Vector2(totalWidth * 2, 100);
             SlideIn.anchoredPosition = new Vector3(-totalWidth * 2, 0, 0);
             SlideIn.GetComponent<Image>().material.mainTextureScale = new Vector2(totalWidth / 50f, 1);
             SlideIn.gameObject.SetActive(Queue[0].TypePref != Card.Type.Lichter);
-
+            
         }
         public void AlignYaku()
         {
