@@ -7,28 +7,30 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public partial class KI : Player
+    public class OmniscientAI : KI
     {
-        public Move OmniscientCalcTurn(VirtualBoard cRoot)
+        public OmniscientAI(string name) : base(name) { }
+        public override Move MakeTurn(VirtualBoard cRoot)
         {
-            root = cRoot;
-            root.Turn = true;
-            BuildStateTree(1);
+            cRoot.Turn = true;
+            Tree = new StateTree(cRoot);
+            Tree.Build(1);
             //Bewertung möglicherweise in Threads?
             var maxValue = -100f;
             Move selectedMove = null;
-            for (var i = 0; i < StateTree[1].Count; i++)
+            List<List<VirtualBoard>> stateTree = new List<List<VirtualBoard>>();
+            for (var i = 0; i < stateTree[1].Count; i++)
             {
-                StateTree[1][i].Value = OmniscientRateState(StateTree[1][i]);
-                if (StateTree[1][i].Value > maxValue)
+                stateTree[1][i].Value = RateState(stateTree[1][i]);
+                if (stateTree[1][i].Value > maxValue)
                 {
-                    maxValue = StateTree[1][i].Value;
-                    selectedMove = StateTree[1][i].LastMove;
+                    maxValue = stateTree[1][i].Value;
+                    selectedMove = stateTree[1][i].LastMove;
                 }
             }
             return selectedMove;
         }
-        public float OmniscientRateState(VirtualBoard State)
+        public override float RateState(VirtualBoard State)
         {
             /* Beachte:
              * - Koikoi = true? / isFinal?
@@ -44,11 +46,41 @@ namespace Hanafuda
              * 
              * Grundidee: Whkt des Erreichens eines Yaku vor dem Gegner
              */
+            float result = 0;
 
             if (State.isFinal) return 1;
-            float result = 0f;
 
             int RoundsLeft = 0;
+
+            Player User = State.players[State.Turn ? Settings.PlayerID : 1 - Settings.PlayerID];
+            Player Computer = State.players[State.Turn ? 1 - Settings.PlayerID : Settings.PlayerID];
+
+            List<Card> UPlayableCards = User.Hand;
+            for (int uDeck = 0; uDeck < User.Hand.Count; uDeck += 2)
+            {
+                int Add = 0;
+                if (State.Turn)
+                    Add = 1;
+                UPlayableCards.Add(State.Deck[uDeck + Add]);
+            }
+
+            List<Card> CPlayableCards = Computer.Hand;
+            for (int cDeck = 0; cDeck < Computer.Hand.Count; cDeck += 2)
+            {
+                int Add = 0;
+                if (!State.Turn)
+                    Add = 1;
+                CPlayableCards.Add(State.Deck[cDeck + Add]);
+            }
+
+            SortedList<Card.Months, float[]> UCollectableMonths = new SortedList<Card.Months, float[]>();
+            for (int uCard = 0; uCard < UPlayableCards.Count; uCard++)
+            {
+                if (!UCollectableMonths.ContainsKey(UPlayableCards[uCard].Monat))
+                    UCollectableMonths.Add(UPlayableCards[uCard].Monat, new float[3]);
+                else
+                    UCollectableMonths[UPlayableCards[uCard].Monat][0]++;
+            }
 
             //Beachte: Übereinstimmung mit den max. 8 Monaten aus der Hand!
             List<Card> oReachableCards = new List<Card>();
@@ -73,44 +105,25 @@ namespace Hanafuda
 
             int pPoints = 0;
             int oPoints = 0;
-            
+
             // Wenn 0: Gegner muss Karte aufs Feld legen -> Erhöhung erreichbarer Karten
             int oPlayableCards = 0;
 
             bool DeckIntervenes = false;
 
-            return result;
             oReachableCards.AddRange(State.Deck);
             oReachableCards.AddRange(((Player)State.players[0]).Hand);
             oReachableCards.AddRange(State.Field);
             oReachableCards.AddRange(((Player)State.players[0]).CollectedCards);
-            pReachableCards.AddRange(State.Deck.FindAll(x => State.Deck.IndexOf(x) % 2 == 0));
+            pReachableCards.AddRange(State.Deck);
             pReachableCards.AddRange(((Player)State.players[1]).Hand);
             pReachableCards.AddRange(State.Field);
             pReachableCards.AddRange(((Player)State.players[1]).CollectedCards);
+
             pPossibleYaku.AddRange(Yaku.GetYaku(pReachableCards));
-            Yaku.DistinctYakus(pPossibleYaku);
-            for (var i = 0; i < ((Player)State.players[1]).CollectedYaku.Count; i++)
-            {
-                var addPossible = ((Player)State.players[1]).CollectedYaku[i].Key.addPoints != 0;
-                if (pReachableCards.Count(x => x.Typ == ((Player)State.players[1]).CollectedYaku[i].Key.TypePref) ==
-                    Global.allCards.Count(x => x.Typ == ((Player)State.players[1]).CollectedYaku[i].Key.TypePref))
-                    addPossible = false;
-                pPossibleYaku.RemoveAll(x =>
-                    x.Title == ((Player)State.players[1]).CollectedYaku[i].Key.Title && !addPossible);
-            }
 
             oPossibleYaku.AddRange(Yaku.GetYaku(oReachableCards));
-            Yaku.DistinctYakus(oPossibleYaku);
-            for (var i = 0; i < ((Player)State.players[0]).CollectedYaku.Count; i++)
-            {
-                var addPossible = ((Player)State.players[0]).CollectedYaku[i].Key.addPoints != 0;
-                if (oReachableCards.Count(x => x.Typ == ((Player)State.players[0]).CollectedYaku[i].Key.TypePref) ==
-                    Global.allCards.Count(x => x.Typ == ((Player)State.players[0]).CollectedYaku[i].Key.TypePref))
-                    addPossible = false;
-                oPossibleYaku.RemoveAll(x =>
-                    x.Title == ((Player)State.players[0]).CollectedYaku[i].Key.Title && !addPossible);
-            }
+
 
             return result;
         }

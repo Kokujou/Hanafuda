@@ -44,11 +44,11 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public partial class KI
+    public class StateTree
     {
-        public VirtualBoard root;
-        public List<List<VirtualBoard>> StateTree = new List<List<VirtualBoard>>();
-        public object thisLock;
+        private VirtualBoard Root;
+        private List<List<VirtualBoard>> Content = new List<List<VirtualBoard>>();
+        private object thisLock;
         private readonly List<Task<object>> tasks = new List<Task<object>>();
         private System.Diagnostics.Process process;
 
@@ -90,7 +90,7 @@ namespace Hanafuda
             int level = parameters.level;
             int node = parameters.node;
             bool turn = parameters.turn;
-            VirtualBoard parent = StateTree[level][parameters.node];
+            VirtualBoard parent = Content[level][parameters.node];
             NodeReturn result = new NodeReturn();
             result.level = level;
             result.turn = turn;
@@ -142,7 +142,7 @@ namespace Hanafuda
         }
 
         // Memo: Konstruktion nur für einen Spieler einbauen: Jede 2. Karte ziehen.
-        public void BuildStateTree(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false)
+        public void Build(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false)
         {
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
@@ -150,14 +150,14 @@ namespace Hanafuda
             process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = "CMD.EXE", RedirectStandardInput = true, UseShellExecute = false });
             process.StandardInput.WriteLine("echo off");
             process.StandardInput.WriteLine("cls");*/
-            StateTree.Clear();
-            StateTree.Add(new List<VirtualBoard> { root });
+            Content.Clear();
+            Content.Add(new List<VirtualBoard> { Root });
             for (var i = 0; i < maxDepth; i++)
-                StateTree.Add(new List<VirtualBoard>());
+                Content.Add(new List<VirtualBoard>());
             Task<object> firstTask = new Task<object>(x => BuildChildNodes(x), (new NodeParameters() { level = 0, node = 0, turn = Turn }));
             firstTask.Start();
             tasks.Add(firstTask);
-            while (tasks.Count > 0 && StateTree.Last().Count == 0)
+            while (tasks.Count > 0 && Content.Last().Count == 0)
             {
                 Task.WaitAny(tasks.ToArray());
                 for (int task = tasks.Count - 1; task >= 0; task--)
@@ -166,11 +166,11 @@ namespace Hanafuda
                     {
                         NodeReturn result = (NodeReturn)tasks[task].Result;
                         tasks.RemoveAt(task);
-                        StateTree[result.level + 1].AddRange(result.states);
+                        Content[result.level + 1].AddRange(result.states);
                         if (result.level + 1 >= maxDepth) continue;
                         for (int i = 0; i < result.states.Count; i++)
                         {
-                            Task<object> newTask = new Task<object>(x => BuildChildNodes(x), (object)new NodeParameters() { level = result.level + 1, node = StateTree[result.level + 1].Count - (i + 1), turn = SkipOpponent ? Turn : !result.turn });
+                            Task<object> newTask = new Task<object>(x => BuildChildNodes(x), (object)new NodeParameters() { level = result.level + 1, node = Content[result.level + 1].Count - (i + 1), turn = SkipOpponent ? Turn : !result.turn });
                                 newTask.Start();
                         }
                     }
@@ -182,6 +182,21 @@ namespace Hanafuda
             GameObject text = GameObject.Instantiate(Global.prefabCollection.PText);
             text.GetComponentsInChildren<TextMesh>()[0].text = watch.Elapsed.TotalSeconds.ToString();
             text.GetComponentsInChildren<TextMesh>()[1].text = watch.Elapsed.TotalSeconds.ToString();*/
+        }
+
+        public StateTree(VirtualBoard root = null, List<List<VirtualBoard>> tree = null)
+        {
+            thisLock = new object();
+            Root = root;
+            Content = tree;
+        }
+        public static implicit operator List<List<VirtualBoard>>(StateTree target)
+        {
+            return target.Content;
+        }
+        public static implicit operator StateTree(List<List<VirtualBoard>> target)
+        {
+            return new StateTree(target[0][0], target);
         }
     }
 }

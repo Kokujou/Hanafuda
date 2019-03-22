@@ -94,7 +94,7 @@ namespace Hanafuda
                     Init(Settings.Players);
                 else
                 {
-                    Settings.Players[1 - Settings.PlayerID] = new KI((KI.Mode)Settings.KIMode, "Computer");
+                    Settings.Players[1 - Settings.PlayerID] = KI.Init((KI.Mode)Settings.KIMode, "Computer");
                     Init(Settings.Players);
                 }
             }
