@@ -15,7 +15,10 @@ namespace Hanafuda
         public bool isFinal;
         public bool HasNewYaku;
         public bool Turn;
-        public int parentID;
+
+        [Serializable]
+        public struct Coords { public int x; public int y; }
+        public Coords parentCoords;
 
         public void SayKoikoi(bool koikoi)
         {
@@ -39,10 +42,10 @@ namespace Hanafuda
         /// <param name="parent"></param>
         /// <param name="move"></param>
         /// <param name="Turn"></param>
-        public VirtualBoard(VirtualBoard parent, Move move, bool Turn, int parentNode)
+        public VirtualBoard(VirtualBoard parent, Move move, bool Turn, Coords parentCoords)
         {
             //WICHTIG! Einsammeln bei Kartenzug!
-            parentID = parentNode;
+            this.parentCoords = parentCoords;
             Deck = new List<Card>(parent.Deck);
             Field = new List<Card>(parent.Field);
             Value = 0f;
@@ -58,29 +61,42 @@ namespace Hanafuda
             Card deckSelection = Deck.Find(x => x.Title == move.DeckSelection);
             List<Card> deckMatches = new List<Card>();
 
-            List<Card> newField = new List<Card>();
-
-            for (int i = 0; i < Field.Count; i++)
+            for (int i = Field.Count - 1; i >= 0; i--)
             {
-                int oldMatches = handMatches.Count + deckMatches.Count;
-                if (move.HandFieldSelection.Length <= 0)
+                if (move.HandFieldSelection.Length > 0)
                 {
-                    if (Field[i].Monat == handSelection.Monat)
+                    if (Field[i].Title == move.HandFieldSelection)
+                    {
                         handMatches.Add(Field[i]);
+                        Field.RemoveAt(i);
+                        break;
+                    }
+                    continue;
                 }
-                else if (Field[i].Title == move.HandFieldSelection)
-                    handMatches.Add(Field[i]);
-                if (move.DeckFieldSelection.Length <= 0)
+                else if (Field[i].Monat == handSelection.Monat)
                 {
-                    if (Field[i].Monat == deckSelection.Monat)
-                        deckMatches.Add(Field[i]);
+                    handMatches.Add(Field[i]);
+                    Field.RemoveAt(i);
+                    continue;
                 }
-                else if (Field[i].Title == move.DeckFieldSelection)
+
+                if (move.DeckFieldSelection.Length > 0)
+                {
+                    if (Field[i].Title == move.DeckFieldSelection)
+                    {
+                        deckMatches.Add(Field[i]);
+                        Field.RemoveAt(i);
+                        break;
+                    }
+                    continue;
+                }
+                else if (Field[i].Monat == deckSelection.Monat)
+                {
                     deckMatches.Add(Field[i]);
-                if (oldMatches >= handMatches.Count + deckMatches.Count)
-                    newField.Add(Field[i]);
+                    Field.RemoveAt(i);
+                    continue;
+                }
             }
-            Field = newField;
 
             activePlayer.Hand.Remove(handSelection);
             if (handMatches.Count > 0)

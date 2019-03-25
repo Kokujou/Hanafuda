@@ -46,7 +46,11 @@ namespace Hanafuda
 {
     public class StateTree
     {
-        private VirtualBoard Root;
+        public VirtualBoard Root;
+        public int Size => Content.Count;
+        public List<VirtualBoard> GetLevel(int id) => Content[id];
+        public VirtualBoard GetState(int x, int y) => Content[x][y];
+
         private List<List<VirtualBoard>> Content = new List<List<VirtualBoard>>();
         private object thisLock;
         private readonly List<Task<object>> tasks = new List<Task<object>>();
@@ -126,11 +130,11 @@ namespace Hanafuda
                     else ToBuild.AddRange(AddDeckActions(deckMatches, move));
                     for (int build = 0; build < ToBuild.Count; build++)
                     {
-                        VirtualBoard child = new VirtualBoard(parent, move, turn, node);
+                        VirtualBoard child = new VirtualBoard(parent, move, turn, new VirtualBoard.Coords { x = level, y = node });
                         if (child.HasNewYaku)
                         {
                             child.SayKoikoi(true);
-                            VirtualBoard finalChild = new VirtualBoard(parent, move, turn, node);
+                            VirtualBoard finalChild = new VirtualBoard(parent, move, turn, new VirtualBoard.Coords { x = level, y = node });
                             finalChild.SayKoikoi(false);
                             result.states.Add(finalChild);
                         }
@@ -171,7 +175,7 @@ namespace Hanafuda
                         for (int i = 0; i < result.states.Count; i++)
                         {
                             Task<object> newTask = new Task<object>(x => BuildChildNodes(x), (object)new NodeParameters() { level = result.level + 1, node = Content[result.level + 1].Count - (i + 1), turn = SkipOpponent ? Turn : !result.turn });
-                                newTask.Start();
+                            newTask.Start();
                         }
                     }
                 }
@@ -187,12 +191,10 @@ namespace Hanafuda
         public StateTree(VirtualBoard root = null, List<List<VirtualBoard>> tree = null)
         {
             thisLock = new object();
-            Root = root;
-            Content = tree;
-        }
-        public static implicit operator List<List<VirtualBoard>>(StateTree target)
-        {
-            return target.Content;
+            if (root != null)
+                Root = root;
+            if (tree != null)
+                Content = tree;
         }
         public static implicit operator StateTree(List<List<VirtualBoard>> target)
         {

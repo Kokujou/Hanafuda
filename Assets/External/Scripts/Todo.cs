@@ -14,5 +14,5 @@
  * - Initial-Gewinne oder Neumischen behandeln!
  * - Korrekte Zugübermittlung prüfen, potenzielle Fehler!
  * - Memo: Randomseed wieder randomisieren
- * - Yakueinblendung skalieren
+ * - Yakueinblendung skalieren (Prüfen!)
 */

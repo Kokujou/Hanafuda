@@ -70,6 +70,15 @@ namespace Hanafuda
             return temp;
         }
 
+        public static List<int> GetYakuIDs(List<Card> Hand)
+        {
+            var temp = new List<int>();
+            for (var i = 0; i < Global.allYaku.Count; i++)
+                if (Hand == Global.allYaku[i])
+                    temp.Add(i);
+            return temp;
+        }
+
         public override bool Equals(object Right)
         {
             try
@@ -139,13 +148,12 @@ namespace Hanafuda
 
         public bool Contains(Card card)
         {
-            if(Mask[1] == 1 && Namen.Contains(card.Title))
-                return true;
-            if ((Mask[1] == 1 && !Namen.Contains(card.Title) && Mask[0] == 0)
-                || (Mask[0] == 1 && TypePref != card.Typ)
-                || (Mask[1] == -1 && Namen.Contains(card.Title)))
+            if (Mask[1] == -1 && Namen.Contains(card.Title))
                 return false;
-            return true;
+            if (Mask[0] == 1 && card.Typ == TypePref ||
+                Mask[1] == 1 && Namen.Contains(card.name))
+                return true;
+            return false;
         }
         public override string ToString()
         {
