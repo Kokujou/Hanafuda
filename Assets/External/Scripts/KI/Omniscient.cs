@@ -169,32 +169,6 @@ namespace Hanafuda
                 else if (YakuTargeted[yakuID])
                     pYakuID++;
             }
-
-            foreach (KeyValuePair<Card, uint> card in ComCardIn)
-            {
-                for (int yakuID = 0, pYakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
-                {
-                    if (possibleYakus[pYakuID] == yakuID && YakuTargeted[yakuID])
-                    {
-                        if (card.Value == 0)
-                        {
-                            if (!YakuIn.ContainsKey(yakuID))
-                                YakuIn.Add(yakuID, 0);
-                            else if (card.Value > YakuIn[yakuID])
-                                YakuIn[yakuID] = card.Value;
-
-                            Yaku yaku = Global.allYaku[yakuID];
-                            int value = yaku.Contains(card.Key) ? 1 : 0;
-                            if (YakuProbs.ContainsKey(yakuID))
-                                YakuProbs[yakuID] += value;
-                            else
-                                YakuProbs.Add(yakuID, value);
-                        }
-                    }
-                    else if (YakuTargeted[yakuID])
-                        pYakuID++;
-                }
-            }
         }
 
         private void CalcCardProps(out SortedList<Card, float> CardProbs, out SortedList<Card, uint> CardIn, VirtualBoard State)
