@@ -15,4 +15,5 @@
  * - Korrekte Zugübermittlung prüfen, potenzielle Fehler!
  * - Memo: Randomseed wieder randomisieren
  * - Yakueinblendung skalieren (Prüfen!)
+ * - Fehlerhaftes Einsammeln bei Deckzug! (ignoriert vom Feld entfernte Karten nicht)
 */

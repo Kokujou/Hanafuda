@@ -10,7 +10,7 @@ namespace Hanafuda
     public class OmniscientAI : KI
     {
         const float _TCRWeight = 1;
-        const float _MinSizeWeight = 1;
+        const float _MinSizeWeight = 100;
 
         List<Yaku> ComPossibleYaku = new List<Yaku>();
         List<Yaku> PPossibleYaku = new List<Yaku>();
@@ -83,12 +83,14 @@ namespace Hanafuda
              *      - Mitberechnung gegnerischer Züge! -> Aufbau des Baums!
              *  - Whkt Idee: Gegnerische Matches abziehen!
              *  - Memo: besserer Näherungswert für Zeit bis Kartenzug
+             *  - Endwert: Verfolgung des globalen Minimum + Kombination der lokalen Minima (Summe des prozentualen Fortschritts?)
+             *  - Memo: Möglicher Possible-Yaku-Verlust durch Einsammeln
              */
             if (State.isFinal) return Mathf.Infinity;
             float result = 0;
 
-            uint ComNextYaku = 0;
-            uint PNextYaku = 0;
+            uint ComGlobalMinSize = 0;
+            uint PGlobalMinSize = 0;
 
             float TotalCardRelevance = 0;
 
@@ -97,19 +99,23 @@ namespace Hanafuda
 
             SortedList<int, float> ComYakuProbs;
             SortedList<int, uint> YakuInTurns;
-            CalcYakuProps(out ComYakuProbs, out YakuInTurns, State);
+            SortedList<int, bool> YakuTargeted;
+            CalcYakuProps(out ComYakuProbs, out YakuInTurns, out YakuTargeted, State);
 
-            SortedList<int, float> P1YakuValues = new SortedList<int, float>();
+            ComGlobalMinSize = YakuInTurns.Min(x => x.Value);
 
-            ComNextYaku = YakuInTurns.Min(x => x.Value);
+            TotalCardRelevance = YakuInTurns
+                .Where(x => YakuTargeted[x.Key])
+                .Sum(x => Mathf.Pow(10, 1f / x.Value));
 
-            result = (PNextYaku - ComNextYaku) * _MinSizeWeight
+            result = ((float)PGlobalMinSize - ComGlobalMinSize) * _MinSizeWeight
                 + TotalCardRelevance * _TCRWeight;
-            Debug.Log($"{State.LastMove.HandSelection}: {result}");
+            Debug.Log($"{State.LastMove.HandSelection}: Global {ComGlobalMinSize}; Local {TotalCardRelevance}; Result {result}");
+            Debug.Log(string.Join("\n", YakuInTurns.Where(x => YakuTargeted[x.Key]).Select(x=>Global.allYaku[x.Key].Title)));
             return result;
         }
 
-        private void CalcYakuProps(out SortedList<int, float> YakuProbs, out SortedList<int, uint> YakuIn, VirtualBoard State)
+        private void CalcYakuProps(out SortedList<int, float> YakuProbs, out SortedList<int, uint> YakuIn, out SortedList<int, bool> YakuTargeted, VirtualBoard State)
         {
             YakuProbs = new SortedList<int, float>();
             YakuIn = new SortedList<int, uint>();
@@ -122,12 +128,12 @@ namespace Hanafuda
             CalcCardProps(out ComCardProb, out ComCardIn, State);
 
             List<int> possibleYakus = Yaku.GetYakuIDs(ComCardProb.Keys.ToList());
+
             List<Card> ComNewCards = Com.CollectedCards.Where(
                 x => !Tree.GetState(State.parentCoords.x, State.parentCoords.y)
                 .players[1 - Settings.PlayerID].CollectedCards
                 .Contains(x)).ToList();
-
-            SortedList<int, bool> YakuTargeted = new SortedList<int, bool>();
+            YakuTargeted = new SortedList<int, bool>();
             for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
             {
                 YakuTargeted.Add(yakuID, false);
@@ -141,9 +147,9 @@ namespace Hanafuda
                 }
             }
 
-            for (int yakuID = 0, pYakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
+            for (int yakuID = 0, pYakuID = 0; yakuID < Global.allYaku.Count && pYakuID < possibleYakus.Count; yakuID++)
             {
-                if (possibleYakus[pYakuID] == yakuID && YakuTargeted[yakuID])
+                if (possibleYakus[pYakuID] == yakuID)
                 {
                     foreach (KeyValuePair<Card, uint> card in ComCardIn)
                     {
@@ -165,9 +171,8 @@ namespace Hanafuda
                     uint InCards = (uint)Global.allYaku[yakuID].minSize - (uint)YakuProbs[yakuID];
                     if (YakuIn[yakuID] < InCards)
                         YakuIn[yakuID] = InCards;
-                }
-                else if (YakuTargeted[yakuID])
                     pYakuID++;
+                }
             }
         }
 
@@ -177,11 +182,13 @@ namespace Hanafuda
             Player P1 = State.players[Settings.PlayerID];
             CardProbs = new SortedList<Card, float>();
             CardIn = new SortedList<Card, uint>();
+
             foreach (Card card in Com.CollectedCards)
             {
                 CardProbs.Add(card, 1);
                 CardIn.Add(card, 0);
             }
+
             List<Card.Months> PlayableMonths = new List<Card.Months>();
             for (int cardID = 0; cardID < Com.Hand.Count; cardID++)
             {
@@ -194,13 +201,10 @@ namespace Hanafuda
             }
             PlayableMonths = PlayableMonths.Distinct().ToList();
 
-            List<Card> ComCollectables = new List<Card>(State.Field);
             for (int cardID = 0; cardID < P1.Hand.Count; cardID++)
             {
                 Card handCard = State.Deck[cardID * 2 + 1];
                 Card deckCard = P1.Hand[cardID];
-                ComCollectables.Add(deckCard);
-                ComCollectables.Add(handCard);
                 if (PlayableMonths.Contains(handCard.Monat))
                 {
                     CardProbs.Add(handCard, 1);
@@ -209,8 +213,20 @@ namespace Hanafuda
                 if (PlayableMonths.Contains(deckCard.Monat))
                 {
                     CardProbs.Add(deckCard, cardID * 2 + 1);
+                    CardIn.Add(deckCard, (uint)cardID * 2 + 1);
                 }
             }
+
+            for (int cardID = 0; cardID < State.Field.Count; cardID++)
+            {
+                if (PlayableMonths.Contains(State.Field[cardID].Monat))
+                {
+                    CardProbs.Add(State.Field[cardID], 1);
+                    CardIn.Add(State.Field[cardID], 1);
+                }
+            }
+
+
         }
     }
 }

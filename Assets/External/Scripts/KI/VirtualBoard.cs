@@ -133,6 +133,7 @@ namespace Hanafuda
             HasNewYaku = nPoints > activePlayer.tempPoints;
             */
             HasNewYaku = false;
+            isFinal = false;
             LastMove = move;
             LastMove.HadYaku = HasNewYaku;
         }
