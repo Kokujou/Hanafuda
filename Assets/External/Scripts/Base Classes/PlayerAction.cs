@@ -43,6 +43,7 @@ namespace Hanafuda
         {
             HandFieldSelection = selection;
             HandMatches.Clear();
+            HandMatches = new List<Card>() { HandSelection, HandFieldSelection };
         }
         public void DrawCard(Card selection = null)
         {
@@ -51,11 +52,13 @@ namespace Hanafuda
             else
                 DeckSelection = Board.Deck[0];
             DeckMatches = Board.Field.FindAll(x => x.Monat == DeckSelection.Monat);
+            DeckMatches.RemoveAll(x => HandMatches.Contains(x));
         }
         public void SelectDeckMatch(Card fieldSelection)
         {
             DeckFieldSelection = fieldSelection;
             DeckMatches.Clear();
+            DeckMatches = new List<Card>() { DeckSelection, DeckFieldSelection };
         }
 
         public override string ToString()

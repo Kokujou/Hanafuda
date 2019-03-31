@@ -93,39 +93,41 @@ namespace Hanafuda
         {
             List<Action> actions = new List<Action>();
             actions.Add(() => SelectionToField(action.HandSelection));
-            players[action.PlayerID].Hand.Remove(action.HandSelection);
+            actions.Add(() => players[action.PlayerID].Hand.Remove(action.HandSelection));
             actions.Add(() => StartCoroutine(players[action.PlayerID].Hand.ResortCards(new CardLayout(true))));
 
-            List<Card> HandCollection;
-            if (action.HandMatches.Count == 1)
-                HandCollection = new List<Card>(action.HandMatches);
-            else
-                HandCollection = new List<Card>(Field.FindAll(x => x.Monat == action.HandSelection.Monat));
-            HandCollection.Add(action.HandSelection);
-            if (HandCollection.Count != 1)
+            actions.Add(() =>
             {
-                actions.Add(() => CollectCards(HandCollection));
-                actions.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
-            }
+                List<Card> HandCollection;
+                if (action.HandFieldSelection)
+                    HandCollection = new List<Card>() { action.HandFieldSelection, action.HandSelection };
+                else
+                    HandCollection = new List<Card>(Field.FindAll(x => x.Monat == action.HandSelection.Monat));
+
+                if (HandCollection.Count != 1)
+                {
+                    Field.RemoveAll(x => HandCollection.Contains(x));
+                    CollectCards(HandCollection);
+                }
+            });
+            actions.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
 
             actions.Add(() => SelectionToField(action.DeckSelection));
-            Deck.Remove(action.DeckSelection);
+            actions.Add(() => Deck.Remove(action.DeckSelection));
 
-            List<Card> DeckCollection;
-            if (action.DeckMatches.Count == 1)
-                DeckCollection = new List<Card>(action.DeckMatches);
-            else
+            actions.Add(() =>
             {
-                DeckCollection = new List<Card>(Field.FindAll(x => x.Monat == action.DeckSelection.Monat));
-                if (HandCollection.Count == 1 && HandCollection[0].Monat == action.DeckSelection.Monat)
-                    DeckCollection.Add(HandCollection[0]);
-            }
-            DeckCollection.Add(action.DeckSelection);
-            if (DeckCollection.Count != 1)
-            {
-                actions.Add(() => CollectCards(DeckCollection));
-                actions.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
-            }
+                List<Card> DeckCollection;
+                if (action.DeckFieldSelection)
+                    DeckCollection = new List<Card>() { action.DeckFieldSelection, action.DeckSelection };
+                else
+                    DeckCollection = new List<Card>(Field.FindAll(x => x.Monat == action.DeckSelection.Monat));
+                if (DeckCollection.Count != 1)
+                {
+                    Field.RemoveAll(x => DeckCollection.Contains(x));
+                    CollectCards(DeckCollection);
+                }
+            });
 
             if (action.HadYaku)
             {
@@ -133,6 +135,8 @@ namespace Hanafuda
                     players[action.PlayerID].Koikoi++;
                 actions.Add(() => SayKoiKoi(action.Koikoi));
             }
+
+            actions.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
 
             actions.Add(() =>
             {

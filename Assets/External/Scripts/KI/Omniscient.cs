@@ -9,11 +9,14 @@ namespace Hanafuda
 {
     public class OmniscientAI : KI
     {
-        const float _TCRWeight = 1;
-        const float _MinSizeWeight = 100;
+        const float _TCRWeight = 1f;
+        const float _MinSizeWeight = 100f;
+        const float _PValueWeight = 0.1f;
+        const float _ComValueWeight = 1f;
 
-        List<Yaku> ComPossibleYaku = new List<Yaku>();
-        List<Yaku> PPossibleYaku = new List<Yaku>();
+        const int _MaxPTurns = 3;
+
+        float PBaseValue;
 
         List<CardValue> CardValues = new List<CardValue>();
 
@@ -85,73 +88,115 @@ namespace Hanafuda
              *  - Memo: besserer Näherungswert für Zeit bis Kartenzug
              *  - Endwert: Verfolgung des globalen Minimum + Kombination der lokalen Minima (Summe des prozentualen Fortschritts?)
              *  - Memo: Möglicher Possible-Yaku-Verlust durch Einsammeln
+             *  - Hinzufügen: Wertekombination gegnerischer Züge -> verbauen?
+             *  - Memo: IsFinal implementieren
+             *  - Balancing der verschiedenen Werte
              */
+
             if (State.isFinal) return Mathf.Infinity;
-            float result = 0;
 
-            uint ComGlobalMinSize = 0;
-            uint PGlobalMinSize = 0;
-
-            float TotalCardRelevance = 0;
+            float Result = 0f;
 
             Player Com = State.players[1 - Settings.PlayerID];
             Player P1 = State.players[Settings.PlayerID];
 
-            SortedList<int, float> ComYakuProbs;
-            SortedList<int, uint> YakuInTurns;
-            SortedList<int, bool> YakuTargeted;
-            CalcYakuProps(out ComYakuProbs, out YakuInTurns, out YakuTargeted, State);
+            float ComValue = RateSingleState(State, true);
 
-            ComGlobalMinSize = YakuInTurns.Min(x => x.Value);
+            StateTree PlayerTree = new StateTree(State);
+            PlayerTree.Build(1, false, true);
+            List<VirtualBoard> PStates = PlayerTree.GetLevel(1);
+            List<float> PStateValues = new List<float>();
+
+            foreach (VirtualBoard PState in PStates)
+                PStateValues.Add(RateSingleState(PState, false));
+            PStateValues.Sort();
+
+            PStateValues = PStateValues.Skip(PStateValues.Count - 3).ToList();
+
+            float PValue = PStateValues.Average(x => x - PBaseValue);
+
+            Result = ComValue * _ComValueWeight
+                - PValue * _PValueWeight;
+
+            Debug.Log($"Player Results: {PValue}; Global Result {Result}");
+
+            return Result;
+        }
+
+        public float RateSingleState(VirtualBoard State, bool Turn)
+        {
+            float result = 0;
+
+            uint GlobalMinSize = 0;
+
+            float TotalCardRelevance = 0;
+
+            SortedList<int, float> YakuProbs;
+            SortedList<int, uint> YakuInTurns;
+            CalcYakuProps(out YakuProbs, out YakuInTurns, State, Turn);
+
+            List<Card> NewCards = new List<Card>();
+            SortedList<int, bool> YakuTargeted = new SortedList<int, bool>();
+            if (State.LastMove != null)
+            {
+                NewCards = State.players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID].CollectedCards
+                .Where(x => !Tree.GetState(State.parentCoords.x, State.parentCoords.y)
+                .players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID].CollectedCards
+                .Contains(x)).ToList();
+                for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
+                {
+                    YakuTargeted.Add(yakuID, false);
+                    foreach (Card newCard in NewCards)
+                    {
+                        if (Global.allYaku[yakuID].Contains(newCard))
+                        {
+                            YakuTargeted[yakuID] = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+                YakuTargeted = new SortedList<int, bool>(Enumerable.Range(0, Global.allYaku.Count + 1).ToDictionary(x => x, x => true));
+
+            GlobalMinSize = YakuInTurns.Min(x => x.Value);
 
             TotalCardRelevance = YakuInTurns
                 .Where(x => YakuTargeted[x.Key])
                 .Sum(x => Mathf.Pow(10, 1f / x.Value));
 
-            result = ((float)PGlobalMinSize - ComGlobalMinSize) * _MinSizeWeight
+            result = GlobalMinSize * _MinSizeWeight
                 + TotalCardRelevance * _TCRWeight;
-            Debug.Log($"{State.LastMove.HandSelection}: Global {ComGlobalMinSize}; Local {TotalCardRelevance}; Result {result}");
-            Debug.Log(string.Join("\n", YakuInTurns.Where(x => YakuTargeted[x.Key]).Select(x=>Global.allYaku[x.Key].Title)));
+
+            if (Turn)
+                Debug.Log($"Collected Cards: {string.Join(",", NewCards)}\n" +
+                    $"Selection from Hand: {State.LastMove.HandSelection}, from Deck {State.LastMove.DeckSelection}" +
+                    $"Global {GlobalMinSize}; Local {TotalCardRelevance}; Com Result {result};\n" +
+                    $"{string.Join("\n", YakuInTurns.Where(x => YakuTargeted[x.Key]).Select(x => $"{Global.allYaku[x.Key].Title} in min. {x.Value} Turns."))}");
+
             return result;
         }
 
-        private void CalcYakuProps(out SortedList<int, float> YakuProbs, out SortedList<int, uint> YakuIn, out SortedList<int, bool> YakuTargeted, VirtualBoard State)
+        private void CalcYakuProps(out SortedList<int, float> YakuProbs, out SortedList<int, uint> YakuIn,
+            VirtualBoard State, bool Turn)
         {
             YakuProbs = new SortedList<int, float>();
             YakuIn = new SortedList<int, uint>();
 
-            Player Com = State.players[1 - Settings.PlayerID];
-            Player P1 = State.players[Settings.PlayerID];
+            SortedList<Card, float> CardProb;
+            SortedList<Card, uint> CardIn;
 
-            SortedList<Card, float> ComCardProb;
-            SortedList<Card, uint> ComCardIn;
-            CalcCardProps(out ComCardProb, out ComCardIn, State);
+            Player player = State.players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID];
 
-            List<int> possibleYakus = Yaku.GetYakuIDs(ComCardProb.Keys.ToList());
+            CalcCardProps(out CardProb, out CardIn, State, Turn);
 
-            List<Card> ComNewCards = Com.CollectedCards.Where(
-                x => !Tree.GetState(State.parentCoords.x, State.parentCoords.y)
-                .players[1 - Settings.PlayerID].CollectedCards
-                .Contains(x)).ToList();
-            YakuTargeted = new SortedList<int, bool>();
-            for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
-            {
-                YakuTargeted.Add(yakuID, false);
-                foreach (Card newCard in ComNewCards)
-                {
-                    if (Global.allYaku[yakuID].Contains(newCard))
-                    {
-                        YakuTargeted[yakuID] = true;
-                        break;
-                    }
-                }
-            }
+            List<int> possibleYakus = Yaku.GetYakuIDs(CardProb.Keys.ToList());
 
             for (int yakuID = 0, pYakuID = 0; yakuID < Global.allYaku.Count && pYakuID < possibleYakus.Count; yakuID++)
             {
                 if (possibleYakus[pYakuID] == yakuID)
                 {
-                    foreach (KeyValuePair<Card, uint> card in ComCardIn)
+                    foreach (KeyValuePair<Card, uint> card in CardIn)
                     {
                         if (card.Value == 0)
                         {
@@ -176,10 +221,11 @@ namespace Hanafuda
             }
         }
 
-        private void CalcCardProps(out SortedList<Card, float> CardProbs, out SortedList<Card, uint> CardIn, VirtualBoard State)
+        private void CalcCardProps(out SortedList<Card, float> CardProbs, out SortedList<Card, uint> CardIn, VirtualBoard State, bool Turn)
         {
-            Player Com = State.players[1 - Settings.PlayerID];
-            Player P1 = State.players[Settings.PlayerID];
+            Player Com = State.players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID];
+            Player P1 = State.players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID];
+
             CardProbs = new SortedList<Card, float>();
             CardIn = new SortedList<Card, uint>();
 
