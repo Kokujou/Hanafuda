@@ -46,6 +46,7 @@ namespace Hanafuda
             Lichter
         }
         public string Title;
+        public int ID;
         public Material Image;
         public Months Monat;
         GameObject _Objekt;

@@ -954,7 +954,7 @@ Internal:
 - Internal: updated version numbers of init to 6.4.5
 - Changed: SupportClass HashtableToString() returns "null" if parameter is null
 - Internal: Removed SortedCommandList and CommandList classes. Replaced by List<NCommand> and a Sort() where necessary
-- Internal: EnetPeer.channels is now a Dictionary<byte, Channel> instead of a SortedList
+- Internal: EnetPeer.channels is now a Dictionary<byte, Channel> instead of a Dictionary
 - Internal: the channels are initialized with channel 0xff first - this makes 0xff high prio in all foreach usaged
 - Internal: NCommand class is now IComparable<NCommand> for usage in Sort()
 

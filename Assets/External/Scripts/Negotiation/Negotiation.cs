@@ -201,17 +201,17 @@ namespace Hanafuda
 
         private IEnumerator GetResult()
         {
-            SortedList<int, int> selections = new SortedList<int, int>();
+            Dictionary<int, int> selections = new Dictionary<int, int>();
             for (int selection = 0; selection < Selections.Length; selection++)
                 selections.Add((int)Selections[selection].Monat, selection);
             List<Player> rearrange = new List<Player>(Settings.Players);
-            Infos[selections.Values[0]].GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255f;
+            Infos[selections[0]].GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255f;
             Player self = Settings.Players[Settings.PlayerID];
-            Settings.Players[selections.Values[0]] = rearrange[0];
+            Settings.Players[selections[0]] = rearrange[0];
             for (int selection = 1; selection < Selections.Length; selection++)
             {
-                Infos[selections.Values[selection]].GetComponent<TextMesh>().color = new Color(165, 28, 28, 255) / 255f;
-                Settings.Players[selections.Values[selection]] = rearrange[selection];
+                Infos[selections[selection]].GetComponent<TextMesh>().color = new Color(165, 28, 28, 255) / 255f;
+                Settings.Players[selections[selection]] = rearrange[selection];
 
             }
             Settings.PlayerID = Settings.Players.IndexOf(self);

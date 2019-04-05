@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,9 +15,15 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-
     public abstract class KI : Player
     {
+        /*
+         * Berechnung der Mindestzüge über minTurn + >minturn der Karte
+         * Idee für unwissende KI: Gegner legt Karte aufs Feld -> 
+         *      - keine Monat der Feldkarten ist nicht in den Handkarten enthalten, und/oder
+         *      - Plan ist gespielte Karte einzusammeln
+         * 
+         */
         public enum Mode
         {
             Statistic,

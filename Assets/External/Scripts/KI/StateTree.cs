@@ -168,7 +168,7 @@ namespace Hanafuda
                 {
                     if (tasks[task].IsCompleted)
                     {
-                        NodeReturn result = (NodeReturn)tasks[task].Result;
+                        NodeReturn result = (NodeReturn)tasks[task].Result; 
                         tasks.RemoveAt(task);
                         Content[result.level + 1].AddRange(result.states);
                         if (result.level + 1 >= maxDepth) continue;
