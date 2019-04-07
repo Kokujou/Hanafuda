@@ -87,24 +87,46 @@ namespace Hanafuda
                 foreach (YakuProperties yakuProp in this)
                 {
                     if (!yakuProp.IsPossible) continue;
-                    int count = 0;
-                    float baseProb = 1;
-                    float addProb = 0;
-                    foreach (CardProperties cardProp in cardProperties)
+                    List<float> cardProbs = CardProps.Where(x => yakuProp.yaku.Contains(x.card)).Select(x => x.Probability).ToList();
+                    List<int[]> baseTermIDs = BuildCombinations(yakuProp.yaku.minSize, cardProbs.Count - 1);
+                    List<float> baseTerms = baseTermIDs.Select(x =>
                     {
-                        if (!yakuProp.yaku.Contains(cardProp.card)) continue;
-                        if (cardProp.Probability > 0)
+                        float result = 1;
+                        foreach (int ID in x) result *= cardProbs[ID];
+                        return result;
+                    }).ToList();
+                    IEnumerable<int> numbers = Enumerable.Range(0, cardProbs.Count - 1);
+                    List<int[]> addTermIDs = baseTermIDs.Select(x => numbers.Except(x).ToArray()).ToList();
+                    List<float> addTerms = addTermIDs.Select(x => x.Sum(y => cardProbs[y])).ToList();
+                    yakuProp.Probability = 0;
+                    for (int termID = 0; termID < baseTerms.Count; termID++)
+                        yakuProp.Probability += baseTerms[termID] * addTerms[termID];
+                }
+            }
+            private List<int[]> BuildCombinations(int outputLength, int numberRange)
+            {
+                List<int[]> baseTermIDs = new List<int[]>() { Enumerable.Range(0, outputLength).ToArray() };
+                int[] last = baseTermIDs[0].ToArray();
+                for (int factorID = last.Length - 1; factorID >= 0; factorID--)
+                {
+                    while (true)
+                    {
+                        if (last[factorID] >= numberRange) break;
+                        else if (factorID + 1 < last.Length && last[factorID] + 1 == last[factorID + 1]) break;
+                        else
                         {
-                            count++;
-                            baseProb *= cardProp.Probability;
-                            if (count >= yakuProp.yaku.minSize - 1)
-                            {
-                                addProb += cardProp.Probability;
-                            }
+                            last[factorID]++;
+                            int newID;
+                            for (newID = factorID; newID < outputLength; newID++)
+                                if (newID >= factorID)
+                                    last[newID] = last[factorID] + (newID - factorID);
+
+                            baseTermIDs.Add(last.ToArray());
+                            if (newID != factorID) factorID = last.Length - 1;
                         }
                     }
-                    yakuProp.Probability = baseProb * addProb;
                 }
+                return baseTermIDs;
             }
         }
     }
