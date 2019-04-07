@@ -18,7 +18,7 @@ namespace Hanafuda
 {
 
     [Serializable, CreateAssetMenu(menuName = "Card")]
-    public class Card : ScriptableObject
+    public class Card : ScriptableObject, IComparable
     {
         public enum Months
         {
@@ -46,6 +46,7 @@ namespace Hanafuda
             Lichter
         }
         public string Title;
+        public int ID;
         public Material Image;
         public Months Monat;
         GameObject _Objekt;
@@ -90,6 +91,13 @@ namespace Hanafuda
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj.GetType() == typeof(Card))
+                return GetHashCode().CompareTo(((Card)obj).GetHashCode());
+            else throw new NotImplementedException();
         }
     }
 }

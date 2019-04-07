@@ -1167,6 +1167,10 @@ MonoBehaviour:
       type: 3}
     UIButton: {fileID: 1903344971654864717, guid: 380a9347741adca4eaa1154509714c98,
       type: 3}
+    GameInfoMobile: {fileID: 4639847898527528316, guid: 9d7f8db6437369b48aea6351f3caf224,
+      type: 3}
+    GameInfoPC: {fileID: 6322306589383461071, guid: b53078e19ff4f524c9f94a9044e7c85e,
+      type: 3}
   AllCards:
   - {fileID: 11400000, guid: c5e3397eb63894048a8a3b9f9359f5e4, type: 2}
   - {fileID: 11400000, guid: 49502d594415026439c607ed3fdd2517, type: 2}

@@ -12,16 +12,19 @@ namespace Hanafuda
 {
     public partial class Spielfeld
     {
+        
+
         private const int MaxDispersionPos = 5;
         private const int MaxDispersionAngle = 60;
         private const float CardWidth = 11f;
 
         Transform EffectCam, Hand1, Hand2, Field3D, Deck3D;
+
         private Communication PlayerInteraction;
+        private GameInfo InfoUI;
         public void Init(List<Player> Players)
         {
             players = Players;
-            gameObject.AddComponent<GameUI>();
             PlayerInteraction = Global.instance.GetComponent<Communication>();
             currentAction = new PlayerAction();
             currentAction.Init(this);
@@ -72,22 +75,26 @@ namespace Hanafuda
                 Hand2 = MainSceneVariables.variableCollection.Hand2M;
                 Field3D = MainSceneVariables.variableCollection.MFeld;
                 Deck3D = MainSceneVariables.variableCollection.MDeck;
+                InfoUI = Instantiate(Global.prefabCollection.GameInfoMobile).GetComponent<GameInfo>();
             }
             else
             {
-                MainSceneVariables.variableCollection.ExCol.gameObject.SetActive(false);
                 Hand1 = MainSceneVariables.variableCollection.Hand1;
                 Hand2 = MainSceneVariables.variableCollection.Hand2;
                 Field3D = MainSceneVariables.variableCollection.Feld;
                 Deck3D = MainSceneVariables.variableCollection.Deck;
+                InfoUI = Instantiate(Global.prefabCollection.GameInfoPC).GetComponentInChildren<GameInfo>();
             }
+            InfoUI.GetYakuList(0).BuildFromCards(new List<Card>());
+            InfoUI.GetYakuList(1).BuildFromCards(new List<Card>());
+
             if (Settings.Rounds == 0)
             {
                 if (Settings.Multiplayer)
                     Init(Settings.Players);
                 else
                 {
-                    Settings.Players[1 - Settings.PlayerID] = new KI((KI.Mode)Settings.KIMode, "Computer");
+                    Settings.Players[1 - Settings.PlayerID] = KI.Init((KI.Mode)Settings.KIMode, "Computer");
                     Init(Settings.Players);
                 }
             }

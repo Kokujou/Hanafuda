@@ -33,6 +33,8 @@ namespace Hanafuda
             DontDestroyOnLoad(this);
             allYaku = AllYaku;
             allCards = AllCards;
+            for (int i = 0; i < allCards.Count; i++)
+                allCards[i].ID = i;
             CardSkins = new Sprite[Skins.Length];
             for (var i = 0; i < Skins.Length; i++)
                 CardSkins[i] = Sprite.Create(Skins[0], new Rect(0, 0, Skins[i].width, Skins[i].height),

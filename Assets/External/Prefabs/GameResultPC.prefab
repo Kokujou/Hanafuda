@@ -188,6 +188,7 @@ MonoBehaviour:
   - {fileID: 5278904248322443139}
   YakuPrefab: {fileID: 2241743261357360761, guid: 20bd130412226484f83a25646b172be2,
     type: 3}
+  YakuInfo: {fileID: 0}
   WinnerColor: {r: 0.10980392, g: 0.64705884, b: 0.10980392, a: 1}
   LooserColor: {r: 0.64705884, g: 0.10980392, b: 0.10980392, a: 1}
 --- !u!114 &3271419181540190566
@@ -4234,8 +4235,10 @@ GameObject:
   - component: {fileID: 8384711102375241395}
   - component: {fileID: 8384711102375241398}
   - component: {fileID: 8384711102375241397}
-  - component: {fileID: 8384711102375241396}
   - component: {fileID: 8384711102375241399}
+  - component: {fileID: 4766903315605343811}
+  - component: {fileID: 6938146275660062979}
+  - component: {fileID: 6430649098151311354}
   m_Layer: 5
   m_Name: Scroll
   m_TagString: Untagged
@@ -4306,18 +4309,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: 9999
   m_LayoutPriority: 1
---- !u!114 &8384711102375241396
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8384711102375241394}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -146154839, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8384711102375241399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4350,6 +4341,56 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.ScrollRect+ScrollRectEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &4766903315605343811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8384711102375241394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1200242548, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowMaskGraphic: 0
+--- !u!222 &6938146275660062979
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8384711102375241394}
+  m_CullTransparentMesh: 0
+--- !u!114 &6430649098151311354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8384711102375241394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
 --- !u!1 &8384711102725891579
 GameObject:
   m_ObjectHideFlags: 0

@@ -83,6 +83,8 @@ namespace Hanafuda
 
         public void KouYaku(Yaku Yaku, List<Card> Collection)
         {
+            if(Settings.Mobile)
+                transform.localScale = (transform.parent.GetComponent<CanvasScaler>().referenceResolution.x / Screen.width) * Vector3.one;
             transform.localScale = (1f / transform.parent.GetComponent<Canvas>().scaleFactor) * Vector3.one;
             Caption.sprite = Captions[(int)Enum.Parse(typeof(LightYaku), Yaku.Title)];
             List<Card> Matches = Global.allCards.FindAll(y => y.Typ == Card.Type.Lichter);

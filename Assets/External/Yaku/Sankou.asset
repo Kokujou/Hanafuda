@@ -16,7 +16,8 @@ MonoBehaviour:
   basePoints: 5
   JName: "\u4E09\u5149"
   Title: Sankou
-  Mask: 0100000000000000
+  Mask: 01000000ffffffff
   minSize: 3
-  Namen: []
+  Namen:
+  - Poet mit Regenschirm
   TypePref: 3

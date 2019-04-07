@@ -210,8 +210,8 @@ namespace Hanafuda
             Settings.Players[selections.Values[0]] = rearrange[0];
             for (int selection = 1; selection < Selections.Length; selection++)
             {
-                Infos[selections.Values[selection]].GetComponent<TextMesh>().color = new Color(165, 28, 28, 255) / 255f;
-                Settings.Players[selections.Values[selection]] = rearrange[selection];
+                Infos[selections[selection]].GetComponent<TextMesh>().color = new Color(165, 28, 28, 255) / 255f;
+                Settings.Players[selections[selection]] = rearrange[selection];
 
             }
             Settings.PlayerID = Settings.Players.IndexOf(self);

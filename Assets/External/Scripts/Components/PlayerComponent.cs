@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 /* To-Do:
 - Anfangsspieler ermitteln
@@ -44,6 +45,7 @@ namespace Hanafuda
         }
         public void Update()
         {
+            if (EventSystem.current && EventSystem.current.IsPointerOverGameObject()) return;
             if (Board.Turn && isActive && Global.MovingCards == 0)
                 InputRoutine();
         }
