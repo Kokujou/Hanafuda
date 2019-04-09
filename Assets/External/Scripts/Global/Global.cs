@@ -27,8 +27,19 @@ namespace Hanafuda
         public List<Card> AllCards = new List<Card>();
         public List<Yaku> AllYaku = new List<Yaku>();
         public Texture2D[] Skins;
+
+        private static System.Diagnostics.Process process;
+
+        public static void Log<T>(T output)
+        {
+            process.StandardInput.WriteLine($"{output.ToString()}^");
+        }
+
         private void Awake()
         {
+            process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = "CMD.EXE", RedirectStandardInput = true, UseShellExecute = false });
+            process.StandardInput.WriteLine("echo off");
+            process.StandardInput.WriteLine("cls"); 
             instance = this;
             DontDestroyOnLoad(this);
             allYaku = AllYaku;

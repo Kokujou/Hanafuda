@@ -11,10 +11,10 @@ namespace Hanafuda
             Dictionary<Card.Months, uint> PCollectableMonths;
             Dictionary<Card.Months, uint> OppPlayableMonths;
             Dictionary<Card.Months, uint> OppCollectableMonths;
-            public OmniscientCards(IEnumerable<CardProperties> list, VirtualBoard State, bool Turn) : base(list, State, Turn)
-            {
-                Preparations = () => CalcMonths(State, Turn);
-            }
+
+            protected override void Preparations() => CalcMonths(State, Turn);
+
+            public OmniscientCards(IEnumerable<CardProperties> list, VirtualBoard State, bool Turn) : base(list, State, Turn) { }
 
             private void CalcMonths(VirtualBoard State, bool Turn)
             {
@@ -47,10 +47,8 @@ namespace Hanafuda
                 foreach (Card card in State.Field)
                     OppCollectableMonths[card.Monat]++;
 
-                foreach (var month in PCollectableMonths.Keys)
-                    PCollectableMonths[month] = (PCollectableMonths[month] / 2) * 2;
-                foreach (var month in OppCollectableMonths.Keys)
-                    OppCollectableMonths[month] = (OppCollectableMonths[month] / 2) * 2;
+                PCollectableMonths = PCollectableMonths.ToDictionary(x => x.Key, x => (x.Value / 2) * 2);
+                OppCollectableMonths = OppCollectableMonths.ToDictionary(x => x.Key, x => (x.Value / 2) * 2);
 
             }
 

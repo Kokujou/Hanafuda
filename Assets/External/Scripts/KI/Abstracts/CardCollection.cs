@@ -8,19 +8,24 @@ namespace Hanafuda
         protected Player player;
         protected Player opponent;
 
-        protected Action Preparations = () => { };
+        protected VirtualBoard State;
+        protected bool Turn;
+
+        protected abstract void Preparations();
         protected abstract void CalcMinTurns(VirtualBoard State, bool Turn);
         protected abstract void CalcProbs(VirtualBoard State, bool Turn);
 
 
-        public CardCollection(IEnumerable<CardProperties> list, VirtualBoard State, bool Turn) : base(list)
+        public CardCollection(IEnumerable<CardProperties> list, VirtualBoard state, bool turn) : base(list)
         {
-            player = State.players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID];
-            opponent = State.players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID];
+            player = state.players[turn ? 1 - Settings.PlayerID : Settings.PlayerID];
+            opponent = state.players[turn ? Settings.PlayerID : 1 - Settings.PlayerID];
+            State = state;
+            Turn = turn;
 
             Preparations();
-            CalcMinTurns(State, Turn);
-            CalcProbs(State, Turn);
+            CalcMinTurns(state, turn);
+            CalcProbs(state, turn);
         }
     }
 }

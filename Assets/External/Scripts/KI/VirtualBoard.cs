@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Hanafuda
 {
+    [Serializable]
     public class VirtualBoard
     {
         public List<Card> Deck, Field;

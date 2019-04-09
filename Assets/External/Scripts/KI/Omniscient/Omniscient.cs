@@ -9,7 +9,7 @@ namespace Hanafuda
 {
     public partial class OmniscientAI : KI
     {
-        
+
         const float _TCRWeight = 1f;
         const float _MinSizeWeight = 100f;
         const float _PValueWeight = 0.1f;
@@ -35,15 +35,18 @@ namespace Hanafuda
             //Bewertung möglicherweise in Threads?
             var maxValue = -100f;
             Move selectedMove = null;
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+            Parallel.ForEach(Tree.GetLevel(1), state => state.Value = RateState(state));
             for (var i = 0; i < Tree.GetLevel(1).Count; i++)
             {
-                Tree.GetState(1, i).Value = RateState(Tree.GetState(1, i));
                 if (Tree.GetState(1, i).Value > maxValue)
                 {
                     maxValue = Tree.GetState(1, i).Value;
                     selectedMove = Tree.GetState(1, i).LastMove;
                 }
             }
+            Global.Log($"Time for Enemy Turn Decision: {watch.ElapsedMilliseconds}");
             return selectedMove;
         }
         public override float RateState(VirtualBoard State)
@@ -101,7 +104,7 @@ namespace Hanafuda
 
             int GlobalMinSize = 0;
 
-            float TotalCardRelevance = 0;            
+            float TotalCardRelevance = 0;
 
             List<Card> NewCards = new List<Card>();
             if (State.LastMove != null)
@@ -111,7 +114,7 @@ namespace Hanafuda
                 .players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID].CollectedCards
                 .Contains(x)).ToList();
             }
-            OmniscientYakus OmniscientYakuProps = new OmniscientYakus(CardProps,NewCards, State, Turn);
+            OmniscientYakus OmniscientYakuProps = new OmniscientYakus(CardProps, NewCards, State, Turn);
 
             GlobalMinSize = OmniscientYakuProps.Min(x => x.MinTurns);
 
@@ -122,12 +125,12 @@ namespace Hanafuda
             result = GlobalMinSize * _MinSizeWeight
                 + TotalCardRelevance * _TCRWeight;
 
-           /* if (Turn)
-                Debug.Log($"Collected Cards: {string.Join(",", NewCards)}\n" +
-                    $"Selection from Hand: {State.LastMove.HandSelection}, from Deck {State.LastMove.DeckSelection}" +
-                    $"Global {GlobalMinSize}; Local {TotalCardRelevance}; Com Result {result};\n" +
-                    $"{string.Join("\n", YakuInTurns.Where(x => YakuTargeted[x.Key]).Select(x => $"{Global.allYaku[x.Key].Title} in min. {x.Value} Turns."))}");
-                    */
+            /* if (Turn)
+                 Debug.Log($"Collected Cards: {string.Join(",", NewCards)}\n" +
+                     $"Selection from Hand: {State.LastMove.HandSelection}, from Deck {State.LastMove.DeckSelection}" +
+                     $"Global {GlobalMinSize}; Local {TotalCardRelevance}; Com Result {result};\n" +
+                     $"{string.Join("\n", YakuInTurns.Where(x => YakuTargeted[x.Key]).Select(x => $"{Global.allYaku[x.Key].Title} in min. {x.Value} Turns."))}");
+                     */
             return result;
         }
     }

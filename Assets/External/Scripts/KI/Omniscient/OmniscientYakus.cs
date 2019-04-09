@@ -16,20 +16,9 @@ namespace Hanafuda
     {
         public class OmniscientYakus : YakuCollection
         {
-            List<CardProperties> CardProps;
-            VirtualBoard State;
-            bool Turn;
-            public OmniscientYakus(List<CardProperties> list, List<Card> newCards, VirtualBoard state, bool turn) : base(list, newCards, state, turn)
-            {
-                CardProps = list;
-                State = state;
-                Turn = turn;
-                for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
-                    this.Add(new YakuProperties(yakuID));
-                Preparations = () => { };
-            }
+            protected override void Preparations() => cardProperties = new OmniscientCards(CardProps, State, Turn);
 
-            protected override CardCollection cardProperties => new OmniscientCards(CardProps, State, Turn);
+            public OmniscientYakus(List<CardProperties> list, List<Card> newCards, VirtualBoard state, bool turn) : base(list, newCards, state, turn) { }
 
             protected override void CalcState(VirtualBoard State, bool Turn)
             {
@@ -84,29 +73,23 @@ namespace Hanafuda
 
             protected override void CalcProbs(CardCollection cardProperties)
             {
-                foreach (YakuProperties yakuProp in this)
+                System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+                watch.Start();
+                foreach (YakuProperties yakuProp in this.Where(x => x.IsPossible))
                 {
-                    if (!yakuProp.IsPossible) continue;
-                    List<float> cardProbs = CardProps.Where(x => yakuProp.yaku.Contains(x.card)).Select(x => x.Probability).ToList();
-                    List<int[]> baseTermIDs = BuildCombinations(yakuProp.yaku.minSize, cardProbs.Count - 1);
-                    List<float> baseTerms = baseTermIDs.Select(x =>
-                    {
-                        float result = 1;
-                        foreach (int ID in x) result *= cardProbs[ID];
-                        return result;
-                    }).ToList();
-                    IEnumerable<int> numbers = Enumerable.Range(0, cardProbs.Count - 1);
-                    List<int[]> addTermIDs = baseTermIDs.Select(x => numbers.Except(x).ToArray()).ToList();
-                    List<float> addTerms = addTermIDs.Select(x => x.Sum(y => cardProbs[y])).ToList();
-                    yakuProp.Probability = 0;
-                    for (int termID = 0; termID < baseTerms.Count; termID++)
-                        yakuProp.Probability += baseTerms[termID] * addTerms[termID];
+                    double[] cardProbs = CardProps.Where(x => yakuProp.yaku.Contains(x.card)).Select(x => (double)x.Probability).ToArray();
+                    yakuProp.Probability = CalcYakuProb(yakuProp.yaku.minSize, cardProbs.Length - 1, cardProbs);
                 }
             }
-            private List<int[]> BuildCombinations(int outputLength, int numberRange)
+            private float CalcYakuProb(int outputLength, int numberRange, double[] cardProbs)
             {
-                List<int[]> baseTermIDs = new List<int[]>() { Enumerable.Range(0, outputLength).ToArray() };
-                int[] last = baseTermIDs[0].ToArray();
+                int[] last = Enumerable.Range(0, outputLength).ToArray();
+                double result = 1;
+                foreach (int factorID in last) result *= cardProbs[factorID];
+                double add = 0;
+                for (int sumID = last[last.Length - 1] + 1; sumID <= numberRange; sumID++)
+                    add += cardProbs[sumID];
+                result *= add;
                 for (int factorID = last.Length - 1; factorID >= 0; factorID--)
                 {
                     while (true)
@@ -117,16 +100,23 @@ namespace Hanafuda
                         {
                             last[factorID]++;
                             int newID;
-                            for (newID = factorID; newID < outputLength; newID++)
-                                if (newID >= factorID)
-                                    last[newID] = last[factorID] + (newID - factorID);
+                            for (newID = factorID + 1; newID < outputLength; newID++)
+                                last[newID] = last[factorID] + (newID - factorID);
 
-                            baseTermIDs.Add(last.ToArray());
+                            double term = 1;
+                            foreach (int facID in last) term *= cardProbs[facID];
+                            double addFactor = 0;
+                            for (int summand = last[last.Length - 1] + 1; summand <= numberRange; summand++)
+                                addFactor += cardProbs[summand];
+                            term *= addFactor;
+                            result += term;
+
                             if (newID != factorID) factorID = last.Length - 1;
                         }
                     }
                 }
-                return baseTermIDs;
+
+                return (float)result;
             }
         }
     }

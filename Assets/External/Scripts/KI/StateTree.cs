@@ -54,7 +54,6 @@ namespace Hanafuda
         private List<List<VirtualBoard>> Content = new List<List<VirtualBoard>>();
         private object thisLock;
         private readonly List<Task<object>> tasks = new List<Task<object>>();
-        private System.Diagnostics.Process process;
 
         [Serializable]
         public class NodeParameters
@@ -150,10 +149,6 @@ namespace Hanafuda
         {
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
-            /*
-            process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = "CMD.EXE", RedirectStandardInput = true, UseShellExecute = false });
-            process.StandardInput.WriteLine("echo off");
-            process.StandardInput.WriteLine("cls");*/
             Content.Clear();
             Content.Add(new List<VirtualBoard> { Root });
             for (var i = 0; i < maxDepth; i++)
