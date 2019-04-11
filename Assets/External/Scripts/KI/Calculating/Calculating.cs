@@ -10,6 +10,12 @@ namespace Hanafuda
     public class CalculatingAI : KI
     {
         public CalculatingAI(string name) : base(name) { }
+
+        public override void BuildStateTree(VirtualBoard cRoot)
+        {
+            throw new NotImplementedException();
+        }
+
         public override Move MakeTurn(VirtualBoard cRoot)
         {
             cRoot.Turn = true;

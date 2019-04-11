@@ -19,6 +19,13 @@ namespace Hanafuda
 
         List<CardProperties> CardProps = new List<CardProperties>();
 
+        public override void BuildStateTree(VirtualBoard cRoot)
+        {
+            cRoot.Turn = true;
+            Tree = new StateTree(cRoot);
+            Tree.Build(1);
+        }
+
         public OmniscientAI(string name) : base(name)
         {
             for (int i = 0; i < Global.allCards.Count; i++)
@@ -27,28 +34,6 @@ namespace Hanafuda
             }
         }
 
-        public override Move MakeTurn(VirtualBoard cRoot)
-        {
-            cRoot.Turn = true;
-            Tree = new StateTree(cRoot);
-            Tree.Build(1);
-            //Bewertung möglicherweise in Threads?
-            var maxValue = -100f;
-            Move selectedMove = null;
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            watch.Start();
-            Parallel.ForEach(Tree.GetLevel(1), state => state.Value = RateState(state));
-            for (var i = 0; i < Tree.GetLevel(1).Count; i++)
-            {
-                if (Tree.GetState(1, i).Value > maxValue)
-                {
-                    maxValue = Tree.GetState(1, i).Value;
-                    selectedMove = Tree.GetState(1, i).LastMove;
-                }
-            }
-            Global.Log($"Time for Enemy Turn Decision: {watch.ElapsedMilliseconds}");
-            return selectedMove;
-        }
         public override float RateState(VirtualBoard State)
         {
             /*
@@ -92,8 +77,6 @@ namespace Hanafuda
 
             Result = ComValue * _ComValueWeight
                 - PValue * _PValueWeight;
-
-            Debug.Log($"Player Results: {PValue}; Global Result {Result}");
 
             return Result;
         }

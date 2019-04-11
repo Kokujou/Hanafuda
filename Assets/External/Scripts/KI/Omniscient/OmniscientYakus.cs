@@ -9,6 +9,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Hanafuda
 {
@@ -22,14 +23,26 @@ namespace Hanafuda
 
             protected override void CalcState(VirtualBoard State, bool Turn)
             {
+                int maxTurns = State.players[1 - Settings.PlayerID].Hand.Count;
                 foreach (Card card in player.CollectedCards)
                     foreach (YakuProperties Prop in this)
                         if (Prop.yaku.Contains(card))
                             Prop.Collected++;
-                List<Card> collectables = cardProperties.Where(x => x.Probability > 0).Select(x => x.card).ToList();
-                foreach (Card card in collectables)
-                    foreach (YakuProperties Prop in this)
-                        Prop.IsPossible = true;
+                var collectables = cardProperties.Where(x => x.Probability > 0);
+                foreach (YakuProperties yakuProp in this)
+                {
+                    yakuProp.IsPossible = false;
+                    if (yakuProp.MinTurns > maxTurns) continue;
+                    byte matching = 0;
+                    foreach (CardProperties cardProp in collectables)
+                    {
+                        if (yakuProp.yaku.Contains(cardProp.card))
+                            matching++;
+                    }
+                    if (matching >= yakuProp.yaku.minSize)
+                        yakuProp.IsPossible = true;
+
+                }
             }
 
             protected override void CalcTargets(List<Card> newCards)
@@ -50,16 +63,18 @@ namespace Hanafuda
                 }
             }
 
-            protected override void CalcMinTurns(CardCollection cardProperties)
+            protected override void CalcMinTurns(CardCollection Properties)
             {
+                List<CardProperties> cardProperties = Properties.ToList();
+                cardProperties.Sort();
                 // Optimierung: Gleichzeitiges Einsammeln von Karten berücksichtigen
                 foreach (YakuProperties yakuProp in this)
                 {
-                    if (!yakuProp.IsPossible) continue;
                     int min = 8, max = 0, count = 0;
-                    foreach (CardProperties cardProp in cardProperties)
+                    for (int propID = 0; propID < cardProperties.Count || propID < yakuProp.yaku.minSize; propID++)
                     {
-                        if (cardProp.MinTurns > 0)
+                        CardProperties cardProp = cardProperties[propID];
+                        if (cardProp.MinTurns > 0 && yakuProp.yaku.Contains(cardProp.card) && cardProp.Probability > 0)
                         {
                             count++;
                             if (cardProp.MinTurns > max) max = cardProp.MinTurns;
@@ -78,9 +93,21 @@ namespace Hanafuda
                 foreach (YakuProperties yakuProp in this.Where(x => x.IsPossible))
                 {
                     double[] cardProbs = CardProps.Where(x => yakuProp.yaku.Contains(x.card)).Select(x => (double)x.Probability).ToArray();
-                    yakuProp.Probability = CalcYakuProb(yakuProp.yaku.minSize, cardProbs.Length - 1, cardProbs);
+                    yakuProp.Probability = CalcYakuProb(yakuProp.yaku.minSize, cardProbs);
                 }
+                //Debug.Log(string.Join("\n", this.Select(x => $"{x.yaku.Title}: {x.Probability}")));
             }
+            private float CalcYakuProb(int minSize, double[] cardProbs)
+            {
+                double result = 1;
+                List<double> SortedProbs = cardProbs.ToList();
+                SortedProbs.Sort();
+                double[] Max = SortedProbs.Skip(cardProbs.Length - minSize).ToArray();
+                foreach (double prob in Max) result *= prob;
+                result = System.Math.Pow(result, 1 / cardProbs.Length);
+                return (float)result;
+            }
+            /*
             private float CalcYakuProb(int outputLength, int numberRange, double[] cardProbs)
             {
                 int[] last = Enumerable.Range(0, outputLength).ToArray();
@@ -117,7 +144,7 @@ namespace Hanafuda
                 }
 
                 return (float)result;
-            }
+            }*/
         }
     }
 }

@@ -12,6 +12,12 @@ namespace Hanafuda
         public SearchingAI(string name) : base(name)
         {
         }
+
+        public override void BuildStateTree(VirtualBoard cRoot)
+        {
+            throw new NotImplementedException();
+        }
+
         public override Move MakeTurn(VirtualBoard cRoot)
         {
             cRoot.Turn = true;

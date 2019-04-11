@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace Hanafuda
 {
@@ -26,6 +28,7 @@ namespace Hanafuda
             Preparations();
             CalcMinTurns(state, turn);
             CalcProbs(state, turn);
+            Debug.Log(string.Join("\n", this.Where(x=>x.Probability > 0).Select(x => $"{x.card.Title}: {x.Probability}")));
         }
     }
 }

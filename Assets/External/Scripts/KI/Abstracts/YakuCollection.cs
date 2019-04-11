@@ -44,12 +44,9 @@ namespace Hanafuda
 
             Preparations();
             CalcTargets(newCards);
-            CalcState(state, turn);
             CalcMinTurns(cardProperties);
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            watch.Start();
+            CalcState(state, turn);
             CalcProbs(cardProperties);
-            Console.WriteLine(watch.ElapsedMilliseconds);
         }
     }
 }

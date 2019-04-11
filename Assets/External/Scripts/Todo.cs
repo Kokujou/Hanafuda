@@ -16,4 +16,5 @@
  * - Memo: Randomseed wieder randomisieren
  * - Yakueinblendung skalieren (Prüfen!)
  * - Fehlerhaftes Einsammeln bei Deckzug! (ignoriert vom Feld entfernte Karten nicht) - TESTEN!
+ * - Mischung der Basiskartenwerte mit den Punkten der Yaku - Näherungswert
 */

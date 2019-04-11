@@ -7,7 +7,7 @@ namespace Hanafuda
     {
         public int ID { get; }
         public Card card { get; }
-        private Dictionary<int, float> RelevanceForYaku { get; set; }
+        public Dictionary<int, float> RelevanceForYaku { get; set; }
         public CardProperties(int cardID)
         {
             ID = cardID;
