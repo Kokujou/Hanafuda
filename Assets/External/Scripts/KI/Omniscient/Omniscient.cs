@@ -10,8 +10,8 @@ namespace Hanafuda
     public partial class OmniscientAI : KI
     {
 
-        const float _TCRWeight = 1f;
-        const float _MinSizeWeight = 100f;
+        const float _TotalValueWeight = 1f;
+        const float _GlobalWeight = 100f;
         const float _PValueWeight = 0.1f;
         const float _ComValueWeight = 1f;
 
@@ -84,10 +84,12 @@ namespace Hanafuda
         public float RateSingleState(VirtualBoard State, bool Turn)
         {
             float result = 0;
+            Player Com = State.players[1 - Settings.PlayerID];
+            Player P1 = State.players[Settings.PlayerID];
 
-            int GlobalMinSize = 0;
+            float GlobalMinimum = 0;
 
-            float TotalCardRelevance = 0;
+            float TotalCardValue = 0;
 
             List<Card> NewCards = new List<Card>();
             if (State.LastMove != null)
@@ -97,16 +99,22 @@ namespace Hanafuda
                 .players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID].CollectedCards
                 .Contains(x)).ToList();
             }
+
             OmniscientYakus OmniscientYakuProps = new OmniscientYakus(CardProps, NewCards, State, Turn);
 
-            GlobalMinSize = OmniscientYakuProps.Min(x => x.MinTurns);
+            foreach (YakuProperties yakuProp in OmniscientYakuProps)
+            {
+                float value = (P1.Hand.Count - yakuProp.MinTurns) * yakuProp.Probability;
+                if (value < GlobalMinimum)
+                    GlobalMinimum = value;
+            }
 
-            TotalCardRelevance = OmniscientYakuProps
+            TotalCardValue = OmniscientYakuProps
                 .Where(x => x.Targeted)
-                .Sum(x => Mathf.Pow(10, 1f / x.MinTurns));
+                .Sum(x => (P1.Hand.Count - x.MinTurns) * x.Probability);
 
-            result = GlobalMinSize * _MinSizeWeight
-                + TotalCardRelevance * _TCRWeight;
+            result = GlobalMinimum * _GlobalWeight
+                + TotalCardValue * _TotalValueWeight;
 
             /* if (Turn)
                  Debug.Log($"Collected Cards: {string.Join(",", NewCards)}\n" +

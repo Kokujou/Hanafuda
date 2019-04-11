@@ -66,19 +66,22 @@ namespace Hanafuda
             protected override void CalcMinTurns(CardCollection Properties)
             {
                 List<CardProperties> cardProperties = Properties.ToList();
-                cardProperties.Sort();
                 // Optimierung: Gleichzeitiges Einsammeln von Karten berücksichtigen
                 foreach (YakuProperties yakuProp in this)
                 {
                     int min = 8, max = 0, count = 0;
-                    for (int propID = 0; propID < cardProperties.Count || propID < yakuProp.yaku.minSize; propID++)
+                    List<int> cardDurations = cardProperties
+                        .Where(x => yakuProp.yaku.Contains(x.card))
+                        .Select(x => x.MinTurns).ToList();
+                    cardDurations.Sort();
+                    for (int sizeID = 0; sizeID < cardDurations.Count || sizeID < yakuProp.yaku.minSize; sizeID++)
                     {
-                        CardProperties cardProp = cardProperties[propID];
-                        if (cardProp.MinTurns > 0 && yakuProp.yaku.Contains(cardProp.card) && cardProp.Probability > 0)
+                        int size = cardDurations[sizeID];
+                        if (size > 0 && size > 0)
                         {
                             count++;
-                            if (cardProp.MinTurns > max) max = cardProp.MinTurns;
-                            if (cardProp.MinTurns < min) min = cardProp.MinTurns;
+                            if (size > max) max = size;
+                            if (size < min) min = size;
                         }
                     }
                     yakuProp.MinTurns = (min - 1) + count;
@@ -92,20 +95,39 @@ namespace Hanafuda
                 watch.Start();
                 foreach (YakuProperties yakuProp in this.Where(x => x.IsPossible))
                 {
-                    double[] cardProbs = CardProps.Where(x => yakuProp.yaku.Contains(x.card)).Select(x => (double)x.Probability).ToArray();
+                    List<double> cardProbs = CardProps.Where(x => x.Probability > 0 && yakuProp.yaku.Contains(x.card)).Select(x => (double)x.Probability).ToList();
                     yakuProp.Probability = CalcYakuProb(yakuProp.yaku.minSize, cardProbs);
                 }
                 //Debug.Log(string.Join("\n", this.Select(x => $"{x.yaku.Title}: {x.Probability}")));
             }
-            private float CalcYakuProb(int minSize, double[] cardProbs)
+            private float CalcYakuProb(int minSize, List<double> cardProbs)
             {
-                double result = 1;
-                List<double> SortedProbs = cardProbs.ToList();
-                SortedProbs.Sort();
-                double[] Max = SortedProbs.Skip(cardProbs.Length - minSize).ToArray();
-                foreach (double prob in Max) result *= prob;
-                result = System.Math.Pow(result, 1 / cardProbs.Length);
+                double result = 0;
+
+                if (cardProbs.Count < minSize) return 0;
+
+                const int iterations = 1000;
+                int count = 0;
+                for (int i = 0; i < iterations; i++)
+                {
+                    if (GambleProbs(cardProbs, minSize))
+                        count++;
+                }
+                result = count / iterations;
+
                 return (float)result;
+            }
+
+            private bool GambleProbs(List<double> probs, int minimum)
+            {
+                float count = 0;
+
+                System.Random random = new System.Random();
+                foreach (double prob in probs)
+                    if (random.NextDouble() < prob)
+                        count++;
+
+                return count >= minimum;
             }
             /*
             private float CalcYakuProb(int outputLength, int numberRange, double[] cardProbs)

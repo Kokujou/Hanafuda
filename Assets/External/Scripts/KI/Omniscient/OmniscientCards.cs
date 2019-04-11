@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Hanafuda
 {
@@ -94,7 +95,11 @@ namespace Hanafuda
                  *  - Die Wahrscheinlichkeit von Feldkarten ergibt sich über virtuellen Wettbewerb mit dem Gegner
                  *      - Wahrscheinlichkeit die Karte einzusammeln durch auszählen: Matches mit Karte / alle Matches
                  *      - Wettbewerb: Gesamtwhkt = (1- Einsammelwhkt. des Gegners) * Einsammelwhkt. des Spielers
-                 *  - Whkt. der Karten auf Hand und gezogen vom Deck = 1 (Vertrauenswerte)
+                 *  - Whkt. der Karten auf Hand und gezogen vom Deck:
+                 *      - Wenn Karte unter eigenen Kontrolle -> Whkt = 1 (Match in Hand oder Deck)
+                 *      - Sonst: Addition aller Match-Wahrscheinlichkeiten
+                 *      - -> Berechnung nach allen anderen, damit Whkt aufgebaut werden kann
+                 *      - Sonderfall des Einsammelns einer Handkarte durch andere Handkarte wird ignoriert
                  *  - Whkt. der Karten kommt nur zu Tragen wenn der Gegner keine anderen Möglichkeiten hat (=Verzweiflungszug)
                  *      - In dem Fall Zufallshochschicken von Karten
                  *      - Wichtung möglich durch Relevanz für Yaku, optional gewichtet mit Punkten der Yaku
@@ -119,14 +124,10 @@ namespace Hanafuda
                     foreach (Card card in FirstDeckMatches)
                         this[card.ID].Probability = 0;
 
-                foreach (Card card in player.Hand)
-                    this[card.ID].Probability = 1;
-                for (int cardID = 0; cardID < player.Hand.Count * 2; cardID += 2)
-                    this[State.Deck[cardID + 1].ID].Probability = 1;
-
-                int PTotalMatches = opponent.Hand.Select(x=>x.Monat).Intersect(State.Field.Select(x=>x.Monat)).Count();
+                int PTotalMatches = opponent.Hand.Select(x => x.Monat).Intersect(State.Field.Select(x => x.Monat)).Count();
                 if (PTotalMatches == 0)
                 {
+                    Debug.Log(opponent.Name);
                     foreach (Card card in opponent.Hand)
                     {
                         this[card.ID].Probability = 1f / opponent.Hand.Count;
@@ -149,6 +150,36 @@ namespace Hanafuda
                         foreach (Card card in deckMatches)
                             prob *= this[card.ID].Probability;
                         this[deckCard.ID].Probability = prob * FromFieldProb;
+                    }
+                }
+
+                List<Card> playerDeck = new List<Card>();
+                for (int cardID = 1; cardID < player.Hand.Count * 2; cardID += 2)
+                    playerDeck.Add(State.Deck[cardID]);
+                foreach (Card card in player.Hand)
+                {
+                    if (playerDeck.Exists(x => x.Monat == card.Monat))
+                        this[card.ID].Probability = 1;
+                    else
+                    {
+                        this[card.ID].Probability = this
+                            .Where(x => x.card.Monat == card.Monat)
+                            .Sum(x => x.Probability);
+                        if (this[card.ID].Probability > 1)
+                            this[card.ID].Probability = 1;
+                    }
+                }
+                foreach(Card card in playerDeck)
+                {
+                    if (player.Hand.Exists(x => x.Monat == card.Monat))
+                        this[card.ID].Probability = 1;
+                    else
+                    {
+                        this[card.ID].Probability = this
+                            .Where(x => x.card.Monat == card.Monat)
+                            .Sum(x => x.Probability);
+                        if (this[card.ID].Probability > 1)
+                            this[card.ID].Probability = 1;
                     }
                 }
             }
