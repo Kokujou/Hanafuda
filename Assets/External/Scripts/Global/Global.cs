@@ -32,14 +32,18 @@ namespace Hanafuda
 
         public static void Log<T>(T output)
         {
+            if(SystemInfo.operatingSystemFamily == OperatingSystemFamily.Windows)
             process.StandardInput.WriteLine($"{output.ToString()}^");
         }
 
         private void Awake()
         {
-            process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = "CMD.EXE", RedirectStandardInput = true, UseShellExecute = false });
-            process.StandardInput.WriteLine("echo off");
-            process.StandardInput.WriteLine("cls"); 
+            if (SystemInfo.operatingSystemFamily == OperatingSystemFamily.Windows)
+            {
+                process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = "CMD.EXE", RedirectStandardInput = true, UseShellExecute = false });
+                process.StandardInput.WriteLine("echo off");
+                process.StandardInput.WriteLine("cls");
+            }
             instance = this;
             DontDestroyOnLoad(this);
             allYaku = AllYaku;

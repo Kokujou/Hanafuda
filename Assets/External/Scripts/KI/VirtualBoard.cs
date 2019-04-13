@@ -62,6 +62,8 @@ namespace Hanafuda
             Card deckSelection = Deck.Find(x => x.Title == move.DeckSelection);
             List<Card> deckMatches = new List<Card>();
 
+            List<Card> collectedCards = new List<Card>();
+
             for (int i = Field.Count - 1; i >= 0; i--)
             {
                 if (move.HandFieldSelection.Length > 0)
@@ -104,6 +106,7 @@ namespace Hanafuda
             {
                 handMatches.Add(handSelection);
                 activePlayer.CollectedCards.AddRange(handMatches);
+                collectedCards.AddRange(handMatches);
             }
             else
             {
@@ -115,26 +118,15 @@ namespace Hanafuda
             {
                 deckMatches.Add(deckSelection);
                 activePlayer.CollectedCards.AddRange(deckMatches);
+                collectedCards.AddRange(deckMatches);
             }
             else
             {
                 Field.Add(deckSelection);
             }
-            /*
-            var Yakus = new List<Yaku>();
-            Yakus = Yaku.GetYaku(activePlayer.CollectedCards.ToList());
-            var nPoints = 0;
-            for (var i = 0; i < Yakus.Count; i++)
-            {
-                nPoints += Yakus[i].basePoints;
-                if (Yakus[i].addPoints != 0)
-                    nPoints += (activePlayer.CollectedCards.Count(x => x.Typ == Yakus[i].TypPref) -
-                                Yakus[i].minSize) * Yakus[i].addPoints;
-            }
-            HasNewYaku = nPoints > activePlayer.tempPoints;
-            */
-            HasNewYaku = false;
-            isFinal = false;
+
+            HasNewYaku = Yaku.GetNewYakus(activePlayer, collectedCards).Count > 0;
+
             LastMove = move;
             LastMove.HadYaku = HasNewYaku;
         }

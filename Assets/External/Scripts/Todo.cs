@@ -17,4 +17,6 @@
  * - Yakueinblendung skalieren (Prüfen!)
  * - Fehlerhaftes Einsammeln bei Deckzug! (ignoriert vom Feld entfernte Karten nicht) - TESTEN!
  * - Mischung der Basiskartenwerte mit den Punkten der Yaku - Näherungswert
+ * - Gegnerische Yakuübermittlung Prüfen
+ * - Sonderzüge behandeln (4 Karten beim Austeilen, 4 Karten auf Feld, ... )
 */

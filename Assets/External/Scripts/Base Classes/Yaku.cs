@@ -36,6 +36,33 @@ namespace Hanafuda
             return Global.allYaku.IndexOf(this).CompareTo(Global.allYaku.IndexOf(other));
         }
 
+        public int GetPoints(int collected)
+        {
+            if (collected < minSize) return 0;
+            else if (collected == minSize) return basePoints;
+            else if (addPoints > 0) return (basePoints + (addPoints * (collected - minSize)));
+            else return 0;
+        }
+
+        public static List<Yaku> GetNewYakus(Player player, List<Card> newCards)
+        {
+            List<Yaku> NewYaku = new List<Yaku>();
+            for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
+            {
+                Yaku yaku = Global.allYaku[yakuID];
+                int matchingCount = 0;
+                foreach (Card card in newCards)
+                {
+                    if (!yaku.Contains(card)) continue;
+                    int oldCount = player.CollectedYaku[yakuID];
+                    matchingCount++;
+                    if (yaku.GetPoints(oldCount + matchingCount) > yaku.GetPoints(oldCount))
+                        NewYaku.Add(yaku);
+                }
+            }
+            return NewYaku;
+        }
+
         public static void DistinctYakus(List<KeyValuePair<Yaku, int>> list)
         {
             for (var i = 5; i > 2; i--)
@@ -99,14 +126,14 @@ namespace Hanafuda
             {
                 int matches = 0;
                 int nameMatches = 0;
-                foreach(Card card in Cards)
+                foreach (Card card in Cards)
                 {
                     if (yaku.Contains(card))
                         matches++;
                     if (yaku.Namen.Contains(card.Title))
                         nameMatches++;
                 }
-                if (matches >= yaku.minSize && ((yaku.Mask[0] == 1 && yaku.Mask[1] == 1) || nameMatches >= yaku.Namen.Count ))
+                if (matches >= yaku.minSize && ((yaku.Mask[0] == 1 && yaku.Mask[1] == 1) || nameMatches >= yaku.Namen.Count))
                     return true;
                 else return false;
             }

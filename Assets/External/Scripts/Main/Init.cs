@@ -65,7 +65,6 @@ namespace Hanafuda
             Hovered = new Card[] { };
             Deck = new List<Card>();
             Field = new List<Card>();
-            NewYaku = new List<Yaku>();
             currentAction = new PlayerAction();
             _Turn = Settings.PlayerID == 0;
             EffectCam = MainSceneVariables.variableCollection.EffectCamera;
@@ -85,8 +84,6 @@ namespace Hanafuda
                 Deck3D = MainSceneVariables.variableCollection.Deck;
                 InfoUI = Instantiate(Global.prefabCollection.GameInfoPC).GetComponentInChildren<GameInfo>();
             }
-            InfoUI.GetYakuList(0).BuildFromCards(new List<Card>());
-            InfoUI.GetYakuList(1).BuildFromCards(new List<Card>());
 
             if (Settings.Rounds == 0)
             {
@@ -104,6 +101,9 @@ namespace Hanafuda
                     (Settings.Players[i]).Reset();
                 Init(Settings.Players);
             }
+
+            InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), players[0].CollectedYaku);
+            InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), players[1].CollectedYaku);
         }
 
         /// <summary>

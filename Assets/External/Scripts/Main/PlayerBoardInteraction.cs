@@ -73,16 +73,12 @@ namespace Hanafuda
                     /*
                      * Win-Animation
                      */
-                    players[Settings.PlayerID].CollectedYaku = new List<KeyValuePair<Yaku, int>>(Yaku.GetYaku(players[Settings.PlayerID].CollectedCards).ToDictionary(x => x, x => 0));
-                    Settings.Players[Settings.PlayerID].CalcPoints();
                 }
                 else
                 {
                     /*
                      * Loose-Animation
                      */
-                    players[1 - Settings.PlayerID].CollectedYaku = new List<KeyValuePair<Yaku, int>>(Yaku.GetYaku(players[1 - Settings.PlayerID].CollectedCards).ToDictionary(x => x, x => 0));
-                    Settings.Players[1 - Settings.PlayerID].CalcPoints();
                 }
                 SceneManager.LoadScene("Finish");
             }
@@ -154,8 +150,16 @@ namespace Hanafuda
                 animationQueue.Add(() => StartCoroutine(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand.ResortCards(new CardLayout(true))));
                 animationQueue.Add(() => SelectCard(Deck[0], true));
             }
-            else
-                animationQueue.Add(CheckNewYaku);
+            else if (Collection.Count > 1)
+                animationQueue.Add(() =>
+                {
+                    List<Yaku> NewYaku = Yaku.GetNewYakus(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID], Collection);
+                    if (NewYaku.Count > 0)
+                        Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
+                    else
+                        OpponentTurn();
+                });
+            else animationQueue.Add(OpponentTurn);
 
             StartCoroutine(Animations.CoordinateQueue(animationQueue));
         }
@@ -167,12 +171,6 @@ namespace Hanafuda
             }
             if (GUILayout.Button("Cheat Opp."))
                 players[1 - Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
-            if (GUILayout.Button("LoadFinish"))
-            {
-                Settings.Players[0].CalcPoints();
-                Settings.Players[1].CalcPoints();
-                SceneManager.LoadScene("Finish");
-            }
         }
     }
 }

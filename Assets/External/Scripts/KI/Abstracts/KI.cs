@@ -34,6 +34,7 @@ namespace Hanafuda
         public abstract void BuildStateTree(VirtualBoard cRoot);
         public virtual Move MakeTurn(VirtualBoard board)
         {
+            Debug.Log("KI Turn Decision started"    );
             BuildStateTree(board);
             //Bewertung möglicherweise in Threads?
             var maxValue = -100f;

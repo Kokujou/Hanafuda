@@ -73,7 +73,9 @@ namespace Hanafuda
 
             PStateValues = PStateValues.Skip(PStateValues.Count - 3).ToList();
 
-            float PValue = PStateValues.Average(x => x);
+            float PValue = 0;
+            if (PStateValues.Count > 0)
+                PValue = PStateValues.Average(x => x);
 
             Result = ComValue * _ComValueWeight
                 - PValue * _PValueWeight;

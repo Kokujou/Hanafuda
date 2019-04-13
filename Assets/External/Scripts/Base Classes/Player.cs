@@ -15,7 +15,7 @@ namespace Hanafuda
 {
     public class Player
     {
-        private List<KeyValuePair<Yaku, int>> _CollectedYaku;
+        public Dictionary<int, int> CollectedYaku;
         public List<Card> CollectedCards;
         public List<Card> Hand;
         public int Koikoi;
@@ -32,6 +32,7 @@ namespace Hanafuda
         public Player(Player copy)
         {
             CollectedCards = new List<Card>(copy.CollectedCards);
+            CollectedYaku = new Dictionary<int, int>(copy.CollectedYaku);
             Hand = new List<Card>(copy.Hand);
             Koikoi = copy.Koikoi;
             Name = copy.Name;
@@ -39,23 +40,17 @@ namespace Hanafuda
             tempPoints = copy.tempPoints;
             TotalPoints = copy.TotalPoints;
         }
-        public Player(string name)  
+
+        public Player(string name)
         {
             Name = name;
             Koikoi = 0;
             Hand = new List<Card>();
             CollectedCards = new List<Card>();
-            CollectedYaku = new List<KeyValuePair<Yaku, int>>();
+            CollectedYaku = new Dictionary<int, int>();
+            for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
+                CollectedYaku.Add(yakuID, 0);
             TotalPoints = 0;
-        }
-        public List<KeyValuePair<Yaku, int>> CollectedYaku
-        {
-            get { return _CollectedYaku; }
-            set
-            {
-                _CollectedYaku = value;
-                CalcPoints();
-            }
         }
 
         public void Reset()
@@ -67,22 +62,19 @@ namespace Hanafuda
             Koikoi = 0;
         }
 
-        public void CalcPoints()
+        public void CollectCards(List<Card> NewCards)
         {
-            var nPoints = 0;
-            Yaku.DistinctYakus(CollectedYaku);
-            for (var i = 0; i < CollectedYaku.Count; i++)
+            for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
             {
-                var old = nPoints;
-                nPoints += CollectedYaku[i].Key.basePoints;
-                if (CollectedYaku[i].Key.addPoints != 0)
-                    nPoints += (CollectedCards.Count(x => x.Typ == CollectedYaku[i].Key.TypePref) -
-                                CollectedYaku[i].Key.minSize) * CollectedYaku[i].Key.addPoints;
-                CollectedYaku[i] = new KeyValuePair<Yaku, int>(CollectedYaku[i].Key, nPoints - old);
+                Yaku yaku = Global.allYaku[yakuID];
+                foreach (Card card in NewCards)
+                {
+                    if (!yaku.Contains(card)) continue;
+                    CollectedYaku[yakuID]++;
+                }
             }
-
-            tempPoints = nPoints + Koikoi;
         }
+
         public override string ToString()
         {
             return Name;

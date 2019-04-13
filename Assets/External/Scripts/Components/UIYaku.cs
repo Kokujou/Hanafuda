@@ -22,20 +22,35 @@ namespace Hanafuda
                 {
                     if (YakuTransforms[i].Value.Contains(card))
                     {
-                        foreach (RawImage image in images)
+                        List<RawImage> existing = images.ToList().FindAll(x => x.texture == card.Image.mainTexture);
+                        if (existing.Count > 0)
                         {
-                            if (image.color.r < .9f)
+                            int firstMissing = images.ToList().FindIndex(x => x.color.r < .9f);
+                            if (firstMissing == -1) break;
+                            else
                             {
-                                image.texture = card.Image.mainTexture;
-                                image.color = Color.white;
-                                break;
+                                existing[0].color = images[firstMissing].color;
+                                images[firstMissing].color = Color.white;
+                                existing[0].texture = images[firstMissing].texture;
+                                images[firstMissing].texture = card.Image.mainTexture;
+                            }
+                        }
+                        else {
+                            foreach (RawImage image in images)
+                            {
+                                if (image.color.r < .9f)
+                                {
+                                    image.texture = card.Image.mainTexture;
+                                    image.color = Color.white;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        public void BuildFromCards(List<Card> cards, List<KeyValuePair<Yaku, int>> yakus = null, float GridSpacingX = 10, float GridSpacingY = 10)
+        public void BuildFromCards(List<Card> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
         {
             if (Settings.Mobile)
                 BuildFromCardsMobile(cards, yakus, GridSpacingX, GridSpacingY);
@@ -43,16 +58,16 @@ namespace Hanafuda
                 BuildFromCardsPC(cards, yakus, GridSpacingX, GridSpacingY);
         }
 
-        public void BuildFromCardsPC(List<Card> cards, List<KeyValuePair<Yaku, int>> yakus = null, float GridSpacingX = 10, float GridSpacingY = 10)
+        public void BuildFromCardsPC(List<Card> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
         {
             int Column = 0;
             int CardsPerRow = 16;
             int inColumn = 0;
-            if (yakus == null) yakus = Global.allYaku.ToDictionary(x => x, x => 0).ToList();
-            yakus = yakus.OrderBy(x => x.Key.minSize).ToList();
-            foreach (KeyValuePair<Yaku, int> yaku in yakus)
+            yakus = yakus.OrderBy(x => Global.allYaku[x.Key].minSize).ToDictionary(x => x.Key, x => x.Value);
+            foreach (var collectedYaku in yakus)
             {
-                inColumn += yaku.Key.minSize;
+                Yaku yaku = Global.allYaku[collectedYaku.Key];
+                inColumn += yaku.minSize;
                 if (inColumn > CardsPerRow)
                 {
                     Column++;
@@ -60,9 +75,9 @@ namespace Hanafuda
                 }
                 if (Column >= YakuColumns.Length) break;
                 GameObject obj = Instantiate(YakuPrefab, YakuColumns[Column]);
-                YakuTransforms.Add(new KeyValuePair<Transform, Yaku>(obj.transform, yaku.Key));
+                YakuTransforms.Add(new KeyValuePair<Transform, Yaku>(obj.transform, yaku));
                 RawImage card = obj.GetComponentInChildren<RawImage>();
-                obj.GetComponentInChildren<Text>().text = yaku.Key.Title + (yaku.Value > 0 ? $" - {yaku.Value}P" : "");
+                obj.GetComponentInChildren<Text>().text = yaku.Title + (yaku.GetPoints(collectedYaku.Value) > 0 ? $" - {yaku.GetPoints(collectedYaku.Value)}P" : "");
 
                 obj.GetComponentInChildren<GridLayoutGroup>().spacing = new Vector2(GridSpacingX, GridSpacingY);
 
@@ -70,11 +85,11 @@ namespace Hanafuda
                 List<Card> YakuCards = new List<Card>();
                 List<Card> nYakucards = new List<Card>();
 
-                cYakuCards.AddRange(cards.FindAll(x => yaku.Key.Contains(x)));
-                YakuCards.AddRange(Global.allCards.FindAll(x => yaku.Key.Contains(x)));
+                cYakuCards.AddRange(cards.FindAll(x => yaku.Contains(x)));
+                YakuCards.AddRange(Global.allCards.FindAll(x => yaku.Contains(x)));
                 nYakucards = YakuCards.Where(x => !cYakuCards.Contains(x)).ToList();
 
-                for (int i = 0; i < yaku.Key.minSize; i++)
+                for (int i = 0; i < yaku.minSize; i++)
                 {
                     RawImage currentCard;
                     if (i == 0) currentCard = card;
@@ -90,17 +105,17 @@ namespace Hanafuda
             }
         }
 
-        public void BuildFromCardsMobile(List<Card> cards, List<KeyValuePair<Yaku, int>> yakus = null, float GridSpacingX = 10, float GridSpacingY = 10)
+        public void BuildFromCardsMobile(List<Card> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
         {
             int Column = 0;
-            if (yakus == null) yakus = Global.allYaku.ToDictionary(x => x, x => 0).ToList();
-            yakus = yakus.OrderBy(x=>x.Key.minSize).ToList();
-            foreach (KeyValuePair<Yaku, int> yaku in yakus)
+            yakus = yakus.OrderBy(x => Global.allYaku[x.Key].minSize).ToDictionary(x => x.Key, x => x.Value);
+            foreach (var collectedYaku in yakus)
             {
+                Yaku yaku = Global.allYaku[collectedYaku.Key];
                 GameObject obj = Instantiate(YakuPrefab, YakuColumns[Column]);
-                YakuTransforms.Add(new KeyValuePair<Transform, Yaku>(obj.transform, yaku.Key));
+                YakuTransforms.Add(new KeyValuePair<Transform, Yaku>(obj.transform, yaku));
                 RawImage card = obj.GetComponentInChildren<RawImage>();
-                obj.GetComponentInChildren<Text>().text = yaku.Key.Title + $" - {yaku.Value}P";
+                obj.GetComponentInChildren<Text>().text = yaku.Title + (yaku.GetPoints(collectedYaku.Value) > 0 ? $" - {yaku.GetPoints(collectedYaku.Value)}P" : "");
 
                 obj.GetComponentInChildren<GridLayoutGroup>().spacing = new Vector2(GridSpacingX, GridSpacingY);
 
@@ -108,11 +123,11 @@ namespace Hanafuda
                 List<Card> YakuCards = new List<Card>();
                 List<Card> nYakucards = new List<Card>();
 
-                cYakuCards.AddRange(cards.FindAll(x => yaku.Key.Contains(x)));
-                YakuCards.AddRange(Global.allCards.FindAll(x => yaku.Key.Contains(x)));
+                cYakuCards.AddRange(cards.FindAll(x => yaku.Contains(x)));
+                YakuCards.AddRange(Global.allCards.FindAll(x => yaku.Contains(x)));
                 nYakucards = YakuCards.Where(x => !cYakuCards.Contains(x)).ToList();
 
-                for (int i = 0; i < yaku.Key.minSize; i++)
+                for (int i = 0; i < yaku.minSize; i++)
                 {
                     RawImage currentCard;
                     if (i == 0) currentCard = card;

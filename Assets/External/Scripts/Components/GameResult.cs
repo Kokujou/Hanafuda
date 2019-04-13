@@ -76,34 +76,35 @@ namespace Hanafuda
         private void SetupYakus(Player winner)
         {
             Column = 0;
-            foreach (KeyValuePair<Yaku, int> yaku in winner.CollectedYaku)
+            foreach (var collectedYaku in winner.CollectedYaku)
             {
+                Yaku yaku = Global.allYaku[collectedYaku.Key];
                 GameObject obj = Instantiate(YakuPrefab, YakuColumns[Column]);
                 RawImage card = obj.GetComponentInChildren<RawImage>();
-                obj.GetComponentInChildren<Text>().text = yaku.Key.Title + $" - {yaku.Value}P";
+                obj.GetComponentInChildren<Text>().text = yaku.Title + $" - {yaku.GetPoints(collectedYaku.Value)}P";
 
                 List<Card> yakuCards = new List<Card>();
-                if (yaku.Key.Mask[1] == 1)
-                    yakuCards.AddRange(winner.CollectedCards.FindAll(x => yaku.Key.Namen.Contains(x.Title)));
-                if (yaku.Key.Mask[0] == 1)
-                    yakuCards.AddRange(winner.CollectedCards.FindAll(x => !yaku.Key.Namen.Contains(x.Title) && x.Typ == yaku.Key.TypePref));
-                if (yakuCards.Count < yaku.Key.minSize) Debug.Log("Invalid Player Collection");
+                if (yaku.Mask[1] == 1)
+                    yakuCards.AddRange(winner.CollectedCards.FindAll(x => yaku.Namen.Contains(x.Title)));
+                if (yaku.Mask[0] == 1)
+                    yakuCards.AddRange(winner.CollectedCards.FindAll(x => !yaku.Namen.Contains(x.Title) && x.Typ == yaku.TypePref));
+                if (yakuCards.Count < yaku.minSize) Debug.Log("Invalid Player Collection");
 
                 RawImage secondRowCard = null;
-                if (yaku.Key.minSize > 5)
+                if (yaku.minSize > 5)
                 {
                     ((RectTransform)obj.transform).sizeDelta += Vector2.up * (60f / 1.6f);
                     GameObject secondRow = Instantiate(card.transform.parent.gameObject, card.transform.parent.parent);
                     secondRowCard = secondRow.GetComponentInChildren<RawImage>();
                 }
-                for (int i = 0; i < yaku.Key.minSize || i % 5 != 0; i++)
+                for (int i = 0; i < yaku.minSize || i % 5 != 0; i++)
                 {
                     RawImage currentCard;
                     if (i == 0) currentCard = card;
                     else if (i < 5) currentCard = Instantiate(card.gameObject, card.transform.parent).GetComponent<RawImage>();
                     else if (i == 5) currentCard = secondRowCard;
                     else currentCard = Instantiate(secondRowCard.gameObject, secondRowCard.transform.parent).GetComponent<RawImage>();
-                    if (i < yaku.Key.minSize)
+                    if (i < yaku.minSize)
                         currentCard.texture = yakuCards[i].Image.mainTexture;
                     else
                         currentCard.color = new Color(0, 0, 0, 0);
