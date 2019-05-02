@@ -9,11 +9,9 @@ using System;
 
 namespace Hanafuda
 {
-    public partial class Spielfeld
+    public partial class Spielfeld : ISpielfeld
     {
-        private List<Card> Collection;
-        private PlayerAction currentAction;
-        public void HoverHand(Card card)
+        public override void HoverHand(Card card)
         {
             if (card)
             {
@@ -27,7 +25,7 @@ namespace Hanafuda
             }
         }
 
-        private bool HandleMatches(Card card, bool fromDeck = false)
+        protected override bool HandleMatches(Card card, bool fromDeck = false)
         {
             List<Card> matches = Field.FindAll(x => x.Monat == card.Monat);
             switch (matches.Count)
@@ -52,7 +50,7 @@ namespace Hanafuda
             }
             return true;
         }
-        public void SayKoiKoi(bool koikoi)
+        public override void SayKoiKoi(bool koikoi)
         {
             bool turn = Turn;
 
@@ -92,9 +90,9 @@ namespace Hanafuda
             }
         }
 
-        public void OpponentTurn()
+        protected override void OpponentTurn()
         {
-            _Turn = false;
+            Turn = false;
             if (!Settings.Multiplayer)
             {
                 Move move = ((KI)players[1 - Settings.PlayerID]).MakeTurn(new VirtualBoard(this));
@@ -107,7 +105,7 @@ namespace Hanafuda
             }
         }
 
-        private void ApplyMove(Move move)
+        protected override void ApplyMove(Move move)
         {
             if (move.PlayerID == Settings.PlayerID) return;
             PlayerAction action = PlayerAction.FromMove(move, this);
@@ -118,7 +116,7 @@ namespace Hanafuda
             currentAction.Init(this);
         }
 
-        public void SelectCard(Card card, bool fromDeck = false)
+        public override void SelectCard(Card card, bool fromDeck = false)
         {
             List<Card> Source = fromDeck ? Deck : players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand;
             Collection.Add(card);
@@ -163,7 +161,7 @@ namespace Hanafuda
 
             StartCoroutine(Animations.CoordinateQueue(animationQueue));
         }
-        public void OnGUI()
+        private void OnGUI()
         {
             if (GUILayout.Button("Cheat Player"))
             {

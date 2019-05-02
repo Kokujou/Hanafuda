@@ -32,6 +32,11 @@ namespace Hanafuda
         public static bool Multiplayer = false;
 
         /// <summary>
+        /// true: KI Consulting Modus, simulierte Anbindung an externe Programme
+        /// </summary>
+        public static bool Consulting = false;
+
+        /// <summary>
         ///     Mobiler o. Desktopmodus
         /// </summary>
         public static bool Mobile { get { return Camera.main.aspect < 1; } }

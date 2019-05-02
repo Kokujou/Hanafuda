@@ -10,19 +10,11 @@ using Photon.Pun;
 
 namespace Hanafuda
 {
-    public partial class Spielfeld
+    public partial class Spielfeld : ISpielfeld
     {
         
 
-        private const int MaxDispersionPos = 5;
-        private const int MaxDispersionAngle = 60;
-        private const float CardWidth = 11f;
-
-        Transform EffectCam, Hand1, Hand2, Field3D, Deck3D;
-
-        private Communication PlayerInteraction;
-        private GameInfo InfoUI;
-        public void Init(List<Player> Players)
+        public override void Init(List<Player> Players)
         {
             players = Players;
             PlayerInteraction = Global.instance.GetComponent<Communication>();
@@ -43,7 +35,7 @@ namespace Hanafuda
                 GenerateDeck(5);
         }
 
-        private void GenerateDeck(int seed = -1)
+        protected override void GenerateDeck(int seed = -1)
         {
             gameObject.AddComponent<PlayerComponent>().Init(players);
             var rnd = seed == -1 ? new Random() : new Random(seed);
@@ -66,7 +58,7 @@ namespace Hanafuda
             Deck = new List<Card>();
             Field = new List<Card>();
             currentAction = new PlayerAction();
-            _Turn = Settings.PlayerID == 0;
+            Turn = Settings.PlayerID == 0;
             EffectCam = MainSceneVariables.variableCollection.EffectCamera;
             if (Settings.Mobile)
             {
@@ -85,22 +77,26 @@ namespace Hanafuda
                 InfoUI = Instantiate(Global.prefabCollection.GameInfoPC).GetComponentInChildren<GameInfo>();
             }
 
-            if (Settings.Rounds == 0)
+            if (!Settings.Consulting)
             {
-                if (Settings.Multiplayer)
-                    Init(Settings.Players);
+                if (Settings.Rounds == 0)
+                {
+                    if (Settings.Multiplayer)
+                        Init(Settings.Players);
+                    else
+                    {
+                        Settings.Players[1 - Settings.PlayerID] = KI.Init((KI.Mode)Settings.KIMode, "Computer");
+                        Init(Settings.Players);
+                    }
+                }
                 else
                 {
-                    Settings.Players[1 - Settings.PlayerID] = KI.Init((KI.Mode)Settings.KIMode, "Computer");
+                    for (int i = 0; i < Settings.Players.Count; i++)
+                        (Settings.Players[i]).Reset();
                     Init(Settings.Players);
                 }
             }
-            else
-            {
-                for (int i = 0; i < Settings.Players.Count; i++)
-                    (Settings.Players[i]).Reset();
-                Init(Settings.Players);
-            }
+            else InitConsulting();
 
             InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), players[0].CollectedYaku);
             InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), players[1].CollectedYaku);
@@ -109,13 +105,13 @@ namespace Hanafuda
         /// <summary>
         /// Erstellung des Decks, sowie Austeilen von Händen und Spielfeld
         /// </summary>
-        void FieldSetup()
+        protected override void FieldSetup()
         {
             BuildDeck();
             BuildHands();
             BuildField();
         }
-        private void BuildField()
+        protected override void BuildField()
         {
             for (int i = 0; i < 8; i++)
             {
@@ -145,7 +141,7 @@ namespace Hanafuda
                 StartCoroutine(Animations.AfterAnimation(OpponentTurn));
         }
 
-        private void BuildHands()
+        protected override void BuildHands()
         {
             for (int player = 0; player < players.Count; player++)
             {
@@ -187,7 +183,7 @@ namespace Hanafuda
             }
         }
 
-        private void BuildDeck()
+        protected override void BuildDeck()
         {
             for (int i = 0; i < Deck.Count; i++)
             {

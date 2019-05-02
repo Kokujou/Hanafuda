@@ -7,10 +7,9 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public partial class Spielfeld
+    public partial class Spielfeld : ISpielfeld
     {
-        private Card[] Hovered;
-        private void HoverCards(params Card[] cards)
+        protected override void HoverCards(params Card[] cards)
         {
             for (int card = 0; card < Hovered.Length; card++)
                 Hovered[card]?.HoverCard(true);
@@ -19,7 +18,7 @@ namespace Hanafuda
             Hovered = cards;
         }
 
-        private void HoverMatches(Card.Months month)
+        protected override void HoverMatches(Card.Months month)
         {
             for (int card = 0; card < Field.Count; card++)
             {
@@ -30,7 +29,7 @@ namespace Hanafuda
             }
         }
 
-        public void SelectionToField(Card card)
+        protected override void SelectionToField(Card card)
         {
             card.Object.transform.parent = Field3D.transform;
             float scaleFactor = Settings.Mobile ? 1.5f : 1;
@@ -46,7 +45,7 @@ namespace Hanafuda
             Field.Add(card);
         }
 
-        public void CollectCards(List<Card> ToCollect)
+        protected override void CollectCards(List<Card> ToCollect)
         {
             HoverMatches(Card.Months.Null);
             Vector3 destPos = Vector3.zero;
@@ -85,12 +84,12 @@ namespace Hanafuda
             HoverHand(null);
         }
 
-        private void DrawFromDeck()
+        protected override void DrawFromDeck()
         {
             Collection.Add(Deck[0]);
         }
 
-        public void AnimateAction(PlayerAction action)
+        protected override void AnimateAction(PlayerAction action)
         {
             List<Action> actions = new List<Action>();
             actions.Add(() => SelectionToField(action.HandSelection));

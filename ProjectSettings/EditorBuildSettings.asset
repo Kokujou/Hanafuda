@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Finish.unity
     guid: 98b6e1bd331eec34b9386c87fd017ce2
+  - enabled: 1
+    path: Assets/Consulting.unity
+    guid: 02fd55a3fa188b24fbe6406df4198eab
   m_configObjects: {}

@@ -50,6 +50,15 @@ namespace Hanafuda
             SceneManager.LoadScene("OyaNegotiation");
         }
 
+        public void ConsultingStart()
+        {
+            Settings.Players = new List<Player>() { new Player(Name), new Player("Computer") };
+            Settings.PlayerID = 0;
+            Settings.Multiplayer = false;
+            Settings.Consulting = true;
+            SceneManager.LoadScene("Consulting");
+        }
+
         public void CreateMatch()
         {
             Global.instance.gameObject.GetComponent<Communication>().CreateMatch(Name, Settings.Rounds6);
