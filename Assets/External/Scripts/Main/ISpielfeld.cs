@@ -52,16 +52,16 @@ namespace Hanafuda
         public abstract void Init(List<Player> Players);
         protected abstract void GenerateDeck(int seed = -1);
         protected abstract void FieldSetup();
-        protected abstract void BuildField();
-        protected abstract void BuildHands();
+        protected abstract void BuildField(int fieldSize = 8);
+        protected abstract void BuildHands(int hand1Size = 8, int hand2Size = 8);
         protected abstract void BuildDeck();
 
         /*
          * Consulting Part
          */
         public abstract void InitConsulting();
-        
-        
+        public abstract void MarkAreas();
+        public abstract void ConfirmArea(ConsultingSetup.Target target, bool confirm = true);
 
     }
 }

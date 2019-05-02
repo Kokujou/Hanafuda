@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Hanafuda
@@ -31,6 +32,12 @@ namespace Hanafuda
                     variableCollection.Main.gameObject.AddComponent<Tutorial>();
                 }
             }
+        }
+
+        public void ResetBuilder(GameObject content)
+        {
+            foreach (Transform child in content.transform)
+                Destroy(child.gameObject);
         }
 
         [Serializable]

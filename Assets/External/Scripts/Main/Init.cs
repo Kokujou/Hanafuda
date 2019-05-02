@@ -12,7 +12,7 @@ namespace Hanafuda
 {
     public partial class Spielfeld : ISpielfeld
     {
-        
+
 
         public override void Init(List<Player> Players)
         {
@@ -41,7 +41,7 @@ namespace Hanafuda
             var rnd = seed == -1 ? new Random() : new Random(seed);
             List<int> indices = Enumerable.Range(0, Global.allCards.Count).ToList();
             Deck.Clear();
-            for (var i = indices.Count-1; i >=0; i--)
+            for (var i = indices.Count - 1; i >= 0; i--)
             {
                 var rand = rnd.Next(0, indices.Count);
                 Deck.Add(Global.allCards[indices[rand]]);
@@ -111,9 +111,9 @@ namespace Hanafuda
             BuildHands();
             BuildField();
         }
-        protected override void BuildField()
+        protected override void BuildField(int fieldSize = 8)
         {
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < fieldSize; i++)
             {
                 Field.Add(Deck[0]);
                 GameObject temp = Deck[0].Object;
@@ -141,12 +141,13 @@ namespace Hanafuda
                 StartCoroutine(Animations.AfterAnimation(OpponentTurn));
         }
 
-        protected override void BuildHands()
+        protected override void BuildHands(int hand1Size = 8, int hand2Size = 8)
         {
+            int[] handSizes = new int[] { hand1Size, hand2Size };
             for (int player = 0; player < players.Count; player++)
             {
                 bool active = player == Settings.PlayerID;
-                for (int card = 0; card < 8; card++)
+                for (int card = 0; card < handSizes[player]; card++)
                 {
                     ((Player)players[player]).Hand.Add(Deck[0]);
                     GameObject temp = Deck[0].Object;

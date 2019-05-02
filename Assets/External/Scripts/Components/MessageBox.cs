@@ -26,6 +26,7 @@ namespace Hanafuda
             foreach (KeyValuePair<string, Action> button in buttons)
             {
                 Button obj = Instantiate(Global.prefabCollection.UIButton).GetComponent<Button>();
+                obj.transform.SetParent(ButtonParent,true);
                 obj.onClick.AddListener(() => button.Value());
                 obj.GetComponentInChildren<Text>().text = button.Key;
             }
