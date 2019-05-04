@@ -12,8 +12,6 @@ namespace Hanafuda
     [RequireComponent(typeof(MeshRenderer))]
     public class ConsultingSetup : MonoBehaviour
     {
-
-
         public enum Target
         {
             PlayerHand,
@@ -26,11 +24,12 @@ namespace Hanafuda
         public Target SetupTarget;
         public GameObject Builder;
         public GridLayoutGroup Content;
+        public bool BoardBuilded = false;
 
         private List<Card> target;
         private Spielfeld Board;
 
-        private void Awake()
+        private void Start()
         {
             Board = MainSceneVariables.variableCollection.Main;
             Content = Builder.GetComponentInChildren<GridLayoutGroup>();
@@ -62,19 +61,29 @@ namespace Hanafuda
                     }
                 }
                 if (playerID == Settings.PlayerID)
-                    Board.ConfirmArea(Target.PlayerCollection, tempResult);
+                    Board.ConfirmArea(Target.PlayerCollection, tempResult ?
+                        ISpielfeld.BoardValidity.Valid : ISpielfeld.BoardValidity.Invalid);
                 else
-                    Board.ConfirmArea(Target.OpponentCollection, tempResult);
+                    Board.ConfirmArea(Target.OpponentCollection, tempResult ?
+                        ISpielfeld.BoardValidity.Valid : ISpielfeld.BoardValidity.Invalid);
             }
 
-            int diff = Math.Abs(Board.players[0].Hand.Count - Board.players[1].Hand.Count);
-            if (diff > 1 || Board.players[Settings.PlayerID].Hand.Count == 0)
+            ISpielfeld.BoardValidity hand2Validity;
+            int diff = Board.players[0].Hand.Count - Board.players[1].Hand.Count;
+            bool hand2Valid = diff == 0 || diff == 1;
+            bool hand1Valid = hand2Valid && Board.players[Settings.PlayerID].Hand.Count > 0;
+            if (!hand2Valid) hand2Validity = ISpielfeld.BoardValidity.Invalid;
+            else if (Board.players[1 - Settings.PlayerID].Hand.Count == 0)
+                hand2Validity = ISpielfeld.BoardValidity.Semivalid;
+            else hand2Validity = ISpielfeld.BoardValidity.Valid;
+            if (!hand1Valid || !hand2Valid)
                 totalResult = false;
-            Board.ConfirmArea(Target.OpponentHand, diff <= 1);
-            Board.ConfirmArea(Target.PlayerHand, diff <= 1 &&
-                Board.players[Settings.PlayerID].Hand.Count > 0);
+            Board.ConfirmArea(Target.OpponentHand, hand2Validity);
+            Board.ConfirmArea(Target.PlayerHand, hand1Valid ?
+                ISpielfeld.BoardValidity.Valid : ISpielfeld.BoardValidity.Invalid);
 
-            Board.ConfirmArea(Target.Field);
+            Board.ConfirmArea(Target.Field, Board.Field.Count == 0 ?
+                ISpielfeld.BoardValidity.Semivalid : ISpielfeld.BoardValidity.Valid);
 
             if (Board.Deck.Count < 8)
                 totalResult = false;
@@ -90,9 +99,12 @@ namespace Hanafuda
             }
         }
 
+        public void SetupMove()
+        {
 
+        }
 
-        public void Setup()
+        public void SetupArea()
         {
             if (Builder.activeInHierarchy) return;
             target = new List<Card>();

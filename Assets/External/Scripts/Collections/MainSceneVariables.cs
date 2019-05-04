@@ -43,9 +43,8 @@ namespace Hanafuda
         [Serializable]
         public class VariableCollection
         {
-            public float BoxX;
             public Spielfeld Main;
-            public Transform ExCol, ExColBack, Hand1, Hand2, Hand1M, Hand2M, Feld, MFeld, Deck, MDeck, EffectCamera;
+            public Transform Hand1, Hand2, Hand1M, Hand2M, Feld, MFeld, Deck, MDeck, EffectCamera;
             [SerializeField] public List<Transform> PCCollections = new List<Transform>();
         }
     }

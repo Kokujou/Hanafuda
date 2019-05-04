@@ -75,8 +75,9 @@ namespace Hanafuda
                     ToCollect[card].Object.layer = 0;
                 }
                 StartCoroutine(ToCollect[card].Object.transform.StandardAnimation(destPos, destRot, destScale));
-                ((Player)players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectedCards.Add(ToCollect[card]);
-                Field.Remove(ToCollect[card]);
+                if (Field.Remove(ToCollect[card]))
+                    ((Player)players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectedCards.Add(ToCollect[card]);
+
             }
             InfoUI.GetYakuList(Turn ? Settings.PlayerID : 1 - Settings.PlayerID).AddCards(ToCollect);
             ((Player)players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectCards(ToCollect);

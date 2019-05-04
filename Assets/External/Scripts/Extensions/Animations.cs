@@ -136,6 +136,7 @@ namespace ExtensionMethods
         /// 
         public static IEnumerator ResortCards(this List<Card> toSort, CardLayout layout)
         {
+            if (toSort.Count == 0) yield break;
             Vector3 StartPos = toSort[0].Object.transform.parent.position;
             yield return new WaitForSeconds(layout.Delay);
             if (layout.IsMobileHand)

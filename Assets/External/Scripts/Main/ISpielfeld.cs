@@ -59,9 +59,16 @@ namespace Hanafuda
         /*
          * Consulting Part
          */
-        public abstract void InitConsulting();
-        public abstract void MarkAreas();
-        public abstract void ConfirmArea(ConsultingSetup.Target target, bool confirm = true);
+        public enum BoardValidity
+        {
+            Invalid,
+            Valid,
+            Semivalid
+        }
 
+        public abstract void InitConsulting();
+        public abstract void MarkAreas(bool show = true);
+        public abstract void ConfirmArea(ConsultingSetup.Target target, BoardValidity validity);
+        public abstract void LoadGame();
     }
 }

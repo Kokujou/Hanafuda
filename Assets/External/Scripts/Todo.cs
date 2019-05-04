@@ -19,4 +19,5 @@
  * - Mischung der Basiskartenwerte mit den Punkten der Yaku - Näherungswert
  * - Gegnerische Yakuübermittlung Prüfen
  * - Sonderzüge behandeln (4 Karten beim Austeilen, 4 Karten auf Feld, ... )
+ * - Consulting: PC: Austeilen gesammelter Karten
 */
