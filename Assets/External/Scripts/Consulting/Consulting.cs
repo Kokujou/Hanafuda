@@ -29,20 +29,20 @@ namespace Hanafuda
 
         public override void MarkAreas(bool show = true)
         {
-            Hand1.GetComponentInChildren<ConsultingSetup>(show).BoardBuilded = !show;
-            Hand2.GetComponentInChildren<ConsultingSetup>(show).BoardBuilded = !show;
+            Hand1.GetComponentInChildren<ConsultingSetup>(true).BoardBuilded = !show;
+            Hand2.GetComponentInChildren<ConsultingSetup>(true).BoardBuilded = !show;
 
-            Hand1.GetComponentInChildren<ConsultingSetup>(show).gameObject.SetActive(true);
-            Hand2.GetComponentInChildren<ConsultingSetup>(show).gameObject.SetActive(show);
+            Hand1.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(Turn || show);
+            Hand2.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(!Turn || show);
 
-            Field3D.GetComponentInChildren<ConsultingSetup>(show).gameObject.SetActive(show);
+            Field3D.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(show);
             if (!Settings.Mobile)
             {
                 MainSceneVariables.variableCollection.PCCollections[0]
-                    .parent.GetComponentInChildren<ConsultingSetup>(show)
+                    .parent.GetComponentInChildren<ConsultingSetup>(true)
                     .gameObject.SetActive(show);
                 MainSceneVariables.variableCollection.PCCollections[4]
-                    .parent.GetComponentInChildren<ConsultingSetup>(show)
+                    .parent.GetComponentInChildren<ConsultingSetup>(true)
                     .gameObject.SetActive(show);
             }
             else
@@ -118,12 +118,25 @@ namespace Hanafuda
                 .Union(Deck)
                 .ToList();
             BuildDeck();
-            BuildHands(players[0].Hand.Count, players[1].Hand.Count);
-            BuildField(Field.Count);
-                CollectCards(players[0].CollectedCards);
-                Turn = false;
-                CollectCards(players[1].CollectedCards);
-                Turn = true;
+
+            int p1HandCount = players[0].Hand.Count;
+            int p2HandCount = players[1].Hand.Count;
+            int fieldCount = Field.Count;
+            players[0].Hand.Clear();
+            players[1].Hand.Clear();
+            Field.Clear();
+            BuildHands(p1HandCount, p2HandCount);
+            BuildField(fieldCount);
+
+            List<Card> p1Collected = players[0].CollectedCards;
+            List<Card> p2Collected = players[1].CollectedCards;
+            players[0].CollectedCards.Clear();
+            players[1].CollectedCards.Clear();
+            CollectCards(p1Collected);
+            Turn = false;
+            CollectCards(p2Collected);
+            Turn = true;
+
             MarkAreas(false);
             Global.MovingCards--;
         }

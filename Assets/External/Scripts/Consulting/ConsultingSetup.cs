@@ -23,6 +23,7 @@ namespace Hanafuda
 
         public Target SetupTarget;
         public GameObject Builder;
+        public ConsultingMoveBuilder MoveBuilder;
         public GridLayoutGroup Content;
         public bool BoardBuilded = false;
 
@@ -70,7 +71,7 @@ namespace Hanafuda
 
             ISpielfeld.BoardValidity hand2Validity;
             int diff = Board.players[0].Hand.Count - Board.players[1].Hand.Count;
-            bool hand2Valid = diff == 0 || diff == 1;
+            bool hand2Valid = (diff == 0 || diff == 1) && Board.players[0].Hand.Count <= 8;
             bool hand1Valid = hand2Valid && Board.players[Settings.PlayerID].Hand.Count > 0;
             if (!hand2Valid) hand2Validity = ISpielfeld.BoardValidity.Invalid;
             else if (Board.players[1 - Settings.PlayerID].Hand.Count == 0)
@@ -101,12 +102,18 @@ namespace Hanafuda
 
         public void SetupMove()
         {
-
+            if (MoveBuilder.gameObject.activeInHierarchy) return;
+            MoveBuilder.gameObject.SetActive(true);
+            if (SetupTarget == Target.PlayerHand)
+                MoveBuilder.SetupMoveBuilder(Board, true);
+            else if (SetupTarget == Target.OpponentCollection)
+                MoveBuilder.SetupMoveBuilder(Board,false);
         }
 
         public void SetupArea()
         {
             if (Builder.activeInHierarchy) return;
+            Builder.SetActive(true);
             target = new List<Card>();
             switch (SetupTarget)
             {
@@ -126,8 +133,8 @@ namespace Hanafuda
                     target = Board.players[1 - Settings.PlayerID].CollectedCards;
                     break;
             }
-            Builder.SetActive(true);
             Global.MovingCards++;
+
             for (int cardID = 0; cardID < target.Count + Board.Deck.Count; cardID++)
             {
                 Card card;
