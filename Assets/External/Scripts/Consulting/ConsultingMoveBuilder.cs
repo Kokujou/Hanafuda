@@ -154,10 +154,10 @@ namespace Hanafuda
 
         private void ApplyMove(PlayerAction move)
         {
-            Board.AnimateAction(action);
             Board.MarkAreas(false, !Turn);
             gameObject.SetActive(false);
-            if(HadYaku)
+            Board.AnimateAction(action);
+            if (HadYaku)
             {
                 if(Koikoi)
                 {

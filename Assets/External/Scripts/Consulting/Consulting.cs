@@ -20,10 +20,13 @@ namespace Hanafuda
             players = Settings.Players;
             Deck = new List<Card>(Global.allCards);
             Field = new List<Card>();
-            Button confirm = Hand1.GetComponentInChildren<ConsultingSetup>(true)
-                    .Builder.GetComponentInChildren<Button>();
+            Button confirm = Hand1.GetComponentInChildren<ConsultingSetup>(true).Confirm;
             confirm.onClick.AddListener(
-                () => { ConsultingSetup.ValidateBoard(); Global.MovingCards--; });
+                () =>
+                {
+                    Global.MovingCards--;
+                    ConsultingSetup.ValidateBoard();
+                });
             MarkAreas();
         }
 

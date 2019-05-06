@@ -25,6 +25,7 @@ namespace Hanafuda
         public GameObject Builder;
         public ConsultingMoveBuilder MoveBuilder;
         public GridLayoutGroup Content;
+        public Button Confirm;
         public bool BoardBuilded = false;
 
         private List<Card> target;
