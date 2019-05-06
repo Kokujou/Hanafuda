@@ -22,7 +22,7 @@ namespace Hanafuda
          */
         protected Card[] Hovered;
 
-        protected abstract void AnimateAction(PlayerAction action);
+        public abstract void AnimateAction(PlayerAction action);
         protected abstract void CollectCards(List<Card> ToCollect);
         protected abstract void HoverCards(params Card[] cards);
         protected abstract void HoverMatches(Card.Months month);
@@ -67,7 +67,7 @@ namespace Hanafuda
         }
 
         public abstract void InitConsulting();
-        public abstract void MarkAreas(bool show = true);
+        public abstract void MarkAreas(bool show = true, bool turn = true);
         public abstract void ConfirmArea(ConsultingSetup.Target target, BoardValidity validity);
         public abstract void LoadGame();
     }

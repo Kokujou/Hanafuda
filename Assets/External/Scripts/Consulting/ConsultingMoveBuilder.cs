@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,6 +19,9 @@ namespace Hanafuda
         private bool Turn;
         private PlayerAction action;
 
+        private bool HadYaku;
+        private bool Koikoi;
+
         private Dictionary<Transform, RawImage> LastSelections;
 
         public void SetupMoveBuilder(Spielfeld board, bool turn)
@@ -25,6 +29,7 @@ namespace Hanafuda
             Board = board;
             Turn = turn;
             action = new PlayerAction();
+            action.Init(Board);
 
             Confirm.onClick.RemoveAllListeners();
             Confirm.onClick.AddListener(() => ConfirmMove());
@@ -116,21 +121,90 @@ namespace Hanafuda
 
         private void ConfirmMove()
         {
-            Board.Turn = !Board.Turn;
-            Board.MarkAreas(false);
+            if (!ValidateAction(action))
+            {
+                MessageBox box = Instantiate(Global.prefabCollection.UIMessageBox).GetComponentInChildren<MessageBox>();
+                box.Setup("Fehlerhafter Spielzug", "Der ausgewählte Spielzug ist so nicht anwendbar. Überprüfen Sie, " +
+                    "ob alle Züge ausgewählt sind und ob keine identischen Matches gewählt worden.",
+                    new KeyValuePair<string, Action>("OK", () => { }));
+                return;
+            }
+            action.PlayerID = Turn ? Settings.PlayerID : 1 - Settings.PlayerID;
+            List<Yaku> newYakus = Yaku.GetNewYakus(Board.players[action.PlayerID], GetCollectedCards(action));
+            if (newYakus.Count > 0)
+            {
+                HadYaku = true;
+                MessageBox box = Instantiate(Global.prefabCollection.UIMessageBox).GetComponentInChildren<MessageBox>();
+                box.Setup("", "Der ausgewählte Spielzug ergibt neue Yaku.\nSagst du \"Koi Koi\"?",
+                    new KeyValuePair<string, Action>("Ja", () =>
+                    {
+                        Koikoi = true;
+                        ApplyMove(action);
+                    }),
+                    new KeyValuePair<string, Action>("Nein", () =>
+                    {
+                        Koikoi = false;
+                        ApplyMove(action);
+                    }),
+                    new KeyValuePair<string, Action>("Abbrechen", () => { }));
+            }
+            else
+                ApplyMove(action);
+        }
+
+        private void ApplyMove(PlayerAction move)
+        {
+            Board.AnimateAction(action);
+            Board.MarkAreas(false, !Turn);
             gameObject.SetActive(false);
+            if(HadYaku)
+            {
+                if(Koikoi)
+                {
+                    // Koikoi Actions
+                }
+                else
+                {
+                    // Game End Actions
+                }
+            }
         }
 
-        // Start is called before the first frame update
-        void Start()
+        private bool ValidateAction(PlayerAction action)
         {
-
+            if (!action.HandSelection) return false;
+            if (Board.Field.FindAll(x => x.Monat == action.HandSelection.Monat).Count == 2
+                && !action.HandFieldSelection) return false;
+            if (!action.DeckSelection) return false;
+            if (Board.Field.FindAll(x => x.Monat == action.DeckSelection.Monat).Count == 2
+                && !action.DeckFieldSelection) return false;
+            if (action.HandFieldSelection == action.DeckFieldSelection
+                && action.HandFieldSelection != null) return false;
+            return true;
         }
 
-        // Update is called once per frame
-        void Update()
+        private List<Card> GetCollectedCards(PlayerAction action)
         {
-
+            List<Card> toCollect = new List<Card>();
+            List<Card> handFieldMatches = Board.Field.FindAll(x => x.Monat == action.HandSelection.Monat);
+            if (handFieldMatches.Count > 0)
+            {
+                toCollect.Add(action.HandSelection);
+                if (action.HandFieldSelection)
+                    toCollect.Add(action.HandFieldSelection);
+                else
+                    toCollect.AddRange(handFieldMatches);
+            }
+            List<Card> deckFieldMatches = Board.Field.FindAll(x => x.Monat == action.DeckSelection.Monat);
+            if (deckFieldMatches.Count > 0)
+            {
+                toCollect.Add(action.DeckSelection);
+                if (action.DeckFieldSelection)
+                    toCollect.Add(action.DeckFieldSelection);
+                else
+                    toCollect.AddRange(deckFieldMatches);
+            }
+            return toCollect;
         }
     }
 }

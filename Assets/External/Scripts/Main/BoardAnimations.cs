@@ -90,7 +90,7 @@ namespace Hanafuda
             Collection.Add(Deck[0]);
         }
 
-        protected override void AnimateAction(PlayerAction action)
+        public override void AnimateAction(PlayerAction action)
         {
             List<Action> actions = new List<Action>();
             actions.Add(() => SelectionToField(action.HandSelection));
@@ -141,7 +141,10 @@ namespace Hanafuda
 
             actions.Add(() =>
             {
-                Turn = !Turn; gameObject.GetComponent<PlayerComponent>().Reset();
+                Turn = !Turn;
+                PlayerComponent player = gameObject.GetComponent<PlayerComponent>();
+                if (player)
+                    player.Reset();
                 Debug.Log($"Opponent Turn Finished.");
             });
             StartCoroutine(Animations.CoordinateQueue(actions));

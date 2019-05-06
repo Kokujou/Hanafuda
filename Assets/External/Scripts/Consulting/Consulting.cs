@@ -27,13 +27,13 @@ namespace Hanafuda
             MarkAreas();
         }
 
-        public override void MarkAreas(bool show = true)
+        public override void MarkAreas(bool show = true, bool turn = true)
         {
             Hand1.GetComponentInChildren<ConsultingSetup>(true).BoardBuilded = !show;
             Hand2.GetComponentInChildren<ConsultingSetup>(true).BoardBuilded = !show;
 
-            Hand1.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(Turn || show);
-            Hand2.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(!Turn || show);
+            Hand1.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(turn || show);
+            Hand2.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(!turn || show);
 
             Field3D.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(show);
             if (!Settings.Mobile)
@@ -137,7 +137,7 @@ namespace Hanafuda
             CollectCards(p2Collected);
             Turn = true;
 
-            MarkAreas(false);
+            MarkAreas(false, true);
             Global.MovingCards--;
         }
         public void Update()

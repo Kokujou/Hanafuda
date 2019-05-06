@@ -95,8 +95,8 @@ namespace Hanafuda
                 MessageBox messageBox = Instantiate(Global.prefabCollection.UIMessageBox).GetComponentInChildren<MessageBox>();
                 messageBox.Setup("Gültiges Spielfeld",
                     "Das Spielfeld ist gültig. Möchten Sie damit das Spiel laden?",
-                    new KeyValuePair<string, Action>("Ja", () => { Board.LoadGame(); Destroy(messageBox.gameObject); }),
-                    new KeyValuePair<string, Action>("Nein", () => { Destroy(messageBox.gameObject); Global.MovingCards--; }));
+                    new KeyValuePair<string, Action>("Ja", () => { Board.LoadGame(); }),
+                    new KeyValuePair<string, Action>("Nein", () => { Global.MovingCards--; }));
             }
         }
 
@@ -106,8 +106,8 @@ namespace Hanafuda
             MoveBuilder.gameObject.SetActive(true);
             if (SetupTarget == Target.PlayerHand)
                 MoveBuilder.SetupMoveBuilder(Board, true);
-            else if (SetupTarget == Target.OpponentCollection)
-                MoveBuilder.SetupMoveBuilder(Board,false);
+            else if (SetupTarget == Target.OpponentHand)
+                MoveBuilder.SetupMoveBuilder(Board, false);
         }
 
         public void SetupArea()

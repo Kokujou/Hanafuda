@@ -14,6 +14,11 @@ namespace Hanafuda
         public RectTransform ButtonParent;
         public Func<bool> DestroyCallback = () => false;
 
+        private void Destroy()
+        {
+            Destroy(transform.parent.gameObject);
+        }
+
         private void Setup(string caption, string content)
         {
             Caption.text = caption;
@@ -26,8 +31,9 @@ namespace Hanafuda
             foreach (KeyValuePair<string, Action> button in buttons)
             {
                 Button obj = Instantiate(Global.prefabCollection.UIButton).GetComponent<Button>();
-                obj.transform.SetParent(ButtonParent,true);
+                obj.transform.SetParent(ButtonParent, true);
                 obj.onClick.AddListener(() => button.Value());
+                obj.onClick.AddListener(() => Destroy());
                 obj.GetComponentInChildren<Text>().text = button.Key;
             }
         }
