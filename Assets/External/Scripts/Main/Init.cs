@@ -12,8 +12,6 @@ namespace Hanafuda
 {
     public partial class Spielfeld : ISpielfeld
     {
-
-
         public override void Init(List<Player> Players)
         {
             players = Players;
@@ -59,21 +57,21 @@ namespace Hanafuda
             Field = new List<Card>();
             currentAction = new PlayerAction();
             Turn = Settings.PlayerID == 0;
-            EffectCam = MainSceneVariables.variableCollection.EffectCamera;
+            EffectCam = MainSceneVariables.boardTransforms.EffectCamera;
             if (Settings.Mobile)
             {
-                Hand1 = MainSceneVariables.variableCollection.Hand1M;
-                Hand2 = MainSceneVariables.variableCollection.Hand2M;
-                Field3D = MainSceneVariables.variableCollection.MFeld;
-                Deck3D = MainSceneVariables.variableCollection.MDeck;
+                Hand1 = MainSceneVariables.boardTransforms.Hand1M;
+                Hand2 = MainSceneVariables.boardTransforms.Hand2M;
+                Field3D = MainSceneVariables.boardTransforms.MFeld;
+                Deck3D = MainSceneVariables.boardTransforms.MDeck;
                 InfoUI = Instantiate(Global.prefabCollection.GameInfoMobile).GetComponent<GameInfo>();
             }
             else
             {
-                Hand1 = MainSceneVariables.variableCollection.Hand1;
-                Hand2 = MainSceneVariables.variableCollection.Hand2;
-                Field3D = MainSceneVariables.variableCollection.Feld;
-                Deck3D = MainSceneVariables.variableCollection.Deck;
+                Hand1 = MainSceneVariables.boardTransforms.Hand1;
+                Hand2 = MainSceneVariables.boardTransforms.Hand2;
+                Field3D = MainSceneVariables.boardTransforms.Feld;
+                Deck3D = MainSceneVariables.boardTransforms.Deck;
                 InfoUI = Instantiate(Global.prefabCollection.GameInfoPC).GetComponentInChildren<GameInfo>();
             }
 
@@ -95,11 +93,9 @@ namespace Hanafuda
                         (Settings.Players[i]).Reset();
                     Init(Settings.Players);
                 }
-            }
-            else InitConsulting();
-
-            InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), players[0].CollectedYaku);
-            InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), players[1].CollectedYaku);
+                InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), players[0].CollectedYaku);
+                InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), players[1].CollectedYaku);
+            }            
         }
 
         /// <summary>
@@ -111,7 +107,7 @@ namespace Hanafuda
             BuildHands();
             BuildField();
         }
-        protected override void BuildField(int fieldSize = 8)
+        public override void BuildField(int fieldSize = 8)
         {
             for (int i = 0; i < fieldSize; i++)
             {
@@ -141,7 +137,7 @@ namespace Hanafuda
                 StartCoroutine(Animations.AfterAnimation(OpponentTurn));
         }
 
-        protected override void BuildHands(int hand1Size = 8, int hand2Size = 8)
+        public override void BuildHands(int hand1Size = 8, int hand2Size = 8)
         {
             int[] handSizes = new int[] { hand1Size, hand2Size };
             for (int player = 0; player < players.Count; player++)
@@ -184,7 +180,7 @@ namespace Hanafuda
             }
         }
 
-        protected override void BuildDeck()
+        public override void BuildDeck()
         {
             for (int i = 0; i < Deck.Count; i++)
             {

@@ -8,43 +8,74 @@ using UnityEngine.UI;
 
 namespace Hanafuda
 {
-    public partial class Spielfeld : ISpielfeld
+    [RequireComponent(typeof(Spielfeld))]
+    public class Consulting : MonoBehaviour
     {
         private static Color _Valid = new Color(0, .5f, 0);
         private static Color _Invalid = new Color(.5f, 0, 0);
         private static Color _Semivalid = new Color(.5f, .5f, 0);
 
-        public override void InitConsulting()
+        private static Spielfeld Board;
+
+        private static bool BoardBuilded = false;
+        private static ConsultingSetup Hand1, Hand2, Field, Collection1, Collection2;
+
+        public enum BoardValidity
         {
-            Settings.Players[1 - Settings.PlayerID] = KI.Init((KI.Mode)Settings.KIMode, "Computer");
-            players = Settings.Players;
-            Deck = new List<Card>(Global.allCards);
-            Field = new List<Card>();
-            Button confirm = Hand1.GetComponentInChildren<ConsultingSetup>(true).Confirm;
+            Invalid,
+            Valid,
+            Semivalid
+        }
+
+        private void Start()
+        {
+            Board = MainSceneVariables.boardTransforms.Main;
+            Board.players = Settings.Players;
+            Board.Deck = new List<Card>(Global.allCards);
+            Board.Field = new List<Card>();
+            if (Settings.Mobile)
+            {
+                Hand1 = MainSceneVariables.consultingTransforms.Hand1M;
+                Hand2 = MainSceneVariables.consultingTransforms.Hand2M;
+                Field = MainSceneVariables.consultingTransforms.MFeld;
+                Collection1 = MainSceneVariables.consultingTransforms.Collection1M;
+                Collection2 = MainSceneVariables.consultingTransforms.Collection2M;
+            }
+            else
+            {
+                Hand1 = MainSceneVariables.consultingTransforms.Hand1;
+                Hand2 = MainSceneVariables.consultingTransforms.Hand2;
+                Field = MainSceneVariables.consultingTransforms.Feld;
+                Collection1 = MainSceneVariables.consultingTransforms.Collection1;
+                Collection2 = MainSceneVariables.consultingTransforms.Collection2;
+            }
+            Button confirm = MainSceneVariables.consultingTransforms.SetupConfirm;
             confirm.onClick.AddListener(
                 () =>
                 {
-                    Global.MovingCards--;
                     ConsultingSetup.ValidateBoard();
                 });
             MarkAreas();
         }
 
-        public override void MarkAreas(bool show = true, bool turn = true)
+        public static void MarkAreas(bool show = true, bool turn = true)
         {
-            Hand1.GetComponentInChildren<ConsultingSetup>(true).BoardBuilded = !show;
-            Hand2.GetComponentInChildren<ConsultingSetup>(true).BoardBuilded = !show;
+            BoardBuilded = !show;
+            Hand1.gameObject.SetActive(turn || show);
+            Field.gameObject.SetActive(show);
 
-            Hand1.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(turn || show);
-            Hand2.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(!turn || show);
+            if (Settings.KIMode == KI.Mode.Omniscient)
+            {
+                // Allwissend, alle Einstellungen verfügbar
+                Hand2.gameObject.SetActive(!turn || show);
+            }
 
-            Field3D.GetComponentInChildren<ConsultingSetup>(true).gameObject.SetActive(show);
             if (!Settings.Mobile)
             {
-                MainSceneVariables.variableCollection.PCCollections[0]
+                MainSceneVariables.boardTransforms.PCCollections[0]
                     .parent.GetComponentInChildren<ConsultingSetup>(true)
                     .gameObject.SetActive(show);
-                MainSceneVariables.variableCollection.PCCollections[4]
+                MainSceneVariables.boardTransforms.PCCollections[4]
                     .parent.GetComponentInChildren<ConsultingSetup>(true)
                     .gameObject.SetActive(show);
             }
@@ -59,37 +90,25 @@ namespace Hanafuda
                 ConsultingSetup.ValidateBoard();
         }
 
-        public override void ConfirmArea(ConsultingSetup.Target target, BoardValidity validity)
+        public static void ConfirmArea(ConsultingSetup.Target target, BoardValidity validity)
         {
             MeshRenderer targetRenderer = null;
             switch (target)
             {
                 case ConsultingSetup.Target.PlayerHand:
-                    targetRenderer = Hand1.GetComponentInChildren<MeshRenderer>();
+                    targetRenderer = Hand1.GetComponent<MeshRenderer>();
                     break;
                 case ConsultingSetup.Target.OpponentHand:
-                    targetRenderer = Hand2.GetComponentInChildren<MeshRenderer>();
+                    targetRenderer = Hand2.GetComponent<MeshRenderer>();
                     break;
                 case ConsultingSetup.Target.Field:
-                    targetRenderer = Field3D.GetComponentInChildren<MeshRenderer>();
+                    targetRenderer = Field.GetComponent<MeshRenderer>();
                     break;
                 case ConsultingSetup.Target.PlayerCollection:
-                    if (!Settings.Mobile)
-                        targetRenderer = MainSceneVariables.variableCollection.PCCollections[0]
-                            .parent.GetComponentInChildren<MeshRenderer>();
-                    else
-                        targetRenderer = FindObjectsOfType<MobileContainerArea>()
-                            .Where(x => x.GetComponent<ConsultingSetup>().SetupTarget == target)
-                            .First().GetComponent<MeshRenderer>();
+                    targetRenderer = Collection1.GetComponent<MeshRenderer>();
                     break;
                 case ConsultingSetup.Target.OpponentCollection:
-                    if (!Settings.Mobile)
-                        targetRenderer = MainSceneVariables.variableCollection.PCCollections[4]
-                            .parent.GetComponentInChildren<MeshRenderer>();
-                    else
-                        targetRenderer = FindObjectsOfType<MobileContainerArea>()
-                                .Where(x => x.GetComponent<ConsultingSetup>().SetupTarget == target)
-                                .First().GetComponent<MeshRenderer>();
+                    targetRenderer = Collection2.GetComponent<MeshRenderer>();
                     break;
             }
             if (targetRenderer)
@@ -109,43 +128,53 @@ namespace Hanafuda
             }
         }
 
-        public override void LoadGame()
+        public static void LoadGame()
         {
-            InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), players[0].CollectedYaku);
-            InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), players[1].CollectedYaku);
-            Deck = players[0].Hand
-                .Union(players[1].Hand)
-                .Union(Field)
-                .Union(players[0].CollectedCards)
-                .Union(players[1].CollectedCards)
-                .Union(Deck)
-                .ToList();
-            BuildDeck();
+            Board.InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), Board.players[0].CollectedYaku);
+            Board.InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), Board.players[1].CollectedYaku);
 
-            int p1HandCount = players[0].Hand.Count;
-            int p2HandCount = players[1].Hand.Count;
-            int fieldCount = Field.Count;
-            players[0].Hand.Clear();
-            players[1].Hand.Clear();
-            Field.Clear();
-            BuildHands(p1HandCount, p2HandCount);
-            BuildField(fieldCount);
+            if (Settings.KIMode == KI.Mode.Omniscient)
+            {
+                Board.Deck = Board.players[0].Hand
+                    .Union(Board.players[1].Hand)
+                    .Union(Board.Field)
+                    .Union(Board.players[0].CollectedCards)
+                    .Union(Board.players[1].CollectedCards)
+                    .Union(Board.Deck)
+                    .ToList();
+            }
+            else
+            {
+                Board.Deck = Board.players[0].Hand;
+            }
+            Board.BuildDeck();
 
-            List<Card> p1Collected = players[0].CollectedCards;
-            List<Card> p2Collected = players[1].CollectedCards;
-            players[0].CollectedCards.Clear();
-            players[1].CollectedCards.Clear();
-            CollectCards(p1Collected);
-            Turn = false;
-            CollectCards(p2Collected);
-            Turn = true;
+
+            int p1HandCount = Board.players[0].Hand.Count;
+            int p2HandCount = Board.players[1].Hand.Count;
+            int fieldCount = Board.Field.Count;
+            Board.players[0].Hand.Clear();
+            Board.players[1].Hand.Clear();
+            Board.Field.Clear();
+            Board.BuildHands(p1HandCount, p2HandCount);
+            Board.BuildField(fieldCount);
+
+            List<Card> p1Collected = Board.players[0].CollectedCards;
+            List<Card> p2Collected = Board.players[1].CollectedCards;
+            Board.players[0].CollectedCards.Clear();
+            Board.players[1].CollectedCards.Clear();
+            Board.CollectCards(p1Collected);
+            Board.Turn = false;
+            Board.CollectCards(p2Collected);
+            Board.Turn = true;
 
             MarkAreas(false, true);
-            Global.MovingCards--;
         }
         public void Update()
         {
             if (Global.MovingCards > 0) return;
+            if (MainSceneVariables.consultingTransforms.ConsultingBuilder.activeInHierarchy) return;
+            if (MainSceneVariables.consultingTransforms.MoveBuilder.gameObject.activeInHierarchy) return;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 5000f, LayerMask.GetMask("Consulting")))
@@ -153,7 +182,7 @@ namespace Hanafuda
                 if (Input.GetMouseButton(0))
                 {
                     ConsultingSetup target = hit.collider.gameObject.GetComponent<ConsultingSetup>();
-                    if (target.BoardBuilded)
+                    if (BoardBuilded)
                         target.SetupMove();
                     else
                         target.SetupArea();

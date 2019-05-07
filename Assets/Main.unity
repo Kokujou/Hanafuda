@@ -599,11 +599,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ToInstantiate: {fileID: 0}
-  singleton:
-    BoxX: -7.2
+  BoardSingleton:
     Main: {fileID: 0}
-    ExCol: {fileID: 0}
-    ExColBack: {fileID: 0}
     Hand1: {fileID: 1285482131}
     Hand2: {fileID: 2105209488}
     Hand1M: {fileID: 1507624620}
@@ -622,6 +619,28 @@ MonoBehaviour:
     - {fileID: 433452939}
     - {fileID: 1134398457}
     - {fileID: 1400754930}
+  ConsultingSingleton:
+    SetupConfirm: {fileID: 0}
+    MoveConfirm: {fileID: 0}
+    SetupContent: {fileID: 0}
+    HandSelection: {fileID: 0}
+    HandFieldSelection: {fileID: 0}
+    DeckSelection: {fileID: 0}
+    DeckFieldSelection: {fileID: 0}
+    ConsultingBuilder: {fileID: 0}
+    ConsultingMoveBuilder: {fileID: 0}
+    OyaSelection: {fileID: 0}
+    Hand1: {fileID: 0}
+    Hand2: {fileID: 0}
+    Hand1M: {fileID: 0}
+    Hand2M: {fileID: 0}
+    Feld: {fileID: 0}
+    MFeld: {fileID: 0}
+    Collection1M: {fileID: 0}
+    Collection2M: {fileID: 0}
+    Collection1: {fileID: 0}
+    Collection2: {fileID: 0}
+    P1Toggle: {fileID: 0}
 --- !u!1 &1285482130
 GameObject:
   m_ObjectHideFlags: 0

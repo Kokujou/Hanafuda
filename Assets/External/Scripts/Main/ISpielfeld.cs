@@ -15,7 +15,7 @@ namespace Hanafuda
 
         protected Transform EffectCam, Hand1, Hand2, Field3D, Deck3D;
         protected Communication PlayerInteraction;
-        protected GameInfo InfoUI;
+        public GameInfo InfoUI;
 
         /*
          * Animation Part
@@ -23,7 +23,7 @@ namespace Hanafuda
         protected Card[] Hovered;
 
         public abstract void AnimateAction(PlayerAction action);
-        protected abstract void CollectCards(List<Card> ToCollect);
+        public abstract void CollectCards(List<Card> ToCollect);
         protected abstract void HoverCards(params Card[] cards);
         protected abstract void HoverMatches(Card.Months month);
         protected abstract void SelectionToField(Card card);
@@ -52,23 +52,8 @@ namespace Hanafuda
         public abstract void Init(List<Player> Players);
         protected abstract void GenerateDeck(int seed = -1);
         protected abstract void FieldSetup();
-        protected abstract void BuildField(int fieldSize = 8);
-        protected abstract void BuildHands(int hand1Size = 8, int hand2Size = 8);
-        protected abstract void BuildDeck();
-
-        /*
-         * Consulting Part
-         */
-        public enum BoardValidity
-        {
-            Invalid,
-            Valid,
-            Semivalid
-        }
-
-        public abstract void InitConsulting();
-        public abstract void MarkAreas(bool show = true, bool turn = true);
-        public abstract void ConfirmArea(ConsultingSetup.Target target, BoardValidity validity);
-        public abstract void LoadGame();
+        public abstract void BuildField(int fieldSize = 8);
+        public abstract void BuildHands(int hand1Size = 8, int hand2Size = 8);
+        public abstract void BuildDeck();
     }
 }

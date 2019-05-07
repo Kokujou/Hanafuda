@@ -19,7 +19,7 @@ namespace Hanafuda
         /// <summary>
         ///     Modus der KI: Normal, Schwer, Alptraum
         /// </summary>
-        public static int KIMode = 0;
+        public static KI.Mode KIMode = 0;
 
         /// <summary>
         ///     true: 6 Runden, false: 12 Runden

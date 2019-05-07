@@ -74,7 +74,7 @@ namespace Hanafuda
         }
         private void CreateSlide()
         {
-            Slide = Instantiate(Global.prefabCollection.PSlide, MainSceneVariables.variableCollection.Hand1M);
+            Slide = Instantiate(Global.prefabCollection.PSlide, MainSceneVariables.boardTransforms.Hand1M);
             Slide.transform.localPosition = new Vector3(0, -8, 10);
             SlideHand SlideScript = Slide.AddComponent<SlideHand>();
             SlideScript.Init(Players[Settings.PlayerID].Hand.Count,

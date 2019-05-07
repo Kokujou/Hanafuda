@@ -3196,7 +3196,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -153.51422}
+  m_AnchoredPosition: {x: 50, y: -153.5}
   m_SizeDelta: {x: 96.00001, y: 82.97159}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &471969095916360478
@@ -3753,8 +3753,8 @@ MonoBehaviour:
   onSelected:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 450335043}
-        m_MethodName: 
+      - m_Target: {fileID: 450335051}
+        m_MethodName: OnAIModeChanged
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

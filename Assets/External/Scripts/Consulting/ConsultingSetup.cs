@@ -22,72 +22,68 @@ namespace Hanafuda
         }
 
         public Target SetupTarget;
-        public GameObject Builder;
-        public ConsultingMoveBuilder MoveBuilder;
-        public GridLayoutGroup Content;
-        public Button Confirm;
-        public bool BoardBuilded = false;
+
+        private GameObject Builder;
+        private GameObject OyaSelection;
+        private ConsultingMoveBuilder MoveBuilder;
+        private Transform Content;
+        private Button Confirm;
 
         private List<Card> target;
-        private Spielfeld Board;
+        private static Spielfeld Board;
 
         private void Start()
         {
-            Board = MainSceneVariables.variableCollection.Main;
-            Content = Builder.GetComponentInChildren<GridLayoutGroup>();
+            Board = MainSceneVariables.boardTransforms.Main;
+            Content = MainSceneVariables.consultingTransforms.SetupContent;
+            MoveBuilder = MainSceneVariables.consultingTransforms.MoveBuilder;
+            Builder = MainSceneVariables.consultingTransforms.ConsultingBuilder;
+            OyaSelection = MainSceneVariables.consultingTransforms.OyaSelection;
+            Confirm = MainSceneVariables.consultingTransforms.SetupConfirm;
+            if (Settings.KIMode != KI.Mode.Omniscient)
+                OyaSelection.SetActive(true);
         }
 
         public static void ValidateBoard()
         {
-            Spielfeld Board = MainSceneVariables.variableCollection.Main;
             bool totalResult = true;
-            SortedList<Target, Material> marks =
-                new SortedList<Target, Material>(
-                FindObjectsOfType<ConsultingSetup>().ToDictionary(
-                    x => x.SetupTarget, y => y.gameObject.GetComponent<MeshRenderer>().material));
+            Spielfeld board = MainSceneVariables.boardTransforms.Main;
 
-            for (int playerID = 0; playerID < Board.players.Count; playerID++)
+            for (int playerID = 0; playerID < board.players.Count; playerID++)
             {
-                bool tempResult = true;
-                Player player = Board.players[playerID];
-                int[] months = new int[12];
-                foreach (Card card in player.CollectedCards)
-                    months[(int)card.Monat]++;
-                foreach (int value in months)
-                {
-                    if (value % 2 == 1)
-                    {
-                        totalResult = false;
-                        tempResult = false;
-                        break;
-                    }
-                }
+                bool tempResult = ValidateCollection(board.players[playerID]);
                 if (playerID == Settings.PlayerID)
-                    Board.ConfirmArea(Target.PlayerCollection, tempResult ?
-                        ISpielfeld.BoardValidity.Valid : ISpielfeld.BoardValidity.Invalid);
+                    Consulting.ConfirmArea(Target.PlayerCollection, tempResult ?
+                        Consulting.BoardValidity.Valid : Consulting.BoardValidity.Invalid);
                 else
-                    Board.ConfirmArea(Target.OpponentCollection, tempResult ?
-                        ISpielfeld.BoardValidity.Valid : ISpielfeld.BoardValidity.Invalid);
+                    Consulting.ConfirmArea(Target.OpponentCollection, tempResult ?
+                        Consulting.BoardValidity.Valid : Consulting.BoardValidity.Invalid);
+                totalResult &= tempResult;
             }
 
-            ISpielfeld.BoardValidity hand2Validity;
-            int diff = Board.players[0].Hand.Count - Board.players[1].Hand.Count;
-            bool hand2Valid = (diff == 0 || diff == 1) && Board.players[0].Hand.Count <= 8;
-            bool hand1Valid = hand2Valid && Board.players[Settings.PlayerID].Hand.Count > 0;
-            if (!hand2Valid) hand2Validity = ISpielfeld.BoardValidity.Invalid;
-            else if (Board.players[1 - Settings.PlayerID].Hand.Count == 0)
-                hand2Validity = ISpielfeld.BoardValidity.Semivalid;
-            else hand2Validity = ISpielfeld.BoardValidity.Valid;
+
+            Consulting.BoardValidity hand2Validity;
+            int diff = board.players[0].Hand.Count - board.players[1].Hand.Count;
+            bool hand2Valid = true;
+            if (Settings.KIMode == KI.Mode.Omniscient)
+            {
+                hand2Valid = (diff == 0 || diff == 1) && board.players[0].Hand.Count <= 8;
+                if (!hand2Valid) hand2Validity = Consulting.BoardValidity.Invalid;
+                else if (board.players[1 - Settings.PlayerID].Hand.Count == 0)
+                    hand2Validity = Consulting.BoardValidity.Semivalid;
+                else hand2Validity = Consulting.BoardValidity.Valid;
+                Consulting.ConfirmArea(Target.OpponentHand, hand2Validity);
+            }
+            bool hand1Valid = hand2Valid && board.players[Settings.PlayerID].Hand.Count > 0;
             if (!hand1Valid || !hand2Valid)
                 totalResult = false;
-            Board.ConfirmArea(Target.OpponentHand, hand2Validity);
-            Board.ConfirmArea(Target.PlayerHand, hand1Valid ?
-                ISpielfeld.BoardValidity.Valid : ISpielfeld.BoardValidity.Invalid);
+            Consulting.ConfirmArea(Target.PlayerHand, hand1Valid ?
+                Consulting.BoardValidity.Valid : Consulting.BoardValidity.Invalid);
 
-            Board.ConfirmArea(Target.Field, Board.Field.Count == 0 ?
-                ISpielfeld.BoardValidity.Semivalid : ISpielfeld.BoardValidity.Valid);
+            Consulting.ConfirmArea(Target.Field, board.Field.Count == 0 ?
+                Consulting.BoardValidity.Semivalid : Consulting.BoardValidity.Valid);
 
-            if (Board.Deck.Count < 8)
+            if (board.Deck.Count < 8)
                 totalResult = false;
 
             if (totalResult)
@@ -96,9 +92,26 @@ namespace Hanafuda
                 MessageBox messageBox = Instantiate(Global.prefabCollection.UIMessageBox).GetComponentInChildren<MessageBox>();
                 messageBox.Setup("Gültiges Spielfeld",
                     "Das Spielfeld ist gültig. Möchten Sie damit das Spiel laden?",
-                    new KeyValuePair<string, Action>("Ja", () => { Board.LoadGame(); }),
+                    new KeyValuePair<string, Action>("Ja", () => { Consulting.LoadGame(); }),
                     new KeyValuePair<string, Action>("Nein", () => { Global.MovingCards--; }));
             }
+        }
+
+        private static bool ValidateCollection(Player player)
+        {
+            bool CollectionIsValid = true;
+            int[] months = new int[12];
+            foreach (Card card in player.CollectedCards)
+                months[(int)card.Monat]++;
+            foreach (int value in months)
+            {
+                if (value % 2 == 1)
+                {
+                    CollectionIsValid = false;
+                    break;
+                }
+            }
+            return CollectionIsValid;
         }
 
         public void SetupMove()
@@ -134,7 +147,6 @@ namespace Hanafuda
                     target = Board.players[1 - Settings.PlayerID].CollectedCards;
                     break;
             }
-            Global.MovingCards++;
 
             for (int cardID = 0; cardID < target.Count + Board.Deck.Count; cardID++)
             {
@@ -144,7 +156,7 @@ namespace Hanafuda
                 else
                     card = Board.Deck[cardID - target.Count];
                 GameObject cardObject = new GameObject("Card");
-                cardObject.transform.SetParent(Content.transform, false);
+                cardObject.transform.SetParent(Content, false);
                 RawImage cardImage = cardObject.AddComponent<RawImage>();
                 cardImage.texture = card.Image.mainTexture;
                 if (cardID < target.Count)

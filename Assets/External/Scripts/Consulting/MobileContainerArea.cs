@@ -11,7 +11,7 @@ namespace Hanafuda
         public bool OpponentArea;
         IEnumerator WaitUntilMainInit()
         {
-            yield return new WaitUntil(() => MainSceneVariables.variableCollection != null);
+            yield return new WaitUntil(() => MainSceneVariables.boardTransforms != null);
             GetComponent<ConsultingSetup>().enabled = true;
         }
         void Start()

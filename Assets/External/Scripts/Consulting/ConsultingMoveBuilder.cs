@@ -8,14 +8,15 @@ namespace Hanafuda
 {
     public class ConsultingMoveBuilder : MonoBehaviour
     {
-        public Transform
+        private Transform
             HandSelectionParent,
             HandFieldSelectionParent,
             DeckSelectionParent,
             DeckFieldSelectionParent;
-        public Button Confirm;
+        private Button Confirm;
 
         private Spielfeld Board;
+        private Consulting ConsultingBoard;
         private bool Turn;
         private PlayerAction action;
 
@@ -23,6 +24,15 @@ namespace Hanafuda
         private bool Koikoi;
 
         private Dictionary<Transform, RawImage> LastSelections;
+
+        private void Awake()
+        {
+            HandSelectionParent = MainSceneVariables.consultingTransforms.HandSelection;
+            HandFieldSelectionParent = MainSceneVariables.consultingTransforms.HandFieldSelection;
+            DeckSelectionParent = MainSceneVariables.consultingTransforms.DeckSelection;
+            DeckFieldSelectionParent = MainSceneVariables.consultingTransforms.DeckFieldSelection;
+            Confirm = MainSceneVariables.consultingTransforms.MoveConfirm;
+        }
 
         public void SetupMoveBuilder(Spielfeld board, bool turn)
         {
@@ -154,7 +164,7 @@ namespace Hanafuda
 
         private void ApplyMove(PlayerAction move)
         {
-            Board.MarkAreas(false, !Turn);
+            Consulting.MarkAreas(false, !Turn);
             gameObject.SetActive(false);
             Board.AnimateAction(action);
             if (HadYaku)

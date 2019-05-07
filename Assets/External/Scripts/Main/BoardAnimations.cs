@@ -45,7 +45,7 @@ namespace Hanafuda
             Field.Add(card);
         }
 
-        protected override void CollectCards(List<Card> ToCollect)
+        public override void CollectCards(List<Card> ToCollect)
         {
             HoverMatches(Card.Months.Null);
             Vector3 destPos = Vector3.zero;
@@ -66,7 +66,7 @@ namespace Hanafuda
                 if (!Settings.Mobile)
                 {
                     Card.Type type = ToCollect[card].Typ;
-                    parent = MainSceneVariables.variableCollection.PCCollections[(Turn ? 0 : 1) * 4 + (int)type];
+                    parent = MainSceneVariables.boardTransforms.PCCollections[(Turn ? 0 : 1) * 4 + (int)type];
                     int inCollection = parent.GetComponentsInChildren<BoxCollider>().Length;
                     Vector3 insertPos = new Vector3((Animations._CardSize / 2f) * (int)(inCollection % 5), -(int)(inCollection / 5) * 5, -inCollection);
                     ToCollect[card].Object.transform.parent = parent;
