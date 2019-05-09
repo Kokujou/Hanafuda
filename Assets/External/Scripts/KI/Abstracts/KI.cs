@@ -50,7 +50,7 @@ namespace Hanafuda
                     selectedMove = Tree.GetState(1, i).LastMove;
                 }
                 Debug.Log($"Gespielte Karte, Hand: {Tree.GetState(1, i).LastMove.HandSelection}, Deck: {Tree.GetState(1, i).LastMove.DeckSelection}\n" +
-                    $"Gesammelte Karten: { string.Join(",", Tree.GetState(1, i).players[1 - Settings.PlayerID].CollectedCards.Except(board.players[1 - Settings.PlayerID].CollectedCards)) }\n" +
+                    $"Gesammelte Karten: { string.Join(",", Tree.GetState(1, i).active.CollectedCards.Except(board.active.CollectedCards)) }\n" +
                     $"Totaler Wert: {Tree.GetState(1, i).Value}");
             }
             Global.Log($"Time for Enemy Turn Decision: {watch.ElapsedMilliseconds}");

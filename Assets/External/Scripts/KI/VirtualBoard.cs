@@ -7,56 +7,38 @@ using UnityEngine;
 namespace Hanafuda
 {
     [Serializable]
-    public class VirtualBoard
+    public class VirtualBoard : IBoard<VirtualBoard>
     {
-        public List<Card> Deck, Field;
-        public List<Player> players;
-        public Move LastMove;
-        public float Value;
-        public bool isFinal;
-        public bool HasNewYaku;
-        public bool Turn;
-
-        [Serializable]
-        public struct Coords { public int x; public int y; }
-        public Coords parentCoords;
+        public Player opponent;
 
         public void SayKoikoi(bool koikoi)
         {
             isFinal = !koikoi;
             LastMove.Koikoi = koikoi;
         }
-        public VirtualBoard(Spielfeld root)
+        public VirtualBoard(Spielfeld root) : base(root)
         {
-            Deck = new List<Card>(root.Deck);
-            Field = new List<Card>(root.Field);
-            LastMove = null;
-            players = new List<Player>();
-            for (int player = 0; player < root.players.Count; player++)
-                players.Add(new Player(root.players[player]));
-            Value = 0f;
-            isFinal = false;
+            opponent = new Player(root.players[0]);
         }
+
+        protected VirtualBoard(VirtualBoard board) : base(board)
+        {
+            opponent = new Player(board.opponent);
+        }
+
         /// <summary>
         /// KI-Konstruktor
         /// </summary>
         /// <param name="parent"></param>
         /// <param name="move"></param>
         /// <param name="Turn"></param>
-        public VirtualBoard(VirtualBoard parent, Move move, bool Turn, Coords parentCoords)
+        public override VirtualBoard ApplyMove(Coords boardCoords, Move move)
         {
+            VirtualBoard board = new VirtualBoard(this);
             //WICHTIG! Einsammeln bei Kartenzug!
-            this.parentCoords = parentCoords;
-            Deck = new List<Card>(parent.Deck);
-            Field = new List<Card>(parent.Field);
-            Value = 0f;
+            board.parentCoords = boardCoords;
 
-            players = new List<Player>();
-            for (int player = 0; player < parent.players.Count; player++)
-                players.Add(new Player(parent.players[player]));
-            Player activePlayer = players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID];
-
-            Card handSelection = activePlayer.Hand.Find(x => x.Title == move.HandSelection);
+            Card handSelection = board.active.Hand.Find(x => x.Title == move.HandSelection);
             List<Card> handMatches = new List<Card>();
 
             Card deckSelection = Deck.Find(x => x.Title == move.DeckSelection);
@@ -101,11 +83,11 @@ namespace Hanafuda
                 }
             }
 
-            activePlayer.Hand.Remove(handSelection);
+            active.Hand.Remove(handSelection);
             if (handMatches.Count > 0)
             {
                 handMatches.Add(handSelection);
-                activePlayer.CollectedCards.AddRange(handMatches);
+                active.CollectedCards.AddRange(handMatches);
                 collectedCards.AddRange(handMatches);
             }
             else
@@ -117,7 +99,7 @@ namespace Hanafuda
             if (deckMatches.Count > 0)
             {
                 deckMatches.Add(deckSelection);
-                activePlayer.CollectedCards.AddRange(deckMatches);
+                active.CollectedCards.AddRange(deckMatches);
                 collectedCards.AddRange(deckMatches);
             }
             else
@@ -125,10 +107,11 @@ namespace Hanafuda
                 Field.Add(deckSelection);
             }
 
-            HasNewYaku = Yaku.GetNewYakus(activePlayer, collectedCards).Count > 0;
+            HasNewYaku = Yaku.GetNewYakus(active, collectedCards).Count > 0;
 
             LastMove = move;
             LastMove.HadYaku = HasNewYaku;
+            return null;
         }
     }
 }

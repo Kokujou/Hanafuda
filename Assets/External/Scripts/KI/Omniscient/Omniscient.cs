@@ -57,8 +57,8 @@ namespace Hanafuda
 
             float Result = 0f;
 
-            Player Com = State.players[1 - Settings.PlayerID];
-            Player P1 = State.players[Settings.PlayerID];
+            Player Com = State.active;
+            Player P1 = State.opponent;
 
             float ComValue = RateSingleState(State, true);
 
@@ -86,8 +86,8 @@ namespace Hanafuda
         public float RateSingleState(VirtualBoard State, bool Turn)
         {
             float result = 0;
-            Player Com = State.players[1 - Settings.PlayerID];
-            Player P1 = State.players[Settings.PlayerID];
+            Player Com = State.active;
+            Player P1 = State.opponent;
 
             float GlobalMinimum = 0;
 
@@ -96,10 +96,12 @@ namespace Hanafuda
             List<Card> NewCards = new List<Card>();
             if (State.LastMove != null)
             {
-                NewCards = State.players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID].CollectedCards
-                .Where(x => !Tree.GetState(State.parentCoords.x, State.parentCoords.y)
-                .players[Turn ? 1 - Settings.PlayerID : Settings.PlayerID].CollectedCards
-                .Contains(x)).ToList();
+                NewCards = (Turn ? State.active : State.opponent).CollectedCards
+                .Where(x =>
+                {
+                    VirtualBoard state = Tree.GetState(State.parentCoords.x, State.parentCoords.y);
+                    return !(Turn ? state.active : state.opponent).CollectedCards.Contains(x);
+                }).ToList();
             }
 
             OmniscientYakus OmniscientYakuProps = new OmniscientYakus(CardProps, NewCards, State, Turn);

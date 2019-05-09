@@ -101,7 +101,7 @@ namespace Hanafuda
             // Memo: Koikoi sagen!
             if (!parent.isFinal)
             {
-                var aHand = ((Player)parent.players[turn ? 1 - Settings.PlayerID : Settings.PlayerID]).Hand;
+                List<Card> aHand = turn ? parent.active.Hand : parent.opponent.Hand;
                 for (var i = 0; i < aHand.Count; i++)
                 {
                     List<Move> ToBuild = new List<Move>();
@@ -129,11 +129,11 @@ namespace Hanafuda
                     else ToBuild.AddRange(AddDeckActions(deckMatches, move));
                     for (int build = 0; build < ToBuild.Count; build++)
                     {
-                        VirtualBoard child = new VirtualBoard(parent, move, turn, new VirtualBoard.Coords { x = level, y = node });
+                        VirtualBoard child = parent.ApplyMove(new VirtualBoard.Coords { x = level, y = node }, move);
                         if (child.HasNewYaku)
                         {
                             child.SayKoikoi(true);
-                            VirtualBoard finalChild = new VirtualBoard(parent, move, turn, new VirtualBoard.Coords { x = level, y = node });
+                            VirtualBoard finalChild = parent.ApplyMove(new VirtualBoard.Coords { x = level, y = node }, move);
                             finalChild.SayKoikoi(false);
                             result.states.Add(finalChild);
                         }
@@ -163,7 +163,7 @@ namespace Hanafuda
                 {
                     if (tasks[task].IsCompleted)
                     {
-                        NodeReturn result = (NodeReturn)tasks[task].Result; 
+                        NodeReturn result = (NodeReturn)tasks[task].Result;
                         tasks.RemoveAt(task);
                         Content[result.level + 1].AddRange(result.states);
                         if (result.level + 1 >= maxDepth) continue;

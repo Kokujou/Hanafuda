@@ -23,7 +23,7 @@ namespace Hanafuda
 
             protected override void CalcState(VirtualBoard State, bool Turn)
             {
-                int maxTurns = State.players[1 - Settings.PlayerID].Hand.Count;
+                int maxTurns = State.active.Hand.Count;
                 foreach (Card card in player.CollectedCards)
                     foreach (YakuProperties Prop in this)
                         if (Prop.yaku.Contains(card))
