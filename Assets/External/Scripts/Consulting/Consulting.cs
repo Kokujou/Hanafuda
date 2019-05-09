@@ -18,7 +18,11 @@ namespace Hanafuda
         private static Spielfeld Board;
 
         private static bool BoardBuilded = false;
+        private static bool P1Oya = true;
         private static ConsultingSetup Hand1, Hand2, Field, Collection1, Collection2;
+
+        private static List<Card> AnonymousDeck;
+        private static List<Card> AnonymousOppHand;
 
         public enum BoardValidity
         {
@@ -56,6 +60,9 @@ namespace Hanafuda
                     ConsultingSetup.ValidateBoard();
                 });
             MarkAreas();
+            if (Settings.KIMode != KI.Mode.Omniscient)
+                MainSceneVariables.consultingTransforms.OyaSelection.SetActive(true);
+            MainSceneVariables.consultingTransforms.P1Toggle.onValueChanged.AddListener(x => { P1Oya = x; });
         }
 
         public static void MarkAreas(bool show = true, bool turn = true)
@@ -64,11 +71,7 @@ namespace Hanafuda
             Hand1.gameObject.SetActive(turn || show);
             Field.gameObject.SetActive(show);
 
-            if (Settings.KIMode == KI.Mode.Omniscient)
-            {
-                // Allwissend, alle Einstellungen verfügbar
-                Hand2.gameObject.SetActive(!turn || show);
-            }
+            Hand2.gameObject.SetActive(!turn || (show && Settings.KIMode == KI.Mode.Omniscient));
 
             if (!Settings.Mobile)
             {
@@ -145,13 +148,27 @@ namespace Hanafuda
             }
             else
             {
-                Board.Deck = Board.players[0].Hand;
+                List<Card> opponentHand = new List<Card>();
+                while (opponentHand.Count != Board.players[0].Hand.Count - (P1Oya ? 0 : 1))
+                    opponentHand.Add(Card.CreateInstance<Card>());
+                Board.Deck = Board.players[0].Hand
+                    .Union(opponentHand)
+                    .Union(Board.Field)
+                    .Union(Board.players[0].CollectedCards)
+                    .Union(Board.players[1].CollectedCards)
+                    .ToList();
+                while (Board.Deck.Count != 48)
+                    Board.Deck.Add(Card.CreateInstance<Card>());
             }
+
             Board.BuildDeck();
 
-
             int p1HandCount = Board.players[0].Hand.Count;
-            int p2HandCount = Board.players[1].Hand.Count;
+            int p2HandCount;
+            if (Settings.KIMode == KI.Mode.Omniscient)
+                p2HandCount = Board.players[1].Hand.Count;
+            else
+                p2HandCount = p1HandCount - (P1Oya ? 0 : 1);
             int fieldCount = Board.Field.Count;
             Board.players[0].Hand.Clear();
             Board.players[1].Hand.Clear();

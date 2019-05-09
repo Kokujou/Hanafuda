@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Hanafuda
 {
-    class UninformedBoard : IBoard<UninformedBoard>
+    public class UninformedBoard : IBoard<UninformedBoard>
     {
-        List<KeyValuePair<Card, float>> UnknownCards;
-        List<Card> OpponentCollection;
+        public List<KeyValuePair<Card, float>> UnknownCards;
+        public List<Card> OpponentCollection;
 
         public UninformedBoard(Spielfeld root) : base(root)
         {

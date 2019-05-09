@@ -24,10 +24,8 @@ namespace Hanafuda
         public Target SetupTarget;
 
         private GameObject Builder;
-        private GameObject OyaSelection;
         private ConsultingMoveBuilder MoveBuilder;
         private Transform Content;
-        private Button Confirm;
 
         private List<Card> target;
         private static Spielfeld Board;
@@ -38,10 +36,6 @@ namespace Hanafuda
             Content = MainSceneVariables.consultingTransforms.SetupContent;
             MoveBuilder = MainSceneVariables.consultingTransforms.MoveBuilder;
             Builder = MainSceneVariables.consultingTransforms.ConsultingBuilder;
-            OyaSelection = MainSceneVariables.consultingTransforms.OyaSelection;
-            Confirm = MainSceneVariables.consultingTransforms.SetupConfirm;
-            if (Settings.KIMode != KI.Mode.Omniscient)
-                OyaSelection.SetActive(true);
         }
 
         public static void ValidateBoard()
@@ -92,7 +86,7 @@ namespace Hanafuda
                 MessageBox messageBox = Instantiate(Global.prefabCollection.UIMessageBox).GetComponentInChildren<MessageBox>();
                 messageBox.Setup("Gültiges Spielfeld",
                     "Das Spielfeld ist gültig. Möchten Sie damit das Spiel laden?",
-                    new KeyValuePair<string, Action>("Ja", () => { Consulting.LoadGame(); }),
+                    new KeyValuePair<string, Action>("Ja", () => { Consulting.LoadGame(); Global.MovingCards--; }),
                     new KeyValuePair<string, Action>("Nein", () => { Global.MovingCards--; }));
             }
         }
