@@ -117,6 +117,7 @@ namespace Hanafuda
                         if (parent.Field[field].Monat == parent.Deck[0].Monat)
                             deckMatches.Add(parent.Field[field]);
                     }
+                    Global.Log(string.Join(",", parent.Field));
                     if (handMatches.Count == 2)
                     {
                         for (var handChoice = 0; handChoice < 2; handChoice++)
@@ -129,11 +130,11 @@ namespace Hanafuda
                     else ToBuild.AddRange(AddDeckActions(deckMatches, move));
                     for (int build = 0; build < ToBuild.Count; build++)
                     {
-                        VirtualBoard child = parent.ApplyMove(new VirtualBoard.Coords { x = level, y = node }, move);
+                        VirtualBoard child = parent.ApplyMove(new VirtualBoard.Coords { x = level, y = node }, ToBuild[build], turn);
                         if (child.HasNewYaku)
                         {
                             child.SayKoikoi(true);
-                            VirtualBoard finalChild = parent.ApplyMove(new VirtualBoard.Coords { x = level, y = node }, move);
+                            VirtualBoard finalChild = parent.ApplyMove(new VirtualBoard.Coords { x = level, y = node }, ToBuild[build], turn);
                             finalChild.SayKoikoi(false);
                             result.states.Add(finalChild);
                         }

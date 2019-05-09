@@ -44,6 +44,6 @@ namespace Hanafuda
             isFinal = board.isFinal;
         }
 
-        public abstract T ApplyMove(Coords boardCoords, Move move);
+        public abstract T ApplyMove(Coords boardCoords, Move move, bool turn);
     }
 }

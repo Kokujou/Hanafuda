@@ -30,7 +30,7 @@ namespace Hanafuda
             OpponentCollection = new List<Card>(target.OpponentCollection);
         }
 
-        public override UninformedBoard ApplyMove(Coords boardCoords, Move move)
+        public override UninformedBoard ApplyMove(Coords boardCoords, Move move, bool turn)
         {
             return null;
         }

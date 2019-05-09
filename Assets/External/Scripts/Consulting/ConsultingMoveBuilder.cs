@@ -19,6 +19,7 @@ namespace Hanafuda
         private Consulting ConsultingBoard;
         private bool Turn;
         private PlayerAction action;
+        private PlayerAction aiRecommendation;
 
         private bool HadYaku;
         private bool Koikoi;

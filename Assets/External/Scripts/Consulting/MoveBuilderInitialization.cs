@@ -60,6 +60,14 @@ namespace Hanafuda
             action = new PlayerAction();
             action.Init(Board);
 
+            VirtualBoard virtualBoard = new VirtualBoard(board);
+            Player active = virtualBoard.active;
+            Player opponent = virtualBoard.opponent;
+            virtualBoard.active = opponent;
+            virtualBoard.opponent = active;
+            KI computer = (KI)Board.players[1];
+            aiRecommendation = PlayerAction.FromMove(computer.MakeTurn(virtualBoard), board);
+
             ResetUI();
 
             if (Settings.KIMode == KI.Mode.Omniscient)
@@ -99,6 +107,13 @@ namespace Hanafuda
             cardImage.color = new Color(.5f, .5f, .5f);
 
             Button cardButton = cardObject.AddComponent<Button>();
+            if (card == aiRecommendation.HandSelection
+                || card == aiRecommendation.HandFieldSelection
+                || card == aiRecommendation.DeckSelection
+                || card == aiRecommendation.DeckFieldSelection)
+            {
+                cardButton.colors = new ColorBlock() { normalColor = Color.yellow, colorMultiplier = 1, highlightedColor = Color.yellow, pressedColor = Color.yellow };
+            }
             cardButton.onClick.AddListener(() =>
             {
                 bool isActive = cardImage.color == Color.white;

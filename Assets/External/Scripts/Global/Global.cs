@@ -29,10 +29,11 @@ namespace Hanafuda
         public Texture2D[] Skins;
 
         private static System.Diagnostics.Process process;
+        private static bool AllowLog = false;
 
         public static void Log<T>(T output)
         {
-            if(SystemInfo.operatingSystemFamily == OperatingSystemFamily.Windows)
+            if(AllowLog)
             process.StandardInput.WriteLine($"{output.ToString()}^");
         }
 
@@ -40,6 +41,7 @@ namespace Hanafuda
         {
             if (SystemInfo.operatingSystemFamily == OperatingSystemFamily.Windows)
             {
+                AllowLog = true;
                 process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = "CMD.EXE", RedirectStandardInput = true, UseShellExecute = false });
                 process.StandardInput.WriteLine("echo off");
                 process.StandardInput.WriteLine("cls");

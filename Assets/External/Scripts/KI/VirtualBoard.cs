@@ -32,86 +32,88 @@ namespace Hanafuda
         /// <param name="parent"></param>
         /// <param name="move"></param>
         /// <param name="Turn"></param>
-        public override VirtualBoard ApplyMove(Coords boardCoords, Move move)
+        public override VirtualBoard ApplyMove(Coords boardCoords, Move move, bool turn)
         {
             VirtualBoard board = new VirtualBoard(this);
             //WICHTIG! Einsammeln bei Kartenzug!
             board.parentCoords = boardCoords;
 
-            Card handSelection = board.active.Hand.Find(x => x.Title == move.HandSelection);
+            Player activePlayer = turn ? board.active : board.opponent;
+
+            Card handSelection = activePlayer.Hand.Find(x => x.Title == move.HandSelection);
             List<Card> handMatches = new List<Card>();
 
-            Card deckSelection = Deck.Find(x => x.Title == move.DeckSelection);
+            Card deckSelection = board.Deck.Find(x => x.Title == move.DeckSelection);
             List<Card> deckMatches = new List<Card>();
 
             List<Card> collectedCards = new List<Card>();
 
-            for (int i = Field.Count - 1; i >= 0; i--)
+            for (int i = board.Field.Count - 1; i >= 0; i--)
             {
                 if (move.HandFieldSelection.Length > 0)
                 {
-                    if (Field[i].Title == move.HandFieldSelection)
+                    if (board.Field[i].Title == move.HandFieldSelection)
                     {
-                        handMatches.Add(Field[i]);
-                        Field.RemoveAt(i);
+                        handMatches.Add(board.Field[i]);
+                        board.Field.RemoveAt(i);
                         break;
                     }
                     continue;
                 }
-                else if (Field[i].Monat == handSelection.Monat)
+                else if (board.Field[i].Monat == handSelection.Monat)
                 {
-                    handMatches.Add(Field[i]);
-                    Field.RemoveAt(i);
+                    handMatches.Add(board.Field[i]);
+                    board.Field.RemoveAt(i);
                     continue;
                 }
 
                 if (move.DeckFieldSelection.Length > 0)
                 {
-                    if (Field[i].Title == move.DeckFieldSelection)
+                    if (board.Field[i].Title == move.DeckFieldSelection)
                     {
-                        deckMatches.Add(Field[i]);
-                        Field.RemoveAt(i);
+                        deckMatches.Add(board.Field[i]);
+                        board.Field.RemoveAt(i);
                         break;
                     }
                     continue;
                 }
-                else if (Field[i].Monat == deckSelection.Monat)
+                else if (board.Field[i].Monat == deckSelection.Monat)
                 {
-                    deckMatches.Add(Field[i]);
-                    Field.RemoveAt(i);
+                    deckMatches.Add(board.Field[i]);
+                    board.Field.RemoveAt(i);
                     continue;
                 }
             }
 
-            active.Hand.Remove(handSelection);
+            activePlayer.Hand.Remove(handSelection);
             if (handMatches.Count > 0)
             {
                 handMatches.Add(handSelection);
-                active.CollectedCards.AddRange(handMatches);
+                activePlayer.CollectedCards.AddRange(handMatches);
                 collectedCards.AddRange(handMatches);
             }
             else
             {
-                Field.Add(handSelection);
+                board.Field.Add(handSelection);
             }
 
-            Deck.Remove(deckSelection);
+            board.Deck.Remove(deckSelection);
             if (deckMatches.Count > 0)
             {
                 deckMatches.Add(deckSelection);
-                active.CollectedCards.AddRange(deckMatches);
+                activePlayer.CollectedCards.AddRange(deckMatches);
                 collectedCards.AddRange(deckMatches);
             }
             else
             {
-                Field.Add(deckSelection);
+                board.Field.Add(deckSelection);
             }
 
-            HasNewYaku = Yaku.GetNewYakus(active, collectedCards).Count > 0;
+            board.HasNewYaku = Yaku.GetNewYakus(activePlayer, collectedCards).Count > 0;
 
-            LastMove = move;
-            LastMove.HadYaku = HasNewYaku;
-            return null;
+            board.LastMove = move;
+            board.LastMove.HadYaku = HasNewYaku;
+            return board;
         }
     }
 }
