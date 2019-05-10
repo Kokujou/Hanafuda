@@ -67,6 +67,7 @@ namespace Hanafuda
             virtualBoard.opponent = active;
             KI computer = (KI)Board.players[1];
             aiRecommendation = PlayerAction.FromMove(computer.MakeTurn(virtualBoard), board);
+            Debug.Log(aiRecommendation.ToString());
 
             ResetUI();
 

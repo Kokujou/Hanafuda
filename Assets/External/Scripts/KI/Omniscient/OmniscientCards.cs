@@ -127,7 +127,6 @@ namespace Hanafuda
                 int PTotalMatches = opponent.Hand.Select(x => x.Monat).Intersect(State.Field.Select(x => x.Monat)).Count();
                 if (PTotalMatches == 0)
                 {
-                    Debug.Log(opponent.Name);
                     foreach (Card card in opponent.Hand)
                     {
                         this[card.ID].Probability = 1f / opponent.Hand.Count;

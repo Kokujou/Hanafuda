@@ -95,40 +95,32 @@ namespace Hanafuda
                 watch.Start();
                 foreach (YakuProperties yakuProp in this.Where(x => x.IsPossible))
                 {
-                    List<double> cardProbs = CardProps.Where(x => x.Probability > 0 && yakuProp.yaku.Contains(x.card)).Select(x => (double)x.Probability).ToList();
+                    List<double> cardProbs = CardProps.Where(x => yakuProp.yaku.Contains(x.card)).Select(x => (double)x.Probability).ToList();
                     yakuProp.Probability = CalcYakuProb(yakuProp.yaku.minSize, cardProbs);
                 }
                 //Debug.Log(string.Join("\n", this.Select(x => $"{x.yaku.Title}: {x.Probability}")));
             }
             private float CalcYakuProb(int minSize, List<double> cardProbs)
             {
-                double result = 0;
+                double result = 1;
+                cardProbs.Sort();
 
-                if (cardProbs.Count < minSize) return 0;
+                int probID;
+                for (probID = cardProbs.Count - 1; probID >= cardProbs.Count - minSize; probID--)
+                    result *= cardProbs[probID];
 
-                const int iterations = 1000;
-                int count = 0;
-                for (int i = 0; i < iterations; i++)
+                double sum = 0;
+                while (probID >= 0)
                 {
-                    if (GambleProbs(cardProbs, minSize))
-                        count++;
+                    sum += cardProbs[probID];
+                    probID--;
                 }
-                result = count / iterations;
+                if (minSize < cardProbs.Count)
+                    result = result + ((1 - result) * (sum / (cardProbs.Count - minSize)));
 
                 return (float)result;
             }
 
-            private bool GambleProbs(List<double> probs, int minimum)
-            {
-                float count = 0;
-
-                System.Random random = new System.Random();
-                foreach (double prob in probs)
-                    if (random.NextDouble() < prob)
-                        count++;
-
-                return count >= minimum;
-            }
             /*
             private float CalcYakuProb(int outputLength, int numberRange, double[] cardProbs)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /* To-Do:
 - Anfangsspieler ermitteln
@@ -47,6 +48,7 @@ namespace Hanafuda
             CalcMinTurns(cardProperties);
             CalcState(state, turn);
             CalcProbs(cardProperties);
+            Global.Log(string.Join(";",this.Select(x=>x.Probability.ToString())));
         }
     }
 }

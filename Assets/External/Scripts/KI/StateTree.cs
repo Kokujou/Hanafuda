@@ -52,7 +52,7 @@ namespace Hanafuda
         public VirtualBoard GetState(int x, int y) => Content[x][y];
 
         private List<List<VirtualBoard>> Content = new List<List<VirtualBoard>>();
-        private object thisLock;
+        public static object thisLock;
         private readonly List<Task<object>> tasks = new List<Task<object>>();
 
         [Serializable]
@@ -117,7 +117,6 @@ namespace Hanafuda
                         if (parent.Field[field].Monat == parent.Deck[0].Monat)
                             deckMatches.Add(parent.Field[field]);
                     }
-                    Global.Log(string.Join(",", parent.Field));
                     if (handMatches.Count == 2)
                     {
                         for (var handChoice = 0; handChoice < 2; handChoice++)

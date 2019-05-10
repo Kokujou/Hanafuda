@@ -20,7 +20,7 @@ namespace Hanafuda
                 Yaku yaku = Global.allYaku[i];
                 if (yaku.Contains(card))
                 {
-                    RelevanceForYaku.Add(i, 1 / yaku.minSize);
+                    RelevanceForYaku.Add(i, 1f / yaku.minSize);
                 }
             }
         }        

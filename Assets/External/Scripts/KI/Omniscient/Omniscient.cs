@@ -9,15 +9,50 @@ namespace Hanafuda
 {
     public partial class OmniscientAI : KI
     {
+        const string _TotalValueWeightS = "_TotalValueWeight";
+        const string _GlobalWeightS = "_GlobalWeight";
+        const string _PValueWeightS = "_PValueWeight";
+        const string _ComValueWeightS = "_ComValueWeight";
 
-        const float _TotalValueWeight = 1f;
-        const float _GlobalWeight = 100f;
-        const float _PValueWeight = 0.1f;
-        const float _ComValueWeight = 1f;
+        public float _TotalValueWeight = 1f;
+        public float _GlobalWeight = 100f;
+        public float _PValueWeight = 0.1f;
+        public float _ComValueWeight = 1f;
 
-        const int _MaxPTurns = 3;
+        public int _MaxPTurns = 3;
 
         List<CardProperties> CardProps = new List<CardProperties>();
+
+        public override Dictionary<string, float> GetWeights()
+        {
+            return new Dictionary<string, float>()
+            {
+                { _TotalValueWeightS, _TotalValueWeight },
+                { _GlobalWeightS, _GlobalWeight},
+                { _PValueWeightS, _PValueWeight},
+                { _ComValueWeightS, _ComValueWeight}
+            };
+        }
+
+        public override void SetWeight(string name, float value)
+        {
+            switch (name)
+            {
+                case _TotalValueWeightS:
+                    _TotalValueWeight = value;
+                    break;
+                case _PValueWeightS:
+                    _PValueWeight = value;
+                    break;
+                case _ComValueWeightS:
+                    _ComValueWeight = value;
+                    break;
+                case _GlobalWeightS:
+                    _GlobalWeight = value;
+                    break;
+                default: break;
+            }
+        }
 
         public override void BuildStateTree(VirtualBoard cRoot)
         {
@@ -52,7 +87,8 @@ namespace Hanafuda
              *  - Memo: IsFinal implementieren
              *  - Balancing der verschiedenen Werte
              */
-
+            lock (StateTree.thisLock)
+                Global.Log($"Zustand {State.GetHashCode()}: {PlayerAction.FromMove(State.LastMove, MainSceneVariables.boardTransforms.Main).ToString().Replace("\n", "")}");
             if (State.isFinal) return Mathf.Infinity;
 
             float Result = 0f;
@@ -79,6 +115,11 @@ namespace Hanafuda
 
             Result = ComValue * _ComValueWeight
                 - PValue * _PValueWeight;
+            lock (StateTree.thisLock)
+            {
+                Global.Log($"{State.GetHashCode()} -> Com Value: {ComValue}");
+                Global.Log($"{State.GetHashCode()} -> Player Value: {PValue}");
+            }
 
             return Result;
         }
@@ -119,7 +160,14 @@ namespace Hanafuda
 
             result = GlobalMinimum * _GlobalWeight
                 + TotalCardValue * _TotalValueWeight;
-
+            if (Turn)
+                lock (StateTree.thisLock)
+                {
+                    Global.Log($"{State.GetHashCode()} -> YakuProps: {string.Join(";", OmniscientYakuProps.Select(x => x.Probability))}");
+                    Global.Log($"{State.GetHashCode()} -> New Cards: {string.Join(";", NewCards)}");
+                    Global.Log($"{State.GetHashCode()} -> Global Minimum: {GlobalMinimum}");
+                    Global.Log($"{State.GetHashCode()} -> Total Card Value: {TotalCardValue}");
+                }
             /* if (Turn)
                  Debug.Log($"Collected Cards: {string.Join(",", NewCards)}\n" +
                      $"Selection from Hand: {State.LastMove.HandSelection}, from Deck {State.LastMove.DeckSelection}" +

@@ -18,6 +18,11 @@ namespace Hanafuda
             throw new NotImplementedException();
         }
 
+        public override Dictionary<string, float> GetWeights()
+        {
+            throw new NotImplementedException();
+        }
+
         public override Move MakeTurn(VirtualBoard cRoot)
         {
             cRoot.Turn = true;
@@ -36,5 +41,9 @@ namespace Hanafuda
             return result;
         }
 
+        public override void SetWeight(string name, float value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

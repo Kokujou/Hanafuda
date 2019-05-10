@@ -10,6 +10,11 @@ namespace Hanafuda
 {
     public partial class ConsultingMoveBuilder
     {
+        public void ResetBuilder()
+        {
+            SetupMoveBuilder(Board, Turn);
+        }
+
         private void OnSelectionChanged(Transform key, Card selected)
         {
             Transform parent = null;

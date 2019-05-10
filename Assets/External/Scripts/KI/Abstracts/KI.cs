@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +32,9 @@ namespace Hanafuda
             Omniscient
         }
 
+        public abstract Dictionary<string, float> GetWeights();
+        public abstract void SetWeight(string name, float value);
+
         public abstract void BuildStateTree(VirtualBoard cRoot);
         public virtual Move MakeTurn(VirtualBoard board)
         {
@@ -41,7 +45,11 @@ namespace Hanafuda
             Move selectedMove = null;
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
-            Parallel.ForEach(Tree.GetLevel(1), state => state.Value = RateState(state));
+
+            foreach (VirtualBoard state in Tree.GetLevel(1))
+                state.Value = RateState(state);
+
+            //Parallel.ForEach(Tree.GetLevel(1), state => state.Value = RateState(state));
             for (var i = 0; i < Tree.GetLevel(1).Count; i++)
             {
                 if (Tree.GetState(1, i).Value > maxValue)
@@ -49,9 +57,6 @@ namespace Hanafuda
                     maxValue = Tree.GetState(1, i).Value;
                     selectedMove = Tree.GetState(1, i).LastMove;
                 }
-                Debug.Log($"Gespielte Karte, Hand: {Tree.GetState(1, i).LastMove.HandSelection}, Deck: {Tree.GetState(1, i).LastMove.DeckSelection}\n" +
-                    $"Gesammelte Karten: { string.Join(",", Tree.GetState(1, i).active.CollectedCards.Except(board.active.CollectedCards)) }\n" +
-                    $"Totaler Wert: {Tree.GetState(1, i).Value}");
             }
             Global.Log($"Time for Enemy Turn Decision: {watch.ElapsedMilliseconds}");
             return selectedMove;

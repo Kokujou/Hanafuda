@@ -20,5 +20,5 @@
  * - Gegnerische Yakuübermittlung Prüfen
  * - Sonderzüge behandeln (4 Karten beim Austeilen, 4 Karten auf Feld, ... )
  * - Consulting: PC: Austeilen gesammelter Karten
- * - Memo, unwissende KI: Separation von Handzug und Deckzug
+ * - Memo, Separation von Handzug und Deckzug!!!!!!!!!!!!
 */
