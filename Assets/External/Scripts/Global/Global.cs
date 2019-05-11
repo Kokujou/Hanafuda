@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
+using ExtensionMethods;
 // ReSharper disable All
 /*
  * Todo:
@@ -27,14 +29,17 @@ namespace Hanafuda
         public List<Card> AllCards = new List<Card>();
         public List<Yaku> AllYaku = new List<Yaku>();
         public Texture2D[] Skins;
+        public UnityEngine.Object Logger;
 
         private static System.Diagnostics.Process process;
         private static bool AllowLog = false;
 
-        public static void Log<T>(T output)
+        public static void Log(string output)
         {
-            if(AllowLog)
-            process.StandardInput.WriteLine($"{output.ToString()}^");
+            if (AllowLog)
+            {
+                process.StandardInput.WriteLine(output);
+            }
         }
 
         private void Awake()
@@ -42,9 +47,8 @@ namespace Hanafuda
             if (SystemInfo.operatingSystemFamily == OperatingSystemFamily.Windows)
             {
                 AllowLog = true;
-                process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = "CMD.EXE", RedirectStandardInput = true, UseShellExecute = false });
-                process.StandardInput.WriteLine("echo off");
-                process.StandardInput.WriteLine("cls");
+                string filePath = Application.dataPath + AssetDatabase.GetAssetPath(Logger).Replace("Assets", "");
+                process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = filePath, RedirectStandardInput = true, UseShellExecute = false });
             }
             instance = this;
             DontDestroyOnLoad(this);

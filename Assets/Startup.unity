@@ -1318,6 +1318,7 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 805e3c47f399c9a4aaff8ab02a4b8ce5, type: 3}
   - {fileID: 2800000, guid: f5b20fe6eea1ca24d8cd39052aa1069e, type: 3}
   - {fileID: 2800000, guid: 35beb6c461506354ea7d29436819e85f, type: 3}
+  Logger: {fileID: 102900000, guid: 62bbdb5ba49abdf47b55992494aa1753, type: 3}
 --- !u!4 &1233903757
 Transform:
   m_ObjectHideFlags: 0

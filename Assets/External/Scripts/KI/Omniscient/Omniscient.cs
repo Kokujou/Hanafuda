@@ -9,49 +9,26 @@ namespace Hanafuda
 {
     public partial class OmniscientAI : KI
     {
-        const string _TotalValueWeightS = "_TotalValueWeight";
-        const string _GlobalWeightS = "_GlobalWeight";
-        const string _PValueWeightS = "_PValueWeight";
-        const string _ComValueWeightS = "_ComValueWeight";
-
-        public float _TotalValueWeight = 1f;
-        public float _GlobalWeight = 100f;
-        public float _PValueWeight = 0.1f;
-        public float _ComValueWeight = 1f;
+        const string _LocalWeight = "_LocalWeight";
+        const string _GlobalWeight = "_GlobalWeight";
 
         public int _MaxPTurns = 3;
 
         List<CardProperties> CardProps = new List<CardProperties>();
 
-        public override Dictionary<string, float> GetWeights()
+        private Dictionary<string, float> weights = new Dictionary<string, float>()
         {
-            return new Dictionary<string, float>()
-            {
-                { _TotalValueWeightS, _TotalValueWeight },
-                { _GlobalWeightS, _GlobalWeight},
-                { _PValueWeightS, _PValueWeight},
-                { _ComValueWeightS, _ComValueWeight}
-            };
-        }
+            { _GlobalWeight, 1f },
+            { _LocalWeight, 1f }
+        };
+
+        public override Dictionary<string, float> GetWeights() => weights;
 
         public override void SetWeight(string name, float value)
         {
-            switch (name)
-            {
-                case _TotalValueWeightS:
-                    _TotalValueWeight = value;
-                    break;
-                case _PValueWeightS:
-                    _PValueWeight = value;
-                    break;
-                case _ComValueWeightS:
-                    _ComValueWeight = value;
-                    break;
-                case _GlobalWeightS:
-                    _GlobalWeight = value;
-                    break;
-                default: break;
-            }
+            float temp;
+            if (weights.TryGetValue(name, out temp))
+                weights[name] = value;
         }
 
         public override void BuildStateTree(VirtualBoard cRoot)
@@ -96,37 +73,38 @@ namespace Hanafuda
             Player Com = State.active;
             Player P1 = State.opponent;
 
-            float ComValue = RateSingleState(State, true);
+            StateProps ComStateProps = RateSingleState(State, true);
 
             StateTree PlayerTree = new StateTree(State);
             PlayerTree.Build(1, false, true);
             List<VirtualBoard> PStates = PlayerTree.GetLevel(1);
-            List<float> PStateValues = new List<float>();
+            List<StateProps> PStateProps = new List<StateProps>();
 
             foreach (VirtualBoard PState in PStates)
-                PStateValues.Add(RateSingleState(PState, false));
-            PStateValues.Sort();
+                PStateProps.Add(RateSingleState(PState, false));
 
-            PStateValues = PStateValues.Skip(PStateValues.Count - 3).ToList();
-
-            float PValue = 0;
-            if (PStateValues.Count > 0)
-                PValue = PStateValues.Average(x => x);
-
-            Result = ComValue * _ComValueWeight
-                - PValue * _PValueWeight;
-            lock (StateTree.thisLock)
+            float PLocalMinimum = 0;
+            float PGlobalMinimum = 0;
+            if (PStateProps.Count > 0)
             {
-                Global.Log($"{State.GetHashCode()} -> Com Value: {ComValue}");
-                Global.Log($"{State.GetHashCode()} -> Player Value: {PValue}");
+                PLocalMinimum = PStateProps.Max(x => x.LocalMinimum);
+                PGlobalMinimum = PStateProps.Max(x => x.GlobalMinimum);
             }
+
+            Result = (ComStateProps.GlobalMinimum - PGlobalMinimum) * weights[_GlobalWeight]
+                + (ComStateProps.LocalMinimum - PLocalMinimum) * weights[_LocalWeight];
 
             return Result;
         }
 
-        public float RateSingleState(VirtualBoard State, bool Turn)
+        public struct StateProps
         {
-            float result = 0;
+            public float GlobalMinimum;
+            public float LocalMinimum;
+        }
+
+        public StateProps RateSingleState(VirtualBoard State, bool Turn)
+        {
             Player Com = State.active;
             Player P1 = State.opponent;
 
@@ -154,27 +132,28 @@ namespace Hanafuda
                     GlobalMinimum = value;
             }
 
-            TotalCardValue = OmniscientYakuProps
-                .Where(x => x.Targeted)
-                .Sum(x => (P1.Hand.Count - x.MinTurns) * x.Probability);
+            try
+            {
+                TotalCardValue = OmniscientYakuProps
+                    .Where(x => x.Targeted)
+                    .Max(x => (P1.Hand.Count - x.MinTurns) * x.Probability);
+            }
+            catch (Exception) { }
 
-            result = GlobalMinimum * _GlobalWeight
-                + TotalCardValue * _TotalValueWeight;
             if (Turn)
-                lock (StateTree.thisLock)
-                {
-                    Global.Log($"{State.GetHashCode()} -> YakuProps: {string.Join(";", OmniscientYakuProps.Select(x => x.Probability))}");
-                    Global.Log($"{State.GetHashCode()} -> New Cards: {string.Join(";", NewCards)}");
-                    Global.Log($"{State.GetHashCode()} -> Global Minimum: {GlobalMinimum}");
-                    Global.Log($"{State.GetHashCode()} -> Total Card Value: {TotalCardValue}");
-                }
+            {
+                Global.Log($"{State.GetHashCode()} -> YakuProps: [{string.Join(";", OmniscientYakuProps.Where(x => x.Probability > 0).Select(x => $"{x.yaku.Title}: {x.Probability * 100f}%"))}]\n" +
+                    $"{State.GetHashCode()} -> New Cards: [{string.Join(";", NewCards)}]\n" +
+                    $"{State.GetHashCode()} -> Global Minimum: {GlobalMinimum}\n" +
+                    $"{State.GetHashCode()} -> Local Minimum: {TotalCardValue}\n");
+            }
             /* if (Turn)
                  Debug.Log($"Collected Cards: {string.Join(",", NewCards)}\n" +
                      $"Selection from Hand: {State.LastMove.HandSelection}, from Deck {State.LastMove.DeckSelection}" +
                      $"Global {GlobalMinSize}; Local {TotalCardRelevance}; Com Result {result};\n" +
                      $"{string.Join("\n", YakuInTurns.Where(x => YakuTargeted[x.Key]).Select(x => $"{Global.allYaku[x.Key].Title} in min. {x.Value} Turns."))}");
                      */
-            return result;
+            return new StateProps() { GlobalMinimum = GlobalMinimum, LocalMinimum = TotalCardValue };
         }
     }
 }

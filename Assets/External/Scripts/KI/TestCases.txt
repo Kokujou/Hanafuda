@@ -1,0 +1,6 @@
+﻿Priorität:
+1. Verringerung des globalen Minimum (Frühster Yaku)
+2. Verringerung des lokalen Minimum (Wahl des frühsten Yaku von verfolgten Yaku)
+3. Verringerung des Zugwerts gegnerischer Züge
+
+Testfälle:
