@@ -23,7 +23,7 @@ namespace Hanafuda
 
             protected override void CalcState(VirtualBoard State, bool Turn)
             {
-                int maxTurns = State.active.Hand.Count;
+                int maxTurns = player.Hand.Count;
                 foreach (Card card in player.CollectedCards)
                     foreach (YakuProperties Prop in this)
                         if (Prop.yaku.Contains(card))
@@ -71,13 +71,13 @@ namespace Hanafuda
                 {
                     int min = 8, max = 0, count = 0;
                     List<int> cardDurations = cardProperties
-                        .Where(x => yakuProp.yaku.Contains(x.card))
+                        .Where(x => yakuProp.yaku.Contains(x.card) && x.Probability > 0)
                         .Select(x => x.MinTurns).ToList();
                     cardDurations.Sort();
-                    for (int sizeID = 0; sizeID < cardDurations.Count || sizeID < yakuProp.yaku.minSize; sizeID++)
+                    for (int sizeID = 0; sizeID < cardDurations.Count && count < yakuProp.yaku.minSize; sizeID++)
                     {
                         int size = cardDurations[sizeID];
-                        if (size > 0 && size > 0)
+                        if (size > 0)
                         {
                             count++;
                             if (size > max) max = size;
@@ -95,7 +95,7 @@ namespace Hanafuda
                 watch.Start();
                 foreach (YakuProperties yakuProp in this.Where(x => x.IsPossible))
                 {
-                    List<double> cardProbs = CardProps.Where(x => yakuProp.yaku.Contains(x.card)).Select(x => (double)x.Probability).ToList();
+                    List<double> cardProbs = cardProperties.Where(x => yakuProp.yaku.Contains(x.card)).Select(x => (double)x.Probability).ToList();
                     yakuProp.Probability = CalcYakuProb(yakuProp.yaku.minSize, cardProbs);
                 }
                 //Debug.Log(string.Join("\n", this.Select(x => $"{x.yaku.Title}: {x.Probability}")));

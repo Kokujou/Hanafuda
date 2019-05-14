@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Hanafuda
 {
+#if UNITY_EDITOR
     [CustomEditor(typeof(ConsultingMoveBuilder))]
     public class AIWeightEditor : Editor
     {
@@ -21,4 +22,5 @@ namespace Hanafuda
                 computer.SetWeight(value.Key, EditorGUILayout.FloatField(value.Key, value.Value));
         }
     }
+#endif
 }

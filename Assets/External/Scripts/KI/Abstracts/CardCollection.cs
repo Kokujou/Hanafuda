@@ -20,8 +20,8 @@ namespace Hanafuda
 
         public CardCollection(IEnumerable<CardProperties> list, VirtualBoard state, bool turn) : base(list)
         {
-            player = turn ? state.active : state.opponent;
-            opponent = turn ? state.opponent : state.active;
+            player = turn ? state.opponent : state.active;
+            opponent = turn ? state.active : state.opponent;
             State = state;
             Turn = turn;
 

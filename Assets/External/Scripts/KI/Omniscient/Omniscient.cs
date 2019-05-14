@@ -70,9 +70,6 @@ namespace Hanafuda
 
             float Result = 0f;
 
-            Player Com = State.active;
-            Player P1 = State.opponent;
-
             StateProps ComStateProps = RateSingleState(State, true);
 
             StateTree PlayerTree = new StateTree(State);
@@ -88,10 +85,10 @@ namespace Hanafuda
             if (PStateProps.Count > 0)
             {
                 PLocalMinimum = PStateProps.Max(x => x.LocalMinimum);
-                PGlobalMinimum = PStateProps.Max(x => x.GlobalMinimum);
+                PGlobalMinimum = PStateProps.Max(x => x.GlobalMinimum.Probability);
             }
 
-            Result = (ComStateProps.GlobalMinimum - PGlobalMinimum) * weights[_GlobalWeight]
+            Result = (((State.opponent.Hand.Count - ComStateProps.GlobalMinimum.MinTurns) * ComStateProps.GlobalMinimum.Probability) - PGlobalMinimum) * weights[_GlobalWeight]
                 + (ComStateProps.LocalMinimum - PLocalMinimum) * weights[_LocalWeight];
 
             return Result;
@@ -99,53 +96,54 @@ namespace Hanafuda
 
         public struct StateProps
         {
-            public float GlobalMinimum;
+            public YakuProperties GlobalMinimum;
             public float LocalMinimum;
         }
 
         public StateProps RateSingleState(VirtualBoard State, bool Turn)
         {
-            Player Com = State.active;
-            Player P1 = State.opponent;
+            Player activePlayer = Turn ? State.opponent : State.active;
 
-            float GlobalMinimum = 0;
+            YakuProperties GlobalMinimum;
 
             float TotalCardValue = 0;
 
             List<Card> NewCards = new List<Card>();
             if (State.LastMove != null)
             {
-                NewCards = (Turn ? State.active : State.opponent).CollectedCards
+                NewCards = activePlayer.CollectedCards
                 .Where(x =>
                 {
                     VirtualBoard state = Tree.GetState(State.parentCoords.x, State.parentCoords.y);
-                    return !(Turn ? state.active : state.opponent).CollectedCards.Contains(x);
+                    return !(Turn ? state.opponent : state.active).CollectedCards.Contains(x);
                 }).ToList();
             }
 
             OmniscientYakus OmniscientYakuProps = new OmniscientYakus(CardProps, NewCards, State, Turn);
 
+            GlobalMinimum = OmniscientYakuProps[0];
             foreach (YakuProperties yakuProp in OmniscientYakuProps)
             {
-                float value = (P1.Hand.Count - yakuProp.MinTurns) * yakuProp.Probability;
-                if (value < GlobalMinimum)
-                    GlobalMinimum = value;
+                float value = (activePlayer.Hand.Count - yakuProp.MinTurns) * yakuProp.Probability;
+                if (value > (activePlayer.Hand.Count - GlobalMinimum.MinTurns) * GlobalMinimum.Probability)
+                    GlobalMinimum = yakuProp;
             }
 
             try
             {
                 TotalCardValue = OmniscientYakuProps
                     .Where(x => x.Targeted)
-                    .Max(x => (P1.Hand.Count - x.MinTurns) * x.Probability);
+                    .Sum(x => (activePlayer.Hand.Count - x.MinTurns) * x.Probability);
             }
             catch (Exception) { }
 
             if (Turn)
             {
-                Global.Log($"{State.GetHashCode()} -> YakuProps: [{string.Join(";", OmniscientYakuProps.Where(x => x.Probability > 0).Select(x => $"{x.yaku.Title}: {x.Probability * 100f}%"))}]\n" +
+                Global.Log($"{State.GetHashCode()} -> YakuProps: [{string.Join(";", OmniscientYakuProps.Where(x =>x.Targeted).Select(x => $"{x.yaku.Title}: {x.Probability * 100f}%"))}]\n" +
                     $"{State.GetHashCode()} -> New Cards: [{string.Join(";", NewCards)}]\n" +
-                    $"{State.GetHashCode()} -> Global Minimum: {GlobalMinimum}\n" +
+                    $"{State.GetHashCode()} -> Global Minimum: {GlobalMinimum.yaku.Title} - {GlobalMinimum.Probability*100}% in {GlobalMinimum.MinTurns} Turns\n" +
                     $"{State.GetHashCode()} -> Local Minimum: {TotalCardValue}\n");
+                
             }
             /* if (Turn)
                  Debug.Log($"Collected Cards: {string.Join(",", NewCards)}\n" +

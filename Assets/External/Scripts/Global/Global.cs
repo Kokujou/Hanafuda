@@ -34,6 +34,11 @@ namespace Hanafuda
         private static System.Diagnostics.Process process;
         private static bool AllowLog = false;
 
+        public void OnApplicationQuit()
+        {
+            process.Kill();
+        }
+
         public static void Log(string output)
         {
             if (AllowLog)
@@ -44,12 +49,11 @@ namespace Hanafuda
 
         private void Awake()
         {
-            if (SystemInfo.operatingSystemFamily == OperatingSystemFamily.Windows)
-            {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR
                 AllowLog = true;
                 string filePath = Application.dataPath + AssetDatabase.GetAssetPath(Logger).Replace("Assets", "");
                 process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = filePath, RedirectStandardInput = true, UseShellExecute = false });
-            }
+#endif
             instance = this;
             DontDestroyOnLoad(this);
             allYaku = AllYaku;

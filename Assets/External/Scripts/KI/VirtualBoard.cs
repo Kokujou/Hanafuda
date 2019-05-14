@@ -18,7 +18,7 @@ namespace Hanafuda
         }
         public VirtualBoard(Spielfeld root) : base(root)
         {
-            opponent = new Player(root.players[0]);
+            opponent = new Player(root.players[1-Settings.PlayerID]);
         }
 
         protected VirtualBoard(VirtualBoard board) : base(board)
@@ -38,7 +38,7 @@ namespace Hanafuda
             //WICHTIG! Einsammeln bei Kartenzug!
             board.parentCoords = boardCoords;
 
-            Player activePlayer = turn ? board.active : board.opponent;
+            Player activePlayer = turn ? board.opponent : board.active;
 
             Card handSelection = activePlayer.Hand.Find(x => x.Title == move.HandSelection);
             List<Card> handMatches = new List<Card>();

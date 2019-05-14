@@ -101,7 +101,7 @@ namespace Hanafuda
             // Memo: Koikoi sagen!
             if (!parent.isFinal)
             {
-                List<Card> aHand = turn ? parent.active.Hand : parent.opponent.Hand;
+                List<Card> aHand = turn ? parent.opponent.Hand : parent.active.Hand;
                 for (var i = 0; i < aHand.Count; i++)
                 {
                     List<Move> ToBuild = new List<Move>();

@@ -13,7 +13,7 @@ namespace Hanafuda
 
         public UninformedBoard(Spielfeld root) : base(root)
         {
-            OpponentCollection = root.players[1].CollectedCards;
+            OpponentCollection = root.players[Settings.PlayerID].CollectedCards;
             UnknownCards = Global.allCards
                 .Except(OpponentCollection)
                 .Except(active.Hand)

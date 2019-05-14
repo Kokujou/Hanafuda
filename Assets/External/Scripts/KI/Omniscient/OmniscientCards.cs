@@ -26,7 +26,7 @@ namespace Hanafuda
                 OppCollectableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
                 for (int cardID = 0; cardID < opponent.Hand.Count; cardID++)
                 {
-                    Card deckCard = State.Deck[cardID * 2];
+                    Card deckCard = State.Deck[cardID * 2 + 1];
                     Card handCard = opponent.Hand[cardID];
                     OppPlayableMonths[handCard.Monat]++;
                     OppPlayableMonths[deckCard.Monat]++;
@@ -34,7 +34,7 @@ namespace Hanafuda
 
                 for (int cardID = 0; cardID < player.Hand.Count; cardID++)
                 {
-                    Card deckCard = State.Deck[cardID * 2 + 1];
+                    Card deckCard = State.Deck[cardID * 2];
                     Card handCard = player.Hand[cardID];
                     PPlayableMonths[handCard.Monat]++;
                     PPlayableMonths[deckCard.Monat]++;
@@ -60,11 +60,13 @@ namespace Hanafuda
                  */
                 foreach (Card card in player.CollectedCards)
                     this[card.ID].MinTurns = 0;
+                foreach (Card card in opponent.CollectedCards)
+                    this[card.ID].MinTurns = -1;
 
-                for (int cardID = 0; cardID < opponent.Hand.Count; cardID++)
+                for (int cardID = 0; cardID < player.Hand.Count; cardID++)
                 {
                     Card deckCard = State.Deck[cardID * 2];
-                    Card handCard = opponent.Hand[cardID];
+                    Card handCard = player.Hand[cardID];
                     this[deckCard.ID].MinTurns = cardID + 1;
                     this[handCard.ID].MinTurns = 1;
                 }
@@ -76,14 +78,13 @@ namespace Hanafuda
                 }
 
                 //Gegnerische Karten werden aufs Feld gelegt, wenn kein Match existiert
-                for (int cardID = 0; cardID < player.Hand.Count; cardID++)
+                for (int cardID = 0; cardID < opponent.Hand.Count; cardID++)
                 {
-                    Card handCard = State.Deck[cardID * 2 + 1];
-                    Card deckCard = player.Hand[cardID];
+                    Card deckCard = State.Deck[cardID * 2 + 1];
+                    Card handCard = opponent.Hand[cardID];
                     if (OppCollectableMonths[handCard.Monat] == 0)
                         this[handCard.ID].MinTurns = 1;
-                    if (OppCollectableMonths[deckCard.Monat] == 0)
-                        this[deckCard.ID].MinTurns = cardID * 2 + 1;
+                    this[deckCard.ID].MinTurns = cardID + 1;
                 }
             }
 
@@ -112,17 +113,12 @@ namespace Hanafuda
                 {
                     if (card.MinTurns == 0)
                         card.Probability = 1;
+                    else if (card.MinTurns < 0)
+                        card.Probability = 0;
                 }
 
                 foreach (Card card in State.Field)
                     this[card.ID].Probability = CalcFieldCardProb(State, card);
-
-                List<Card> FirstDeckMatches = State.Field.Where(x => x.Monat == State.Deck[0].Monat).ToList();
-                if (FirstDeckMatches.Count != 0)
-                    this[State.Deck[0].ID].Probability = 0;
-                if (FirstDeckMatches.Count != 2)
-                    foreach (Card card in FirstDeckMatches)
-                        this[card.ID].Probability = 0;
 
                 int PTotalMatches = opponent.Hand.Select(x => x.Monat).Intersect(State.Field.Select(x => x.Monat)).Count();
                 if (PTotalMatches == 0)
@@ -135,7 +131,7 @@ namespace Hanafuda
                     }
                 }
 
-                for (int cardID = 2; cardID < opponent.Hand.Count * 2; cardID += 2)
+                for (int cardID = 1; cardID < opponent.Hand.Count * 2; cardID += 2)
                 {
                     Card deckCard = State.Deck[cardID];
 
@@ -153,11 +149,13 @@ namespace Hanafuda
                 }
 
                 List<Card> playerDeck = new List<Card>();
-                for (int cardID = 1; cardID < player.Hand.Count * 2; cardID += 2)
+                for (int cardID = 2; cardID < player.Hand.Count * 2; cardID += 2)
                     playerDeck.Add(State.Deck[cardID]);
                 foreach (Card card in player.Hand)
                 {
                     if (playerDeck.Exists(x => x.Monat == card.Monat))
+                        this[card.ID].Probability = 1;
+                    else if (State.Field.FindAll(x => x.Monat == card.Monat).Count == 2)
                         this[card.ID].Probability = 1;
                     else
                     {
@@ -168,9 +166,11 @@ namespace Hanafuda
                             this[card.ID].Probability = 1;
                     }
                 }
-                foreach(Card card in playerDeck)
+                foreach (Card card in playerDeck)
                 {
                     if (player.Hand.Exists(x => x.Monat == card.Monat))
+                        this[card.ID].Probability = 1;
+                    else if (State.Field.FindAll(x => x.Monat == card.Monat).Count == 2)
                         this[card.ID].Probability = 1;
                     else
                     {

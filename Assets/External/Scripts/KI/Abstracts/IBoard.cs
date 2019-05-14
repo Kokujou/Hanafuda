@@ -26,16 +26,18 @@ namespace Hanafuda
         /// <param name="root"></param>
         public IBoard(Spielfeld root)
         {
+            Turn = !root.Turn;
             Deck = new List<Card>(root.Deck);
             Field = new List<Card>(root.Field);
             LastMove = null;
-            active = new Player(root.players[1]);
+            active = new Player(root.players[Settings.PlayerID]);
             Value = 0f;
             isFinal = false;
         }
 
         protected IBoard(IBoard<T> board)
         {
+            Turn = !board.Turn;
             Deck = new List<Card>(board.Deck);
             Field = new List<Card>(board.Field);
             LastMove = null;
