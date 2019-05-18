@@ -30,7 +30,7 @@ namespace Hanafuda
         {
             Consulting.MarkAreas(false, !Turn);
             gameObject.SetActive(false);
-            if(Settings.KIMode != KI.Mode.Omniscient)
+            if(Settings.AiMode != Settings.AIMode.Omniscient)
             {
                 InitCard(Board.Deck[0], action.DeckSelection);
                 GameObject deckSelection = Board.Deck[0].Object;

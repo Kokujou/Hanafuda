@@ -83,7 +83,7 @@ namespace Hanafuda
                         Init(Settings.Players);
                     else
                     {
-                        Settings.Players[1 - Settings.PlayerID] = KI.Init((KI.Mode)Settings.KIMode, "Computer");
+                        Settings.Players[1 - Settings.PlayerID] = KI.Init((Settings.AIMode)Settings.AiMode, "Computer");
                         Init(Settings.Players);
                     }
                 }
@@ -96,7 +96,7 @@ namespace Hanafuda
                 InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), players[0].CollectedYaku);
                 InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), players[1].CollectedYaku);
             }            
-            else Settings.Players[1 - Settings.PlayerID] = KI.Init((KI.Mode)Settings.KIMode, "Computer");
+            else Settings.Players[1 - Settings.PlayerID] = KI.Init((Settings.AIMode)Settings.AiMode, "Computer");
         }
 
         /// <summary>

@@ -95,7 +95,7 @@ namespace Hanafuda
             Turn = false;
             if (!Settings.Multiplayer)
             {
-                Move move = ((KI)players[1 - Settings.PlayerID]).MakeTurn(new VirtualBoard(this));
+                Move move = ((IArtificialIntelligence)players[1 - Settings.PlayerID]).MakeTurn(this);
                 move.PlayerID = 1 - Settings.PlayerID;
                 ApplyMove(move);
             }

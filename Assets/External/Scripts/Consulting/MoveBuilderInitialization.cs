@@ -60,18 +60,15 @@ namespace Hanafuda
             action = new PlayerAction();
             action.Init(Board);
 
-            VirtualBoard virtualBoard = new VirtualBoard(board);
-            Player active = virtualBoard.player;
-            Player opponent = virtualBoard.computer;
-            virtualBoard.player = opponent;
-            virtualBoard.computer = active;
-            KI computer = (KI)Board.players[1];
-            aiRecommendation = PlayerAction.FromMove(computer.MakeTurn(virtualBoard), board);
+            board.players.Reverse();
+            IArtificialIntelligence computer = (IArtificialIntelligence)Board.players[1];
+            aiRecommendation = PlayerAction.FromMove(computer.MakeTurn(board), board);
+            board.players.Reverse();
             Debug.Log(aiRecommendation.ToString());
 
             ResetUI();
 
-            if (Settings.KIMode == KI.Mode.Omniscient)
+            if (Settings.AiMode == Settings.AIMode.Omniscient)
                 SetMoveOptions(board);
             else
                 SetUninformedMoveOptions(board);

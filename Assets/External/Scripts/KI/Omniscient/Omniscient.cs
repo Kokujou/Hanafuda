@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public partial class OmniscientAI : KI
+    public partial class OmniscientAI : KI<OmniscientBoard>
     {
         const string _LocalWeight = "_LocalWeight";
         const string _GlobalWeight = "_GlobalWeight";
@@ -31,10 +31,10 @@ namespace Hanafuda
                 weights[name] = value;
         }
 
-        public override void BuildStateTree(VirtualBoard cRoot)
+        protected override void BuildStateTree(Spielfeld cRoot)
         {
             cRoot.Turn = true;
-            Tree = new OmniscientStateTree(cRoot);
+            Tree = new OmniscientStateTree(new OmniscientBoard(cRoot));
             Tree.Build(1);
         }
 
@@ -46,7 +46,7 @@ namespace Hanafuda
             }
         }
 
-        public override float RateState(VirtualBoard State)
+        public override float RateState(OmniscientBoard State)
         {
             /*
              *  - Vorberechnung von allen Karten bezüglich Relevanz für die beteiligten Yaku
@@ -74,10 +74,10 @@ namespace Hanafuda
 
             OmniscientStateTree PlayerTree = new OmniscientStateTree(State);
             PlayerTree.Build(1, false, true);
-            List<VirtualBoard> PStates = PlayerTree.GetLevel(1);
+            List<OmniscientBoard> PStates = PlayerTree.GetLevel(1);
             List<StateProps> PStateProps = new List<StateProps>();
 
-            foreach (VirtualBoard PState in PStates)
+            foreach (OmniscientBoard PState in PStates)
                 PStateProps.Add(RateSingleState(PState, false));
 
             float PLocalMinimum = 0;
@@ -100,7 +100,7 @@ namespace Hanafuda
             public float LocalMinimum;
         }
 
-        public StateProps RateSingleState(VirtualBoard State, bool Turn)
+        public StateProps RateSingleState(OmniscientBoard State, bool Turn)
         {
             Player activePlayer = Turn ? State.computer : State.player;
 
@@ -114,7 +114,7 @@ namespace Hanafuda
                 NewCards = activePlayer.CollectedCards
                 .Where(x =>
                 {
-                    VirtualBoard state = Tree.GetState(State.parentCoords.x, State.parentCoords.y);
+                    OmniscientBoard state = Tree.GetState(State.parentCoords.x, State.parentCoords.y);
                     return !(Turn ? state.computer : state.player).CollectedCards.Contains(x);
                 }).ToList();
             }
@@ -139,11 +139,11 @@ namespace Hanafuda
 
             if (Turn)
             {
-                Global.Log($"{State.GetHashCode()} -> YakuProps: [{string.Join(";", OmniscientYakuProps.Where(x =>x.Targeted).Select(x => $"{x.yaku.Title}: {x.Probability * 100f}%"))}]\n" +
+                Global.Log($"{State.GetHashCode()} -> YakuProps: [{string.Join(";", OmniscientYakuProps.Where(x => x.Targeted).Select(x => $"{x.yaku.Title}: {x.Probability * 100f}%"))}]\n" +
                     $"{State.GetHashCode()} -> New Cards: [{string.Join(";", NewCards)}]\n" +
-                    $"{State.GetHashCode()} -> Global Minimum: {GlobalMinimum.yaku.Title} - {GlobalMinimum.Probability*100}% in {GlobalMinimum.MinTurns} Turns\n" +
+                    $"{State.GetHashCode()} -> Global Minimum: {GlobalMinimum.yaku.Title} - {GlobalMinimum.Probability * 100}% in {GlobalMinimum.MinTurns} Turns\n" +
                     $"{State.GetHashCode()} -> Local Minimum: {TotalCardValue}\n");
-                
+
             }
             /* if (Turn)
                  Debug.Log($"Collected Cards: {string.Join(",", NewCards)}\n" +

@@ -59,7 +59,7 @@ namespace Hanafuda
             Consulting.BoardValidity hand2Validity;
             int diff = board.players[0].Hand.Count - board.players[1].Hand.Count;
             bool hand2Valid = true;
-            if (Settings.KIMode == KI.Mode.Omniscient)
+            if (Settings.AiMode == Settings.AIMode.Omniscient)
             {
                 hand2Valid = (diff == 0 || diff == 1) && board.players[0].Hand.Count <= 8;
                 if (!hand2Valid) hand2Validity = Consulting.BoardValidity.Invalid;

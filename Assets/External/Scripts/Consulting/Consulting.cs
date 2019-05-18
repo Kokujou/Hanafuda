@@ -60,7 +60,7 @@ namespace Hanafuda
                     ConsultingSetup.ValidateBoard();
                 });
             MarkAreas();
-            if (Settings.KIMode != KI.Mode.Omniscient)
+            if (Settings.AiMode != Settings.AIMode.Omniscient)
                 MainSceneVariables.consultingTransforms.OyaSelection.SetActive(true);
             MainSceneVariables.consultingTransforms.P1Toggle.onValueChanged.AddListener(x => { P1Oya = x; });
         }
@@ -71,7 +71,7 @@ namespace Hanafuda
             Hand1.gameObject.SetActive(turn || show);
             Field.gameObject.SetActive(show);
 
-            Hand2.gameObject.SetActive(!turn || (show && Settings.KIMode == KI.Mode.Omniscient));
+            Hand2.gameObject.SetActive(!turn || (show && Settings.AiMode == Settings.AIMode.Omniscient));
 
             if (!Settings.Mobile)
             {
@@ -136,7 +136,7 @@ namespace Hanafuda
             Board.InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), Board.players[0].CollectedYaku);
             Board.InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), Board.players[1].CollectedYaku);
 
-            if (Settings.KIMode == KI.Mode.Omniscient)
+            if (Settings.AiMode == Settings.AIMode.Omniscient)
             {
                 Board.Deck = Board.players[0].Hand
                     .Union(Board.players[1].Hand)
@@ -165,7 +165,7 @@ namespace Hanafuda
 
             int p1HandCount = Board.players[0].Hand.Count;
             int p2HandCount;
-            if (Settings.KIMode == KI.Mode.Omniscient)
+            if (Settings.AiMode == Settings.AIMode.Omniscient)
                 p2HandCount = Board.players[1].Hand.Count;
             else
                 p2HandCount = p1HandCount - (P1Oya ? 0 : 1);

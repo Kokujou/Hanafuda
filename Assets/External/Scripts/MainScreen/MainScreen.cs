@@ -22,7 +22,7 @@ namespace Hanafuda
 
         public void OnAIModeChanged(int value)
         {
-            Settings.KIMode = (KI.Mode)value;
+            Settings.AiMode = (Settings.AIMode)value;
         }
 
         public void OnGameModeChanged(int mode)

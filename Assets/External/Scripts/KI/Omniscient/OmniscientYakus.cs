@@ -19,9 +19,9 @@ namespace Hanafuda
         {
             protected override void Preparations() => cardProperties = new OmniscientCards(CardProps, State, Turn);
 
-            public OmniscientYakus(List<CardProperties> list, List<Card> newCards, VirtualBoard state, bool turn) : base(list, newCards, state, turn) { }
+            public OmniscientYakus(List<CardProperties> list, List<Card> newCards, OmniscientBoard state, bool turn) : base(list, newCards, state, turn) { }
 
-            protected override void CalcState(VirtualBoard State, bool Turn)
+            protected override void CalcState(OmniscientBoard State, bool Turn)
             {
                 int maxTurns = player.Hand.Count;
                 foreach (Card card in player.CollectedCards)

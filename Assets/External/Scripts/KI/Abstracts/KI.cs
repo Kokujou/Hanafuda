@@ -16,7 +16,7 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public abstract class KI : Player
+    public abstract class KI<T> : Player, IArtificialIntelligence where T : IBoard<T>
     {
         /*
          * Berechnung der Mindestzüge über minTurn + >minturn der Karte
@@ -25,20 +25,12 @@ namespace Hanafuda
          *      - Plan ist gespielte Karte einzusammeln
          * 
          */
-        public enum Mode
-        {
-            Statistic,
-            Searching,
-            Omniscient
-        }
-
         public abstract Dictionary<string, float> GetWeights();
         public abstract void SetWeight(string name, float value);
-
-        public abstract void BuildStateTree(VirtualBoard cRoot);
-        public virtual Move MakeTurn(VirtualBoard board)
+        protected abstract void BuildStateTree(Spielfeld cRoot);
+        public virtual Move MakeTurn(Spielfeld board)
         {
-            Debug.Log("KI Turn Decision started"    );
+            Debug.Log("KI Turn Decision started");
             BuildStateTree(board);
             //Bewertung möglicherweise in Threads?
             var maxValue = -100f;
@@ -46,7 +38,7 @@ namespace Hanafuda
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
 
-            foreach (VirtualBoard state in Tree.GetLevel(1))
+            foreach (T state in Tree.GetLevel(1))
                 state.Value = RateState(state);
 
             //Parallel.ForEach(Tree.GetLevel(1), state => state.Value = RateState(state));
@@ -61,24 +53,23 @@ namespace Hanafuda
             Global.Log($"Time for Enemy Turn Decision: {watch.ElapsedMilliseconds}");
             return selectedMove;
         }
-        public abstract float RateState(VirtualBoard state);
+        public abstract float RateState(T state);
 
-        public OmniscientStateTree Tree;
+        public IStateTree<T> Tree;
 
-        public KI(string name) : base(name)
-        {
-            Tree = new OmniscientStateTree();
-        }
-
-        public static KI Init(Mode mode, string name)
+        public KI(string name) : base(name) { }
+    }
+    public class KI
+    {
+        public static Player Init(Settings.AIMode mode, string name)
         {
             switch (mode)
             {
-                case Mode.Omniscient:
+                case Settings.AIMode.Omniscient:
                     return new OmniscientAI(name);
-                case Mode.Searching:
+                case Settings.AIMode.Searching:
                     return new SearchingAI(name);
-                case Mode.Statistic:
+                case Settings.AIMode.Statistic:
                     return new CalculatingAI(name);
                 default:
                     return null;

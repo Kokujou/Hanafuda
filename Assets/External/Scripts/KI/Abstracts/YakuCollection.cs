@@ -18,7 +18,7 @@ namespace Hanafuda
         protected Player player;
         protected Player opponent;
 
-        protected VirtualBoard State;
+        protected OmniscientBoard State;
         protected bool Turn;
         protected List<Card> NewCards;
         protected List<CardProperties> CardProps;
@@ -27,11 +27,11 @@ namespace Hanafuda
 
         protected abstract void Preparations();
         protected abstract void CalcTargets(List<Card> newCards);
-        protected abstract void CalcState(VirtualBoard State, bool Turn);
+        protected abstract void CalcState(OmniscientBoard State, bool Turn);
         protected abstract void CalcMinTurns(CardCollection cardProperties);
         protected abstract void CalcProbs(CardCollection cardProperties);
 
-        public YakuCollection(List<CardProperties> list, List<Card> newCards, VirtualBoard state, bool turn) : base()
+        public YakuCollection(List<CardProperties> list, List<Card> newCards, OmniscientBoard state, bool turn) : base()
         {
             player = turn ? state.computer : state.player;
             opponent = turn ? state.player : state.computer;

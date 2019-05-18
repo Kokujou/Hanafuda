@@ -16,10 +16,16 @@ namespace Hanafuda
         /// </summary>
         public static int Rounds = 0;
 
+        public enum AIMode
+        {
+            Statistic,
+            Searching,
+            Omniscient
+        }
         /// <summary>
         ///     Modus der KI: Normal, Schwer, Alptraum
         /// </summary>
-        public static KI.Mode KIMode = 0;
+        public static Settings.AIMode AiMode = 0;
 
         /// <summary>
         ///     true: 6 Runden, false: 12 Runden

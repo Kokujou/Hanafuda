@@ -7,13 +7,13 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public class SearchingAI : KI
+    public class SearchingAI : KI<OmniscientBoard>
     {
         public SearchingAI(string name) : base(name)
         {
         }
 
-        public override void BuildStateTree(VirtualBoard cRoot)
+        protected override void BuildStateTree(Spielfeld cRoot)
         {
             throw new NotImplementedException();
         }
@@ -23,19 +23,19 @@ namespace Hanafuda
             throw new NotImplementedException();
         }
 
-        public override Move MakeTurn(VirtualBoard cRoot)
+        public override Move MakeTurn(Spielfeld cRoot)
         {
             cRoot.Turn = true;
             if (Tree == null)
             {
-                Tree = new OmniscientStateTree(cRoot);
+                Tree = new OmniscientStateTree(new OmniscientBoard(cRoot));
                 Tree.Build();
             }
             //Bewertung möglicherweise in Threads?
             Move selectedMove = null;
             return selectedMove;
         }
-        public override float RateState(VirtualBoard State)
+        public override float RateState(OmniscientBoard State)
         {
             float result = 0;
             return result;

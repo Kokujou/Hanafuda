@@ -44,7 +44,7 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public class OmniscientStateTree : IStateTree<VirtualBoard>
+    public class OmniscientStateTree : IStateTree<OmniscientBoard>
     {
         private static List<Move> AddDeckActions(List<Card> deckMatches, Move root)
         {
@@ -69,7 +69,7 @@ namespace Hanafuda
             int level = parameters.level;
             int node = parameters.node;
             bool turn = parameters.turn;
-            VirtualBoard parent = Content[level][parameters.node];
+            OmniscientBoard parent = Content[level][parameters.node];
             NodeReturn result = new NodeReturn();
             result.level = level;
             result.turn = turn;
@@ -105,11 +105,11 @@ namespace Hanafuda
                     else ToBuild.AddRange(AddDeckActions(deckMatches, move));
                     for (int build = 0; build < ToBuild.Count; build++)
                     {
-                        VirtualBoard child = parent.ApplyMove(new VirtualBoard.Coords { x = level, y = node }, ToBuild[build], turn);
+                        OmniscientBoard child = parent.ApplyMove(new OmniscientBoard.Coords { x = level, y = node }, ToBuild[build], turn);
                         if (child.HasNewYaku)
                         {
                             child.SayKoikoi(true);
-                            VirtualBoard finalChild = parent.ApplyMove(new VirtualBoard.Coords { x = level, y = node }, ToBuild[build], turn);
+                            OmniscientBoard finalChild = parent.ApplyMove(new OmniscientBoard.Coords { x = level, y = node }, ToBuild[build], turn);
                             finalChild.SayKoikoi(false);
                             result.states.Add(finalChild);
                         }
@@ -126,9 +126,9 @@ namespace Hanafuda
             base.Build(maxDepth, Turn, SkipOpponent);
         }
 
-        public OmniscientStateTree(VirtualBoard root = null, List<List<VirtualBoard>> tree = null) : base(root, tree) { }
+        public OmniscientStateTree(OmniscientBoard root = null, List<List<OmniscientBoard>> tree = null) : base(root, tree) { }
 
-        public static implicit operator OmniscientStateTree(List<List<VirtualBoard>> target)
+        public static implicit operator OmniscientStateTree(List<List<OmniscientBoard>> target)
         {
             return new OmniscientStateTree(target[0][0], target);
         }

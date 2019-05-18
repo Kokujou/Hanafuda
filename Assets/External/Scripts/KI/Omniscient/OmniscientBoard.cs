@@ -7,16 +7,16 @@ using UnityEngine;
 namespace Hanafuda
 {
     [Serializable]
-    public class VirtualBoard : IBoard<VirtualBoard>
+    public class OmniscientBoard : IBoard<OmniscientBoard>
     {
         public Player player;
 
-        public VirtualBoard(Spielfeld root) : base(root)
+        public OmniscientBoard(Spielfeld root) : base(root)
         {
             player = new Player(root.players[1-Settings.PlayerID]);
         }
 
-        protected VirtualBoard(VirtualBoard board) : base(board)
+        protected OmniscientBoard(OmniscientBoard board) : base(board)
         {
             player = new Player(board.computer);
         }
@@ -27,9 +27,9 @@ namespace Hanafuda
         /// <param name="parent"></param>
         /// <param name="move"></param>
         /// <param name="Turn"></param>
-        public override VirtualBoard ApplyMove(Coords boardCoords, Move move, bool turn)
+        public override OmniscientBoard ApplyMove(Coords boardCoords, Move move, bool turn)
         {
-            VirtualBoard board = new VirtualBoard(this);
+            OmniscientBoard board = new OmniscientBoard(this);
             //WICHTIG! Einsammeln bei Kartenzug!
             board.parentCoords = boardCoords;
 

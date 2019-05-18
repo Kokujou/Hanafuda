@@ -7,11 +7,14 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public class CalculatingAI : KI
+    public class CalculatingAI : KI<UninformedBoard>
     {
-        public CalculatingAI(string name) : base(name) { }
+        public CalculatingAI(string name) : base(name)
+        {
+            Tree = new UninformedStateTree();
+        }
 
-        public override void BuildStateTree(VirtualBoard cRoot)
+        protected override void BuildStateTree(Spielfeld cRoot)
         {
             throw new NotImplementedException();
         }
@@ -21,15 +24,15 @@ namespace Hanafuda
             throw new NotImplementedException();
         }
 
-        public override Move MakeTurn(VirtualBoard cRoot)
+        public override Move MakeTurn(Spielfeld cRoot)
         {
             cRoot.Turn = true;
-            Tree = new OmniscientStateTree(cRoot);
+            Tree = new UninformedStateTree(new UninformedBoard(cRoot));
             Tree.Build();
             //Bewertung möglicherweise in Threads?
             var maxValue = -100f;
             Move selectedMove = null;
-            List<List<VirtualBoard>> stateTree = new List<List<VirtualBoard>>();
+            List<List<UninformedBoard>> stateTree = new List<List<UninformedBoard>>();
             for (var i = 0; i < stateTree[1].Count; i++)
             {
                 stateTree[1][i].Value = RateState(stateTree[1][i]);
@@ -41,7 +44,7 @@ namespace Hanafuda
             }
             return selectedMove;
         }
-        public override float RateState(VirtualBoard State)
+        public override float RateState(UninformedBoard State)
         {
             float result = 0;
             return result;
