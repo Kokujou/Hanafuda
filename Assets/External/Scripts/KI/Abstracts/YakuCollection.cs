@@ -33,8 +33,8 @@ namespace Hanafuda
 
         public YakuCollection(List<CardProperties> list, List<Card> newCards, VirtualBoard state, bool turn) : base()
         {
-            player = turn ? state.opponent : state.active;
-            opponent = turn ? state.active : state.opponent;
+            player = turn ? state.computer : state.player;
+            opponent = turn ? state.player : state.computer;
             for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
                 this.Add(new YakuProperties(yakuID));
 

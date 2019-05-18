@@ -9,21 +9,16 @@ namespace Hanafuda
     [Serializable]
     public class VirtualBoard : IBoard<VirtualBoard>
     {
-        public Player opponent;
+        public Player player;
 
-        public void SayKoikoi(bool koikoi)
-        {
-            isFinal = !koikoi;
-            LastMove.Koikoi = koikoi;
-        }
         public VirtualBoard(Spielfeld root) : base(root)
         {
-            opponent = new Player(root.players[1-Settings.PlayerID]);
+            player = new Player(root.players[1-Settings.PlayerID]);
         }
 
         protected VirtualBoard(VirtualBoard board) : base(board)
         {
-            opponent = new Player(board.opponent);
+            player = new Player(board.computer);
         }
 
         /// <summary>
@@ -38,7 +33,7 @@ namespace Hanafuda
             //WICHTIG! Einsammeln bei Kartenzug!
             board.parentCoords = boardCoords;
 
-            Player activePlayer = turn ? board.opponent : board.active;
+            Player activePlayer = turn ? board.computer : board.player;
 
             Card handSelection = activePlayer.Hand.Find(x => x.Title == move.HandSelection);
             List<Card> handMatches = new List<Card>();

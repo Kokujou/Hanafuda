@@ -24,7 +24,7 @@ namespace Hanafuda
         public override Move MakeTurn(VirtualBoard cRoot)
         {
             cRoot.Turn = true;
-            Tree = new StateTree(cRoot);
+            Tree = new OmniscientStateTree(cRoot);
             Tree.Build();
             //Bewertung möglicherweise in Threads?
             var maxValue = -100f;

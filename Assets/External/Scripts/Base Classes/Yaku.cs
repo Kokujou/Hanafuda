@@ -46,6 +46,10 @@ namespace Hanafuda
 
         public static List<Yaku> GetNewYakus(Player player, List<Card> newCards)
         {
+            return GetNewYakus(player.CollectedYaku, newCards);
+        }
+        public static List<Yaku> GetNewYakus(Dictionary<int,int> currentYakus, List<Card> newCards)
+        {
             List<Yaku> NewYaku = new List<Yaku>();
             for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
             {
@@ -54,7 +58,7 @@ namespace Hanafuda
                 foreach (Card card in newCards)
                 {
                     if (!yaku.Contains(card)) continue;
-                    int oldCount = player.CollectedYaku[yakuID];
+                    int oldCount = currentYakus[yakuID];
                     matchingCount++;
                     if (yaku.GetPoints(oldCount + matchingCount) > yaku.GetPoints(oldCount))
                         NewYaku.Add(yaku);

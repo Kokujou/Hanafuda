@@ -34,7 +34,7 @@ namespace Hanafuda
         public override void BuildStateTree(VirtualBoard cRoot)
         {
             cRoot.Turn = true;
-            Tree = new StateTree(cRoot);
+            Tree = new OmniscientStateTree(cRoot);
             Tree.Build(1);
         }
 
@@ -64,7 +64,7 @@ namespace Hanafuda
              *  - Memo: IsFinal implementieren
              *  - Balancing der verschiedenen Werte
              */
-            lock (StateTree.thisLock)
+            lock (OmniscientStateTree.thisLock)
                 Global.Log($"Zustand {State.GetHashCode()}: {PlayerAction.FromMove(State.LastMove, MainSceneVariables.boardTransforms.Main).ToString().Replace("\n", "")}");
             if (State.isFinal) return Mathf.Infinity;
 
@@ -72,7 +72,7 @@ namespace Hanafuda
 
             StateProps ComStateProps = RateSingleState(State, true);
 
-            StateTree PlayerTree = new StateTree(State);
+            OmniscientStateTree PlayerTree = new OmniscientStateTree(State);
             PlayerTree.Build(1, false, true);
             List<VirtualBoard> PStates = PlayerTree.GetLevel(1);
             List<StateProps> PStateProps = new List<StateProps>();
@@ -88,7 +88,7 @@ namespace Hanafuda
                 PGlobalMinimum = PStateProps.Max(x => x.GlobalMinimum.Probability);
             }
 
-            Result = (((State.opponent.Hand.Count - ComStateProps.GlobalMinimum.MinTurns) * ComStateProps.GlobalMinimum.Probability) - PGlobalMinimum) * weights[_GlobalWeight]
+            Result = (((State.computer.Hand.Count - ComStateProps.GlobalMinimum.MinTurns) * ComStateProps.GlobalMinimum.Probability) - PGlobalMinimum) * weights[_GlobalWeight]
                 + (ComStateProps.LocalMinimum - PLocalMinimum) * weights[_LocalWeight];
 
             return Result;
@@ -102,7 +102,7 @@ namespace Hanafuda
 
         public StateProps RateSingleState(VirtualBoard State, bool Turn)
         {
-            Player activePlayer = Turn ? State.opponent : State.active;
+            Player activePlayer = Turn ? State.computer : State.player;
 
             YakuProperties GlobalMinimum;
 
@@ -115,7 +115,7 @@ namespace Hanafuda
                 .Where(x =>
                 {
                     VirtualBoard state = Tree.GetState(State.parentCoords.x, State.parentCoords.y);
-                    return !(Turn ? state.opponent : state.active).CollectedCards.Contains(x);
+                    return !(Turn ? state.computer : state.player).CollectedCards.Contains(x);
                 }).ToList();
             }
 

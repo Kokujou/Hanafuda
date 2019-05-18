@@ -9,7 +9,7 @@ namespace Hanafuda
     public abstract class IBoard<T> where T : IBoard<T>
     {
         public List<Card> Deck, Field;
-        public Player active;
+        public Player computer;
         public bool HasNewYaku;
         public bool isFinal;
         public bool Turn;
@@ -19,6 +19,12 @@ namespace Hanafuda
         public struct Coords { public int x; public int y; }
         public Coords parentCoords;
         public Move LastMove;
+
+        public void SayKoikoi(bool koikoi)
+        {
+            isFinal = !koikoi;
+            LastMove.Koikoi = koikoi;
+        }
 
         /// <summary>
         /// hard copy of reference board and variable initialization
@@ -30,7 +36,7 @@ namespace Hanafuda
             Deck = new List<Card>(root.Deck);
             Field = new List<Card>(root.Field);
             LastMove = null;
-            active = new Player(root.players[Settings.PlayerID]);
+            computer = new Player(root.players[1 - Settings.PlayerID]);
             Value = 0f;
             isFinal = false;
         }
@@ -41,7 +47,7 @@ namespace Hanafuda
             Deck = new List<Card>(board.Deck);
             Field = new List<Card>(board.Field);
             LastMove = null;
-            active = new Player(board.active);
+            computer = new Player(board.computer);
             Value = 0f;
             isFinal = board.isFinal;
         }

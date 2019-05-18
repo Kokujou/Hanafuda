@@ -61,10 +61,10 @@ namespace Hanafuda
             action.Init(Board);
 
             VirtualBoard virtualBoard = new VirtualBoard(board);
-            Player active = virtualBoard.active;
-            Player opponent = virtualBoard.opponent;
-            virtualBoard.active = opponent;
-            virtualBoard.opponent = active;
+            Player active = virtualBoard.player;
+            Player opponent = virtualBoard.computer;
+            virtualBoard.player = opponent;
+            virtualBoard.computer = active;
             KI computer = (KI)Board.players[1];
             aiRecommendation = PlayerAction.FromMove(computer.MakeTurn(virtualBoard), board);
             Debug.Log(aiRecommendation.ToString());

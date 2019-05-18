@@ -44,32 +44,8 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public class StateTree
+    public class OmniscientStateTree : IStateTree<VirtualBoard>
     {
-        public VirtualBoard Root;
-        public int Size => Content.Count;
-        public List<VirtualBoard> GetLevel(int id) => Content[id];
-        public VirtualBoard GetState(int x, int y) => Content[x][y];
-
-        private List<List<VirtualBoard>> Content = new List<List<VirtualBoard>>();
-        public static object thisLock;
-        private readonly List<Task<object>> tasks = new List<Task<object>>();
-
-        [Serializable]
-        public class NodeParameters
-        {
-            public int level;
-            public int node;
-            public bool turn;
-        }
-        [Serializable]
-        public class NodeReturn
-        {
-            public int level;
-            public bool turn;
-            public List<VirtualBoard> states = new List<VirtualBoard>();
-        }
-
         private static List<Move> AddDeckActions(List<Card> deckMatches, Move root)
         {
             List<Move> ToBuild = new List<Move>();
@@ -87,7 +63,7 @@ namespace Hanafuda
             return ToBuild;
         }
 
-        private object BuildChildNodes(object param)
+        protected override object BuildChildNodes(object param)
         {
             NodeParameters parameters = (NodeParameters)param;
             int level = parameters.level;
@@ -101,7 +77,7 @@ namespace Hanafuda
             // Memo: Koikoi sagen!
             if (!parent.isFinal)
             {
-                List<Card> aHand = turn ? parent.opponent.Hand : parent.active.Hand;
+                List<Card> aHand = turn ? parent.computer.Hand : parent.player.Hand;
                 for (var i = 0; i < aHand.Count; i++)
                 {
                     List<Move> ToBuild = new List<Move>();
@@ -145,55 +121,16 @@ namespace Hanafuda
         }
 
         // Memo: Konstruktion nur für einen Spieler einbauen: Jede 2. Karte ziehen.
-        public void Build(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false)
+        public override void Build(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false)
         {
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            watch.Start();
-            Content.Clear();
-            Content.Add(new List<VirtualBoard> { Root });
-            for (var i = 0; i < maxDepth; i++)
-                Content.Add(new List<VirtualBoard>());
-            Task<object> firstTask = new Task<object>(x => BuildChildNodes(x), (new NodeParameters() { level = 0, node = 0, turn = Turn }));
-            firstTask.Start();
-            tasks.Add(firstTask);
-            while (tasks.Count > 0 && Content.Last().Count == 0)
-            {
-                Task.WaitAny(tasks.ToArray());
-                for (int task = tasks.Count - 1; task >= 0; task--)
-                {
-                    if (tasks[task].IsCompleted)
-                    {
-                        NodeReturn result = (NodeReturn)tasks[task].Result;
-                        tasks.RemoveAt(task);
-                        Content[result.level + 1].AddRange(result.states);
-                        if (result.level + 1 >= maxDepth) continue;
-                        for (int i = 0; i < result.states.Count; i++)
-                        {
-                            Task<object> newTask = new Task<object>(x => BuildChildNodes(x), (object)new NodeParameters() { level = result.level + 1, node = Content[result.level + 1].Count - (i + 1), turn = SkipOpponent ? Turn : !result.turn });
-                            newTask.Start();
-                        }
-                    }
-                }
-
-            }
-            //process.StandardInput.WriteLine($"Time to Completion: {watch.Elapsed.TotalSeconds} ^");
-            /*
-            GameObject text = GameObject.Instantiate(Global.prefabCollection.PText);
-            text.GetComponentsInChildren<TextMesh>()[0].text = watch.Elapsed.TotalSeconds.ToString();
-            text.GetComponentsInChildren<TextMesh>()[1].text = watch.Elapsed.TotalSeconds.ToString();*/
+            base.Build(maxDepth, Turn, SkipOpponent);
         }
 
-        public StateTree(VirtualBoard root = null, List<List<VirtualBoard>> tree = null)
+        public OmniscientStateTree(VirtualBoard root = null, List<List<VirtualBoard>> tree = null) : base(root, tree) { }
+
+        public static implicit operator OmniscientStateTree(List<List<VirtualBoard>> target)
         {
-            thisLock = new object();
-            if (root != null)
-                Root = root;
-            if (tree != null)
-                Content = tree;
-        }
-        public static implicit operator StateTree(List<List<VirtualBoard>> target)
-        {
-            return new StateTree(target[0][0], target);
+            return new OmniscientStateTree(target[0][0], target);
         }
     }
 }

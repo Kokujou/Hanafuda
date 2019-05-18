@@ -28,7 +28,7 @@ namespace Hanafuda
             cRoot.Turn = true;
             if (Tree == null)
             {
-                Tree = new StateTree(cRoot);
+                Tree = new OmniscientStateTree(cRoot);
                 Tree.Build();
             }
             //Bewertung möglicherweise in Threads?

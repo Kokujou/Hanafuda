@@ -63,11 +63,11 @@ namespace Hanafuda
         }
         public abstract float RateState(VirtualBoard state);
 
-        public StateTree Tree;
+        public OmniscientStateTree Tree;
 
         public KI(string name) : base(name)
         {
-            Tree = new StateTree();
+            Tree = new OmniscientStateTree();
         }
 
         public static KI Init(Mode mode, string name)
