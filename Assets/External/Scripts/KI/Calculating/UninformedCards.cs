@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public partial class OmniscientAI
+    public partial class CalculatingAI
     {
-        public class OmniscientCards : CardCollection<OmniscientBoard>
+        public class UninformedCards : CardCollection<UninformedBoard>
         {
             Dictionary<Card.Months, uint> PPlayableMonths;
             Dictionary<Card.Months, uint> PCollectableMonths;
@@ -20,9 +20,9 @@ namespace Hanafuda
                 CalcMonths(State, Turn);
             }
 
-            public OmniscientCards(IEnumerable<CardProperties> list, OmniscientBoard State, bool Turn) : base(list, State, Turn) { }
+            public UninformedCards(IEnumerable<CardProperties> list, UninformedBoard State, bool Turn) : base(list, State, Turn) { }
 
-            private void CalcMonths(OmniscientBoard State, bool Turn)
+            private void CalcMonths(UninformedBoard State, bool Turn)
             {
                 PPlayableMonths = new Dictionary<Card.Months, uint>(
                     Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => (uint)0));
@@ -58,7 +58,7 @@ namespace Hanafuda
 
             }
 
-            protected override void CalcMinTurns(OmniscientBoard State, bool Turn)
+            protected override void CalcMinTurns(UninformedBoard State, bool Turn)
             {
                 /*
                  * Verbesserung: Bessere Approximation für Einsammelnbare Karten
@@ -93,7 +93,7 @@ namespace Hanafuda
                 }
             }
 
-            protected override void CalcProbs(OmniscientBoard State, bool Turn)
+            protected override void CalcProbs(UninformedBoard State, bool Turn)
             {
                 /*
                  *  Beschreibung:
@@ -195,7 +195,7 @@ namespace Hanafuda
             /// <param name="card">target card</param>
             /// <param name="source">source of card: 0 = from field, 1 = from player, 2 = from opponent</param>
             /// <returns></returns>
-            private float CalcFieldCardProb(OmniscientBoard State, Card card, int source = 0)
+            private float CalcFieldCardProb(UninformedBoard State, Card card, int source = 0)
             {
                 float result = 0;
 

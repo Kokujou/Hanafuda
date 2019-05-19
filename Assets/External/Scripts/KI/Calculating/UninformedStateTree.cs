@@ -6,66 +6,69 @@ using System.Threading.Tasks;
 
 namespace Hanafuda
 {
-    public class UninformedStateTree : IStateTree<UninformedBoard>
+    public partial class CalculatingAI
     {
-        protected override object BuildChildNodes(object param)
+        public class UninformedStateTree : IStateTree<UninformedBoard>
         {
-            NodeParameters parameters = (NodeParameters)param;
-            int level = parameters.level;
-            int node = parameters.node;
-            bool turn = parameters.turn;
-            UninformedBoard parent = Content[level][parameters.node];
-            NodeReturn result = new NodeReturn();
-            result.level = level;
-            result.turn = turn;
-
-            if (!parent.isFinal)
+            protected override object BuildChildNodes(object param)
             {
-                Dictionary<Card, float> aHand = turn ? parent.UnknownCards : parent.computer.Hand.ToDictionary(x => x, x => 1f);
-                for (int handID = 0; handID < aHand.Count; handID++)
+                NodeParameters parameters = (NodeParameters)param;
+                int level = parameters.level;
+                int node = parameters.node;
+                bool turn = parameters.turn;
+                UninformedBoard parent = Content[level][parameters.node];
+                NodeReturn result = new NodeReturn();
+                result.level = level;
+                result.turn = turn;
+
+                if (!parent.isFinal)
                 {
-                    List<Move> ToBuild = new List<Move>();
-                    Move move = new Move();
-                    move.HandSelection = aHand.ElementAt(handID).Key.Title;
-                    move.DeckSelection = parent.Deck[0].Title;
-                    List<Card> handMatches = new List<Card>();
-                    List<Card> deckMatches = new List<Card>();
-                    for (int field = 0; field < parent.Field.Count; field++)
+                    Dictionary<Card, float> aHand = turn ? parent.UnknownCards : parent.computer.Hand.ToDictionary(x => x, x => 1f);
+                    for (int handID = 0; handID < aHand.Count; handID++)
                     {
-                        if (parent.Field[field].Monat == aHand.ElementAt(handID).Key.Monat)
-                            handMatches.Add(parent.Field[field]);
-                        if (parent.Field[field].Monat == parent.Deck[0].Monat)
-                            deckMatches.Add(parent.Field[field]);
-                    }
-                    if (handMatches.Count == 2)
-                    {
-                        for (var handChoice = 0; handChoice < 2; handChoice++)
+                        List<Move> ToBuild = new List<Move>();
+                        Move move = new Move();
+                        move.HandSelection = aHand.ElementAt(handID).Key.Title;
+                        move.DeckSelection = parent.Deck[0].Title;
+                        List<Card> handMatches = new List<Card>();
+                        List<Card> deckMatches = new List<Card>();
+                        for (int field = 0; field < parent.Field.Count; field++)
                         {
-                            Move handMove = new Move(move);
-                            handMove.HandFieldSelection = handMatches[handChoice].Title;
-                            ToBuild.Add(handMove);
+                            if (parent.Field[field].Monat == aHand.ElementAt(handID).Key.Monat)
+                                handMatches.Add(parent.Field[field]);
+                            if (parent.Field[field].Monat == parent.Deck[0].Monat)
+                                deckMatches.Add(parent.Field[field]);
                         }
-                    }
-                    for (int build = 0; build < ToBuild.Count; build++)
-                    {
-                        UninformedBoard child = parent.ApplyMove(new UninformedBoard.Coords { x = level, y = node }, ToBuild[build], turn);
-                        if (child.HasNewYaku)
+                        if (handMatches.Count == 2)
                         {
-                            child.SayKoikoi(true);
-                            UninformedBoard finalChild = parent.ApplyMove(new UninformedBoard.Coords { x = level, y = node }, ToBuild[build], turn);
-                            finalChild.SayKoikoi(false);
-                            result.states.Add(finalChild);
+                            for (var handChoice = 0; handChoice < 2; handChoice++)
+                            {
+                                Move handMove = new Move(move);
+                                handMove.HandFieldSelection = handMatches[handChoice].Title;
+                                ToBuild.Add(handMove);
+                            }
                         }
-                        result.states.Add(child);
+                        for (int build = 0; build < ToBuild.Count; build++)
+                        {
+                            UninformedBoard child = parent.ApplyMove(new UninformedBoard.Coords { x = level, y = node }, ToBuild[build], turn);
+                            if (child.HasNewYaku)
+                            {
+                                child.SayKoikoi(true);
+                                UninformedBoard finalChild = parent.ApplyMove(new UninformedBoard.Coords { x = level, y = node }, ToBuild[build], turn);
+                                finalChild.SayKoikoi(false);
+                                result.states.Add(finalChild);
+                            }
+                            result.states.Add(child);
+                        }
                     }
                 }
+
+                return result;
             }
 
-            return result;
+            public override void Build(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false) => base.Build(maxDepth, Turn, SkipOpponent);
+
+            public UninformedStateTree(UninformedBoard root = null, List<List<UninformedBoard>> tree = null) : base(root, tree) { }
         }
-
-        public override void Build(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false) => base.Build(maxDepth, Turn, SkipOpponent);
-
-        public UninformedStateTree(UninformedBoard root = null, List<List<UninformedBoard>> tree = null) : base(root, tree) { }
     }
 }

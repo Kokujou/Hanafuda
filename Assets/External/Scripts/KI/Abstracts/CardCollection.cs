@@ -5,27 +5,25 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public abstract class CardCollection : List<CardProperties>
+    public abstract class CardCollection<T> : List<CardProperties> where T : IBoard<T>
     {
         protected Player player;
         protected Player opponent;
 
-        protected OmniscientBoard State;
+        protected T State;
         protected bool Turn;
 
         protected abstract void Preparations();
-        protected abstract void CalcMinTurns(OmniscientBoard State, bool Turn);
-        protected abstract void CalcProbs(OmniscientBoard State, bool Turn);
+        protected abstract void CalcMinTurns(T State, bool Turn);
+        protected abstract void CalcProbs(T State, bool Turn);
 
 
-        public CardCollection(IEnumerable<CardProperties> list, OmniscientBoard state, bool turn) : base(list)
+        public CardCollection(IEnumerable<CardProperties> list, T state, bool turn) : base(list)
         {
-            player = turn ? state.computer : state.player;
-            opponent = turn ? state.player : state.computer;
             State = state;
             Turn = turn;
-
             Preparations();
+
             CalcMinTurns(state, turn);
             CalcProbs(state, turn);
         }

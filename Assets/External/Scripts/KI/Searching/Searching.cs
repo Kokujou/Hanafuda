@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Hanafuda
 {
+#if false
     public class SearchingAI : KI<OmniscientBoard>
     {
         public SearchingAI(string name) : base(name)
@@ -46,4 +47,5 @@ namespace Hanafuda
             throw new NotImplementedException();
         }
     }
+#endif
 }

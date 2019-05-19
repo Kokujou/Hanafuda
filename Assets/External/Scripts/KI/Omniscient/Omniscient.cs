@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public partial class OmniscientAI : KI<OmniscientBoard>
+    public partial class OmniscientAI : KI<OmniscientAI.OmniscientBoard>
     {
         const string _LocalWeight = "_LocalWeight";
         const string _GlobalWeight = "_GlobalWeight";
@@ -85,7 +85,7 @@ namespace Hanafuda
             if (PStateProps.Count > 0)
             {
                 PLocalMinimum = PStateProps.Max(x => x.LocalMinimum);
-                PGlobalMinimum = PStateProps.Max(x => x.GlobalMinimum.Probability);
+                PGlobalMinimum = PStateProps.Max(x => (State.computer.Hand.Count - x.GlobalMinimum.MinTurns) * x.GlobalMinimum.Probability);
             }
 
             Result = (((State.computer.Hand.Count - ComStateProps.GlobalMinimum.MinTurns) * ComStateProps.GlobalMinimum.Probability) - PGlobalMinimum) * weights[_GlobalWeight]
@@ -111,15 +111,12 @@ namespace Hanafuda
             List<Card> NewCards = new List<Card>();
             if (State.LastMove != null)
             {
-                NewCards = activePlayer.CollectedCards
-                .Where(x =>
-                {
-                    OmniscientBoard state = Tree.GetState(State.parentCoords.x, State.parentCoords.y);
-                    return !(Turn ? state.computer : state.player).CollectedCards.Contains(x);
-                }).ToList();
+                OmniscientBoard state = Tree.GetState(State.parentCoords.x, State.parentCoords.y);
+                NewCards = activePlayer.CollectedCards.Except((Turn ? state.computer : state.player).CollectedCards).ToList();
             }
 
-            OmniscientYakus OmniscientYakuProps = new OmniscientYakus(CardProps, NewCards, State, Turn);
+            OmniscientCards cardProperties = new OmniscientCards(CardProps, State, Turn);
+            YakuCollection OmniscientYakuProps = new YakuCollection(cardProperties, NewCards, activePlayer.CollectedCards, activePlayer.Hand.Count);
 
             GlobalMinimum = OmniscientYakuProps[0];
             foreach (YakuProperties yakuProp in OmniscientYakuProps)

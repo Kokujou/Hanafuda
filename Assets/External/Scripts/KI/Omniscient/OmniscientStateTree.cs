@@ -44,93 +44,96 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public class OmniscientStateTree : IStateTree<OmniscientBoard>
+    public partial class OmniscientAI
     {
-        private static List<Move> AddDeckActions(List<Card> deckMatches, Move root)
+        public class OmniscientStateTree : IStateTree<OmniscientBoard>
         {
-            List<Move> ToBuild = new List<Move>();
-            if (deckMatches.Count == 2)
+            private static List<Move> AddDeckActions(List<Card> deckMatches, Move root)
             {
-                for (var deckChoice = 0; deckChoice < 2; deckChoice++)
+                List<Move> ToBuild = new List<Move>();
+                if (deckMatches.Count == 2)
                 {
-                    Move deckMove = new Move(root);
-                    deckMove.DeckFieldSelection = deckMatches[deckChoice].Title;
-                    ToBuild.Add(deckMove);
-                }
-            }
-            else
-                ToBuild.Add(root);
-            return ToBuild;
-        }
-
-        protected override object BuildChildNodes(object param)
-        {
-            NodeParameters parameters = (NodeParameters)param;
-            int level = parameters.level;
-            int node = parameters.node;
-            bool turn = parameters.turn;
-            OmniscientBoard parent = Content[level][parameters.node];
-            NodeReturn result = new NodeReturn();
-            result.level = level;
-            result.turn = turn;
-            // Memo: matches = 0
-            // Memo: Koikoi sagen!
-            if (!parent.isFinal)
-            {
-                List<Card> aHand = turn ? parent.computer.Hand : parent.player.Hand;
-                for (var i = 0; i < aHand.Count; i++)
-                {
-                    List<Move> ToBuild = new List<Move>();
-                    Move move = new Move();
-                    move.HandSelection = aHand[i].Title;
-                    move.DeckSelection = parent.Deck[0].Title;
-                    List<Card> handMatches = new List<Card>();
-                    List<Card> deckMatches = new List<Card>();
-                    for (int field = 0; field < parent.Field.Count; field++)
+                    for (var deckChoice = 0; deckChoice < 2; deckChoice++)
                     {
-                        if (parent.Field[field].Monat == aHand[i].Monat)
-                            handMatches.Add(parent.Field[field]);
-                        if (parent.Field[field].Monat == parent.Deck[0].Monat)
-                            deckMatches.Add(parent.Field[field]);
-                    }
-                    if (handMatches.Count == 2)
-                    {
-                        for (var handChoice = 0; handChoice < 2; handChoice++)
-                        {
-                            Move handMove = new Move(move);
-                            handMove.HandFieldSelection = handMatches[handChoice].Title;
-                            ToBuild.AddRange(AddDeckActions(deckMatches, handMove));
-                        }
-                    }
-                    else ToBuild.AddRange(AddDeckActions(deckMatches, move));
-                    for (int build = 0; build < ToBuild.Count; build++)
-                    {
-                        OmniscientBoard child = parent.ApplyMove(new OmniscientBoard.Coords { x = level, y = node }, ToBuild[build], turn);
-                        if (child.HasNewYaku)
-                        {
-                            child.SayKoikoi(true);
-                            OmniscientBoard finalChild = parent.ApplyMove(new OmniscientBoard.Coords { x = level, y = node }, ToBuild[build], turn);
-                            finalChild.SayKoikoi(false);
-                            result.states.Add(finalChild);
-                        }
-                        result.states.Add(child);
+                        Move deckMove = new Move(root);
+                        deckMove.DeckFieldSelection = deckMatches[deckChoice].Title;
+                        ToBuild.Add(deckMove);
                     }
                 }
+                else
+                    ToBuild.Add(root);
+                return ToBuild;
             }
-            return result;
-        }
 
-        // Memo: Konstruktion nur für einen Spieler einbauen: Jede 2. Karte ziehen.
-        public override void Build(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false)
-        {
-            base.Build(maxDepth, Turn, SkipOpponent);
-        }
+            protected override object BuildChildNodes(object param)
+            {
+                NodeParameters parameters = (NodeParameters)param;
+                int level = parameters.level;
+                int node = parameters.node;
+                bool turn = parameters.turn;
+                OmniscientBoard parent = Content[level][parameters.node];
+                NodeReturn result = new NodeReturn();
+                result.level = level;
+                result.turn = turn;
+                // Memo: matches = 0
+                // Memo: Koikoi sagen!
+                if (!parent.isFinal)
+                {
+                    List<Card> aHand = turn ? parent.computer.Hand : parent.player.Hand;
+                    for (var i = 0; i < aHand.Count; i++)
+                    {
+                        List<Move> ToBuild = new List<Move>();
+                        Move move = new Move();
+                        move.HandSelection = aHand[i].Title;
+                        move.DeckSelection = parent.Deck[0].Title;
+                        List<Card> handMatches = new List<Card>();
+                        List<Card> deckMatches = new List<Card>();
+                        for (int field = 0; field < parent.Field.Count; field++)
+                        {
+                            if (parent.Field[field].Monat == aHand[i].Monat)
+                                handMatches.Add(parent.Field[field]);
+                            if (parent.Field[field].Monat == parent.Deck[0].Monat)
+                                deckMatches.Add(parent.Field[field]);
+                        }
+                        if (handMatches.Count == 2)
+                        {
+                            for (var handChoice = 0; handChoice < 2; handChoice++)
+                            {
+                                Move handMove = new Move(move);
+                                handMove.HandFieldSelection = handMatches[handChoice].Title;
+                                ToBuild.AddRange(AddDeckActions(deckMatches, handMove));
+                            }
+                        }
+                        else ToBuild.AddRange(AddDeckActions(deckMatches, move));
+                        for (int build = 0; build < ToBuild.Count; build++)
+                        {
+                            OmniscientBoard child = parent.ApplyMove(new OmniscientBoard.Coords { x = level, y = node }, ToBuild[build], turn);
+                            if (child.HasNewYaku)
+                            {
+                                child.SayKoikoi(true);
+                                OmniscientBoard finalChild = parent.ApplyMove(new OmniscientBoard.Coords { x = level, y = node }, ToBuild[build], turn);
+                                finalChild.SayKoikoi(false);
+                                result.states.Add(finalChild);
+                            }
+                            result.states.Add(child);
+                        }
+                    }
+                }
+                return result;
+            }
 
-        public OmniscientStateTree(OmniscientBoard root = null, List<List<OmniscientBoard>> tree = null) : base(root, tree) { }
+            // Memo: Konstruktion nur für einen Spieler einbauen: Jede 2. Karte ziehen.
+            public override void Build(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false)
+            {
+                base.Build(maxDepth, Turn, SkipOpponent);
+            }
 
-        public static implicit operator OmniscientStateTree(List<List<OmniscientBoard>> target)
-        {
-            return new OmniscientStateTree(target[0][0], target);
+            public OmniscientStateTree(OmniscientBoard root = null, List<List<OmniscientBoard>> tree = null) : base(root, tree) { }
+
+            public static implicit operator OmniscientStateTree(List<List<OmniscientBoard>> target)
+            {
+                return new OmniscientStateTree(target[0][0], target);
+            }
         }
     }
 }

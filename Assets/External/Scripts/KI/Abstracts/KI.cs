@@ -68,7 +68,7 @@ namespace Hanafuda
                 case Settings.AIMode.Omniscient:
                     return new OmniscientAI(name);
                 case Settings.AIMode.Searching:
-                    return new SearchingAI(name);
+                    //return new SearchingAI(name);
                 case Settings.AIMode.Statistic:
                     return new CalculatingAI(name);
                 default:
