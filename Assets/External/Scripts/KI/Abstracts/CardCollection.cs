@@ -7,9 +7,6 @@ namespace Hanafuda
 {
     public abstract class CardCollection<T> : List<CardProperties> where T : IBoard<T>
     {
-        protected Player player;
-        protected Player opponent;
-
         protected T State;
         protected bool Turn;
 

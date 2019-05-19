@@ -13,6 +13,9 @@ namespace Hanafuda
             Dictionary<Card.Months, uint> OppPlayableMonths;
             Dictionary<Card.Months, uint> OppCollectableMonths;
 
+            Player player;
+            Player opponent;
+
             protected override void Preparations()
             {
                 player = Turn ? State.computer : State.player;
@@ -27,8 +30,7 @@ namespace Hanafuda
                 PPlayableMonths = new Dictionary<Card.Months, uint>(
                     Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => (uint)0));
                 OppPlayableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
-                PCollectableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
-                OppCollectableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
+                
                 for (int cardID = 0; cardID < opponent.Hand.Count; cardID++)
                 {
                     Card deckCard = State.Deck[cardID * 2 + 1];
@@ -45,11 +47,12 @@ namespace Hanafuda
                     PPlayableMonths[deckCard.Monat]++;
                 }
 
-                PCollectableMonths = PPlayableMonths.ToDictionary(x => x.Key, x => x.Value);
+                PCollectableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
+                OppCollectableMonths = new Dictionary<Card.Months, uint>(OppPlayableMonths);
+
                 foreach (Card card in State.Field)
                     PCollectableMonths[card.Monat]++;
 
-                OppCollectableMonths = OppPlayableMonths.ToDictionary(x => x.Key, x => x.Value);
                 foreach (Card card in State.Field)
                     OppCollectableMonths[card.Monat]++;
 

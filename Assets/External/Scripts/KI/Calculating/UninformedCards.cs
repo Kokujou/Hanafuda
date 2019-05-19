@@ -13,10 +13,21 @@ namespace Hanafuda
             Dictionary<Card.Months, uint> OppPlayableMonths;
             Dictionary<Card.Months, uint> OppCollectableMonths;
 
+            List<Card> activeCollection;
+            List<Card> opponentCollection;
+            Dictionary<Card, float> activeHand;
+            Dictionary<Card, float> opponentHand;
+            int activeHandSize;
+            int opponentHandSize;
+
             protected override void Preparations()
             {
-                player = Turn ? State.computer : State.player;
-                opponent = Turn ? State.player : State.computer;
+                activeCollection = Turn ? State.computer.CollectedCards : State.OpponentCollection;
+                opponentCollection = Turn ? State.OpponentCollection : State.computer.CollectedCards;
+                activeHand = Turn ? State.computer.Hand.ToDictionary(x => x, x => 1f) : State.UnknownCards;
+                opponentHand = Turn ? State.UnknownCards : State.computer.Hand.ToDictionary(x => x, x => 1f);
+                activeHandSize = Turn ? State.computer.Hand.Count : State.OpponentHandSize;
+                opponentHandSize = Turn ? State.OpponentHandSize : State.computer.Hand.Count;
                 CalcMonths(State, Turn);
             }
 
@@ -26,30 +37,30 @@ namespace Hanafuda
             {
                 PPlayableMonths = new Dictionary<Card.Months, uint>(
                     Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => (uint)0));
+
+                foreach (var pair in State.UnknownCards)
+                {
+                    PPlayableMonths[pair.Key.Monat]++;
+                    OppPlayableMonths[pair.Key.Monat]++;
+                }
+
                 OppPlayableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
+
+                if (Turn)
+                {
+                    for (int cardID = 0; cardID < State.computer.Hand.Count; cardID++)
+                    {
+                        Card handCard = State.computer.Hand[cardID];
+                        PPlayableMonths[handCard.Monat]++;
+                    }
+                }
+
                 PCollectableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
                 OppCollectableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
-                for (int cardID = 0; cardID < opponent.Hand.Count; cardID++)
-                {
-                    Card deckCard = State.Deck[cardID * 2 + 1];
-                    Card handCard = opponent.Hand[cardID];
-                    OppPlayableMonths[handCard.Monat]++;
-                    OppPlayableMonths[deckCard.Monat]++;
-                }
 
-                for (int cardID = 0; cardID < player.Hand.Count; cardID++)
-                {
-                    Card deckCard = State.Deck[cardID * 2];
-                    Card handCard = player.Hand[cardID];
-                    PPlayableMonths[handCard.Monat]++;
-                    PPlayableMonths[deckCard.Monat]++;
-                }
-
-                PCollectableMonths = PPlayableMonths.ToDictionary(x => x.Key, x => x.Value);
                 foreach (Card card in State.Field)
                     PCollectableMonths[card.Monat]++;
 
-                OppCollectableMonths = OppPlayableMonths.ToDictionary(x => x.Key, x => x.Value);
                 foreach (Card card in State.Field)
                     OppCollectableMonths[card.Monat]++;
 
@@ -61,35 +72,35 @@ namespace Hanafuda
             protected override void CalcMinTurns(UninformedBoard State, bool Turn)
             {
                 /*
-                 * Verbesserung: Bessere Approximation für Einsammelnbare Karten
+                 * Verstärkte Ungenauigkeit durch fehlende Zug-ID der Deck-Karten
+                 * Memo: Zug aus Spielersicht, Karten der KI sind dann eigentlich auch unbekannt...
                  */
-                foreach (Card card in player.CollectedCards)
+                foreach (Card card in activeCollection)
                     this[card.ID].MinTurns = 0;
-                foreach (Card card in opponent.CollectedCards)
+                foreach (Card card in opponentCollection)
                     this[card.ID].MinTurns = -1;
 
-                for (int cardID = 0; cardID < player.Hand.Count; cardID++)
+                foreach (var pair in State.UnknownCards)
                 {
-                    Card deckCard = State.Deck[cardID * 2];
-                    Card handCard = player.Hand[cardID];
-                    this[deckCard.ID].MinTurns = cardID + 1;
-                    this[handCard.ID].MinTurns = 1;
+                    if (pair.Value == 1)
+                    {
+                        if (OppCollectableMonths[pair.Key.Monat] == 0)
+                            this[pair.Key.ID].MinTurns = 1;
+                    }
+                    else
+                        this[pair.Key.ID].MinTurns = 1;
+                }
+
+                foreach (Card card in State.computer.Hand)
+                {
+                    if (Turn || OppCollectableMonths[card.Monat] == 0)
+                        this[card.ID].MinTurns = 1;
                 }
 
                 foreach (Card card in State.Field)
                 {
                     if (PPlayableMonths[card.Monat] > 0)
                         this[card.ID].MinTurns = 1;
-                }
-
-                //Gegnerische Karten werden aufs Feld gelegt, wenn kein Match existiert
-                for (int cardID = 0; cardID < opponent.Hand.Count; cardID++)
-                {
-                    Card deckCard = State.Deck[cardID * 2 + 1];
-                    Card handCard = opponent.Hand[cardID];
-                    if (OppCollectableMonths[handCard.Monat] == 0)
-                        this[handCard.ID].MinTurns = 1;
-                    this[deckCard.ID].MinTurns = cardID + 1;
                 }
             }
 
@@ -125,71 +136,102 @@ namespace Hanafuda
                 foreach (Card card in State.Field)
                     this[card.ID].Probability = CalcFieldCardProb(State, card);
 
-                int PTotalMatches = opponent.Hand.Select(x => x.Monat).Intersect(State.Field.Select(x => x.Monat)).Count();
-                if (PTotalMatches == 0)
+                if (!Turn)
                 {
-                    foreach (Card card in opponent.Hand)
+                    int OppTotalMatches = opponentHand.Where(x => x.Value > 0).Select(x => x.Key.Monat).Intersect(State.Field.Select(x => x.Monat)).Count();
+                    if (OppTotalMatches == 0)
                     {
-                        this[card.ID].Probability = 1f / opponent.Hand.Count;
-                        this[card.ID].Probability *= this[card.ID].RelevanceForYaku.Sum(x => x.Value) / Global.allYaku.Count;
-                        this[card.ID].Probability *= CalcFieldCardProb(State, card);
+                        foreach (var pair in opponentHand)
+                        {
+                            this[pair.Key.ID].Probability = 1f / opponentHandSize;
+                            this[pair.Key.ID].Probability *= this[pair.Key.ID].RelevanceForYaku.Sum(x => x.Value) / Global.allYaku.Count;
+                            this[pair.Key.ID].Probability *= CalcFieldCardProb(State, pair.Key);
+                        }
                     }
                 }
 
-                for (int cardID = 1; cardID < opponent.Hand.Count * 2; cardID += 2)
+                foreach (var pair in State.UnknownCards)
                 {
-                    Card deckCard = State.Deck[cardID];
+                    if (pair.Value == 1) continue;
+                    Card deckCard = pair.Key;
 
                     List<Card> deckMatches = State.Field.FindAll(x => x.Monat == deckCard.Monat).ToList();
                     float FromFieldProb = CalcFieldCardProb(State, deckCard);
+
+                    float AsOppDeckProb = 1;
                     if (deckMatches.Count == 0)
-                        this[deckCard.ID].Probability = FromFieldProb;
+                        AsOppDeckProb = FromFieldProb;
                     else
                     {
-                        float prob = 1;
                         foreach (Card card in deckMatches)
-                            prob *= this[card.ID].Probability;
-                        this[deckCard.ID].Probability = prob * FromFieldProb;
+                            AsOppDeckProb *= this[card.ID].Probability;
+                        AsOppDeckProb *= FromFieldProb;
+                    }
+                    AsOppDeckProb *= (1 - pair.Value);
+
+                    float AsPDeckProb = 1;
+                    if (activeHand.Count(x => x.Key.Monat == deckCard.Monat) > 0)
+                        AsPDeckProb = 1;
+                    else if (State.Field.FindAll(x => x.Monat == deckCard.Monat).Count == 2)
+                        AsPDeckProb = 1;
+                    else
+                    {
+                        AsPDeckProb = this
+                            .Where(x => x.card.Monat == deckCard.Monat)
+                            .Sum(x => x.Probability);
+                        AsPDeckProb.Clamp(0f, 1f);
+                    }
+
+                    float AsDeckProb = ((AsOppDeckProb + AsPDeckProb) / 2f) * (1 - pair.Value);
+
+                    if (pair.Value == 0) this[deckCard.ID].Probability = AsDeckProb;
+                    else
+                    {
+                        float AsHandProb = 1;
+                        int OppTotalMatches = opponentHand.Where(x => x.Value > 0).Select(x => x.Key.Monat).Intersect(State.Field.Select(x => x.Monat)).Count();
+                        if (OppTotalMatches == 0)
+                        {
+                            AsHandProb = 1f / opponentHandSize;
+                            AsHandProb *= this[deckCard.ID].RelevanceForYaku.Sum(x => x.Value) / Global.allYaku.Count;
+                            AsHandProb *= CalcFieldCardProb(State, deckCard);
+                            AsHandProb *= pair.Value;
+                            this[deckCard.ID].Probability = AsHandProb + AsDeckProb;
+                        }
+                        else this[deckCard.ID].Probability = 0f;
                     }
                 }
 
-                List<Card> playerDeck = new List<Card>();
-                for (int cardID = 2; cardID < player.Hand.Count * 2; cardID += 2)
-                    playerDeck.Add(State.Deck[cardID]);
-                foreach (Card card in player.Hand)
+                if (Turn)
                 {
-                    if (playerDeck.Exists(x => x.Monat == card.Monat))
-                        this[card.ID].Probability = 1;
-                    else if (State.Field.FindAll(x => x.Monat == card.Monat).Count == 2)
-                        this[card.ID].Probability = 1;
-                    else
+                    foreach (Card card in State.computer.Hand)
                     {
-                        this[card.ID].Probability = this
-                            .Where(x => x.card.Monat == card.Monat)
-                            .Sum(x => x.Probability);
-                        if (this[card.ID].Probability > 1)
+                        float handCardProb = 1f;
+                        foreach(var pair in State.UnknownCards.Where(x=>x.Key.Monat == card.Monat))
+                        {
+                            //Probability for being in AIs Deck Drawn Cards
+                            float cardProb = (1 - pair.Value) * 0.5f;
+                            handCardProb += cardProb;
+                        }
+                        handCardProb.Clamp(0f, 1f);
+
+                        if (State.Field.FindAll(x => x.Monat == card.Monat).Count == 2)
                             this[card.ID].Probability = 1;
-                    }
-                }
-                foreach (Card card in playerDeck)
-                {
-                    if (player.Hand.Exists(x => x.Monat == card.Monat))
-                        this[card.ID].Probability = 1;
-                    else if (State.Field.FindAll(x => x.Monat == card.Monat).Count == 2)
-                        this[card.ID].Probability = 1;
-                    else
-                    {
-                        this[card.ID].Probability = this
-                            .Where(x => x.card.Monat == card.Monat)
-                            .Sum(x => x.Probability);
-                        if (this[card.ID].Probability > 1)
-                            this[card.ID].Probability = 1;
+                        else
+                        {
+                            this[card.ID].Probability = this
+                                .Where(x => x.card.Monat == card.Monat)
+                                .Sum(x => x.Probability);
+                            if (this[card.ID].Probability > 1)
+                                this[card.ID].Probability = 1;
+                            else if (handCardProb > this[card.ID].Probability)
+                                this[card.ID].Probability = handCardProb;
+                        }
                     }
                 }
             }
 
             /// <summary>
-            /// Calculates players probability of collecting a card, considering it's on the field
+            /// Calculates players probability of collecting a card, assuming it's on the field
             /// </summary>
             /// <param name="State">current Board</param>
             /// <param name="card">target card</param>
@@ -219,8 +261,8 @@ namespace Hanafuda
                     .Where(x => x.Key == card.Monat)
                     .Sum(x => x.Value) - oppCorrect;
 
-                int PPlayable = player.Hand.Count * 2 - pCorrect;
-                int OppPlayable = opponent.Hand.Count * 2 - oppCorrect;
+                int PPlayable = activeHandSize * 2 - pCorrect;
+                int OppPlayable = opponentHandSize * 2 - oppCorrect;
 
                 if (OppPlayable > 0)
                 {

@@ -20,6 +20,8 @@ namespace Hanafuda
 
             public List<Card> OpponentCollection;
 
+            public int OpponentHandSize;
+
             public UninformedBoard(Spielfeld root) : base(root)
             {
                 CollectedYaku = root.players[Settings.PlayerID].CollectedYaku;
@@ -28,9 +30,9 @@ namespace Hanafuda
                     .Except(OpponentCollection)
                     .Except(computer.Hand)
                     .Except(computer.CollectedCards)
-                    .Except(Deck)
                     .Except(Field)
                     .ToDictionary(x => x, x => 0f);
+                OpponentHandSize = root.players[Settings.PlayerID].Hand.Count;
             }
 
             protected UninformedBoard(UninformedBoard target) : base(target)
@@ -38,6 +40,7 @@ namespace Hanafuda
                 CollectedYaku = new Dictionary<int, int>(target.CollectedYaku);
                 UnknownCards = new Dictionary<Card, float>(target.UnknownCards);
                 OpponentCollection = new List<Card>(target.OpponentCollection);
+                OpponentHandSize = target.OpponentHandSize;
             }
 
             /// <summary>
@@ -49,8 +52,6 @@ namespace Hanafuda
             /// <returns></returns>
             public override UninformedBoard ApplyMove(Coords boardCoords, Move move, bool turn)
             {
-                turn = true;
-
                 UninformedBoard board = new UninformedBoard(this);
                 board.parentCoords = boardCoords;
 
@@ -103,19 +104,6 @@ namespace Hanafuda
                 board.LastMove = move;
                 board.LastMove.HadYaku = HasNewYaku;
                 return board;
-            }
-
-            /// <summary>
-            /// Spielzug des Spielers aus Sicht der KI, unbekannte Hand
-            /// </summary>
-            /// <param name="boardCoords">Eltern-Koordinaten des erstellen Spielfeldes</param>
-            /// <param name="move">getätigter Spielzug</param>
-            /// <param name="prob">Ausgabe der Wahrscheinlichkeit, dass die ausgewählte Karte auch zur Hand gehört</param>
-            /// <returns></returns>
-            public UninformedBoard ApplyMove(Coords boardCoords, Move move, out float prob)
-            {
-                prob = UnknownCards.First(x => x.Key.Title == move.HandSelection).Value;
-                return ApplyMove(boardCoords, move, false);
             }
         }
     }

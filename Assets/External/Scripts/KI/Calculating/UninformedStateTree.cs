@@ -29,15 +29,11 @@ namespace Hanafuda
                         List<Move> ToBuild = new List<Move>();
                         Move move = new Move();
                         move.HandSelection = aHand.ElementAt(handID).Key.Title;
-                        move.DeckSelection = parent.Deck[0].Title;
                         List<Card> handMatches = new List<Card>();
-                        List<Card> deckMatches = new List<Card>();
                         for (int field = 0; field < parent.Field.Count; field++)
                         {
                             if (parent.Field[field].Monat == aHand.ElementAt(handID).Key.Monat)
                                 handMatches.Add(parent.Field[field]);
-                            if (parent.Field[field].Monat == parent.Deck[0].Monat)
-                                deckMatches.Add(parent.Field[field]);
                         }
                         if (handMatches.Count == 2)
                         {

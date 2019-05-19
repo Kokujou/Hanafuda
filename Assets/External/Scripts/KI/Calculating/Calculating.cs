@@ -61,6 +61,12 @@ namespace Hanafuda
                     selectedMove = stateTree[1][i].LastMove;
                 }
             }
+            selectedMove.DeckSelection = cRoot.Deck[0].Title;
+            List<Card> matches = cRoot.Field.FindAll(x => x.Monat == cRoot.Deck[0].Monat);
+            if (matches.Count == 2)
+            {
+                //Request further AI decision
+            }
             return selectedMove;
         }
         public override float RateState(UninformedBoard State)
@@ -119,7 +125,8 @@ namespace Hanafuda
             if (Turn) Result.SelectionProbability = 1;
             else
             {
-                var handSelection = State.UnknownCards.First(x => x.Key.Title == State.LastMove.HandSelection);
+                var handSelection = Tree.GetState(State.parentCoords.x, State.parentCoords.y)
+                    .UnknownCards.First(x => x.Key.Title == State.LastMove.HandSelection);
                 Result.SelectionProbability = handSelection.Value;
                 State.UnknownCards.Remove(handSelection.Key);
             }
@@ -131,7 +138,7 @@ namespace Hanafuda
             foreach (var pair in State.UnknownCards)
             {
                 float isDeckProb = 1f - pair.Value;
-                float MoveValue;
+                float MoveValue = 0f;
 
 
 

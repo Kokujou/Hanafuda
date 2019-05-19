@@ -9,6 +9,12 @@ namespace Hanafuda
 {
     public static class VirtualMethods
     {
+        public static void Clamp<T>(this T val, T min, T max) where T : IComparable<T>
+        {
+            if (val.CompareTo(min) < 0) val =  min;
+            else if (val.CompareTo(max) > 0) val =  max;
+        }
+
         /// <summary>
         /// Korrigiert den Kamera-Aspekt zu Portrait(mobil) oder Landscape (PC)
         /// </summary>

@@ -12,15 +12,18 @@ namespace Hanafuda
         public class OmniscientBoard : IBoard<OmniscientBoard>
         {
             public Player player;
+            public List<Card> Deck;
 
             public OmniscientBoard(Spielfeld root) : base(root)
             {
                 player = new Player(root.players[1 - Settings.PlayerID]);
+                Deck = new List<Card>(root.Deck);
             }
 
             protected OmniscientBoard(OmniscientBoard board) : base(board)
             {
                 player = new Player(board.computer);
+                Deck = new List<Card>(board.Deck);
             }
 
             /// <summary>

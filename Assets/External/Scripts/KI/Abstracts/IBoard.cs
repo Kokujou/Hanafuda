@@ -8,7 +8,7 @@ namespace Hanafuda
 {
     public abstract class IBoard<T> where T : IBoard<T>
     {
-        public List<Card> Deck, Field;
+        public List<Card> Field;
         public Player computer;
         public bool HasNewYaku;
         public bool isFinal;
@@ -33,7 +33,6 @@ namespace Hanafuda
         public IBoard(Spielfeld root)
         {
             Turn = !root.Turn;
-            Deck = new List<Card>(root.Deck);
             Field = new List<Card>(root.Field);
             LastMove = null;
             computer = new Player(root.players[1 - Settings.PlayerID]);
@@ -44,7 +43,6 @@ namespace Hanafuda
         protected IBoard(IBoard<T> board)
         {
             Turn = !board.Turn;
-            Deck = new List<Card>(board.Deck);
             Field = new List<Card>(board.Field);
             LastMove = null;
             computer = new Player(board.computer);
