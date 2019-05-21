@@ -22,19 +22,35 @@ namespace Hanafuda
 
             public int OpponentHandSize;
 
+            protected override UninformedBoard Clone() => new UninformedBoard(this);
+
+            /// <summary>
+            /// Echte Kopie der Listen im Spielfeld und Anpassen des Informationsstandes eines echten Spielfeldes
+            /// auf den einer unwissenden KI.
+            /// </summary>
+            /// <param name="root">Referenz-Spielfeld</param>
             public UninformedBoard(Spielfeld root) : base(root)
             {
                 CollectedYaku = root.players[Settings.PlayerID].CollectedYaku;
                 OpponentCollection = root.players[Settings.PlayerID].CollectedCards;
+                OpponentHandSize = root.players[Settings.PlayerID].Hand.Count;
+
                 UnknownCards = Global.allCards
                     .Except(OpponentCollection)
                     .Except(computer.Hand)
                     .Except(computer.CollectedCards)
                     .Except(Field)
                     .ToDictionary(x => x, x => 0f);
-                OpponentHandSize = root.players[Settings.PlayerID].Hand.Count;
+                float divisor = UnknownCards.Count;
+                float divident = UnknownCards.Count - OpponentHandSize;
+                UnknownCards = UnknownCards.ToDictionary(x => x.Key, x => 1f - divident / divisor);
+
             }
 
+            /// <summary>
+            /// Echte Kopie der Klasse
+            /// </summary>
+            /// <param name="target">Referenz-Instanz</param>
             protected UninformedBoard(UninformedBoard target) : base(target)
             {
                 CollectedYaku = new Dictionary<int, int>(target.CollectedYaku);
@@ -50,60 +66,51 @@ namespace Hanafuda
             /// <param name="move">getätigter Spielzug</param>
             /// <param name="turn">Immer wahr in dieser Überladung</param>
             /// <returns></returns>
-            public override UninformedBoard ApplyMove(Coords boardCoords, Move move, bool turn)
+            protected override void ApplyMove(string selection, string secondSelection, bool fromHand, bool turn)
             {
-                UninformedBoard board = new UninformedBoard(this);
-                board.parentCoords = boardCoords;
+                List<Card> activeCollection = turn ? computer.CollectedCards : OpponentCollection;
+                Dictionary<Card, float> target = (fromHand && turn) ? computer.Hand.ToDictionary(x => x, x => 1f) : UnknownCards;
 
-                List<Card> activeCollection = turn ? board.computer.CollectedCards : board.OpponentCollection;
-                Dictionary<Card, float> activeHand = turn ? board.computer.Hand.ToDictionary(x => x, x => 1f) : board.UnknownCards;
+                Card selectedCard = target.First(x => x.Key.Title == selection).Key;
+                List<Card> matches = new List<Card>();
 
-                Card handSelection = activeHand.First(x => x.Key.Title == move.HandSelection).Key;
-                List<Card> handMatches = new List<Card>();
-
-                List<Card> collectedCards = new List<Card>();
-
-                for (int i = board.Field.Count - 1; i >= 0; i--)
+                //Build Matches and Remove from Field
+                for (int i = Field.Count - 1; i >= 0; i--)
                 {
-                    if (move.HandFieldSelection.Length > 0)
+                    if (secondSelection.Length > 0)
                     {
-                        if (board.Field[i].Title == move.HandFieldSelection)
+                        if (Field[i].Title == secondSelection)
                         {
-                            handMatches.Add(board.Field[i]);
-                            board.Field.RemoveAt(i);
+                            matches.Add(Field[i]);
+                            Field.RemoveAt(i);
                             break;
                         }
                         continue;
                     }
-                    else if (board.Field[i].Monat == handSelection.Monat)
+                    else if (Field[i].Monat == selectedCard.Monat)
                     {
-                        handMatches.Add(board.Field[i]);
-                        board.Field.RemoveAt(i);
-                        continue;
+                        matches.Add(Field[i]);
+                        Field.RemoveAt(i);
                     }
                 }
 
-                activeHand.Remove(handSelection);
-                if (handMatches.Count > 0)
+                //Collect Cards or add to Field
+                target.Remove(selectedCard);
+                if (matches.Count > 0)
                 {
-                    handMatches.Add(handSelection);
-                    activeCollection.AddRange(handMatches);
-                    collectedCards.AddRange(handMatches);
+                    matches.Add(selectedCard);
+                    activeCollection.AddRange(matches);
                 }
                 else
                 {
-                    board.Field.Add(handSelection);
+                    Field.Add(selectedCard);
                 }
+            }
 
-                if (turn)
-                    board.HasNewYaku = Yaku.GetNewYakus(board.computer, collectedCards).Count > 0;
-                else
-                    board.HasNewYaku = Yaku.GetNewYakus(board.CollectedYaku, collectedCards).Count > 0;
-
-
-                board.LastMove = move;
-                board.LastMove.HadYaku = HasNewYaku;
-                return board;
+            protected override bool CheckYaku(bool turn)
+            {
+                List<Card> activeCollection = turn ? computer.CollectedCards : OpponentCollection;
+                return Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), activeCollection).Count > 0;
             }
         }
     }

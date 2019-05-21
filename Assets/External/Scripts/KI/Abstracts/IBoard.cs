@@ -50,6 +50,26 @@ namespace Hanafuda
             isFinal = board.isFinal;
         }
 
-        public abstract T ApplyMove(Coords boardCoords, Move move, bool turn);
+        public virtual T ApplyMove(Coords boardCoords, Move move, bool turn)
+        {
+            T board = this.Clone();
+
+            board.LastMove = move;
+            board.parentCoords = boardCoords;
+            
+            board.ApplyMove(move.HandSelection, move.HandFieldSelection, true, turn);
+
+            if (move.DeckSelection.Length > 0)
+                board.ApplyMove(move.DeckSelection, move.DeckFieldSelection, false, turn);
+
+            bool hasYaku = board.CheckYaku(turn);
+            board.HasNewYaku = hasYaku;
+            board.LastMove.HadYaku = hasYaku;
+
+            return board;
+        }
+        protected abstract T Clone();
+        protected abstract void ApplyMove(string selection, string secondSelection, bool fromHand, bool turn);
+        protected abstract bool CheckYaku(bool turn);
     }
 }

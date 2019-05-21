@@ -11,12 +11,17 @@ namespace Hanafuda
     {
         const string _LocalWeight = "_LocalWeight";
         const string _GlobalWeight = "_GlobalWeight";
-        const string _DeckMoveWeight = "_DeckMoveWeight";
-        const string _OpponentUncertaintyWeight = "_OpponentUncertaintyWeight";
+        const string _DeckWeight = "_DeckWeight";
+
+        List<CardProperties> PrecalcCardProps = new List<CardProperties>();
 
         public CalculatingAI(string name) : base(name)
         {
             Tree = new UninformedStateTree();
+            for (int i = 0; i < Global.allCards.Count; i++)
+            {
+                PrecalcCardProps.Add(new CardProperties(i));
+            }
         }
 
         protected override void BuildStateTree(Spielfeld cRoot)
@@ -30,8 +35,7 @@ namespace Hanafuda
         {
             { _LocalWeight, 1f },
             { _GlobalWeight, 1f },
-            { _DeckMoveWeight, 1f },
-            { _OpponentUncertaintyWeight, 1f }
+            { _DeckWeight, 1f },
         };
 
         public override Dictionary<string, float> GetWeights() => weights;
@@ -45,27 +49,25 @@ namespace Hanafuda
 
         public override Move MakeTurn(Spielfeld cRoot)
         {
-            cRoot.Turn = true;
-            Tree = new UninformedStateTree(new UninformedBoard(cRoot));
-            Tree.Build();
-            //Bewertung möglicherweise in Threads?
-            var maxValue = -100f;
-            Move selectedMove = null;
-            List<List<UninformedBoard>> stateTree = new List<List<UninformedBoard>>();
-            for (var i = 0; i < stateTree[1].Count; i++)
-            {
-                stateTree[1][i].Value = RateState(stateTree[1][i]);
-                if (stateTree[1][i].Value > maxValue)
-                {
-                    maxValue = stateTree[1][i].Value;
-                    selectedMove = stateTree[1][i].LastMove;
-                }
-            }
+            Move selectedMove = base.MakeTurn(cRoot);
             selectedMove.DeckSelection = cRoot.Deck[0].Title;
             List<Card> matches = cRoot.Field.FindAll(x => x.Monat == cRoot.Deck[0].Monat);
             if (matches.Count == 2)
             {
-                //Request further AI decision
+                float maxValue = -100f;
+                Card selection = null;
+                foreach(Card card in matches)
+                {
+                    selectedMove.DeckFieldSelection = card.Title;
+                    UninformedBoard board = new UninformedBoard(cRoot).ApplyMove(new IBoard<UninformedBoard>.Coords() { x = 0, y = 0 }, selectedMove, true);
+                    float value = RateState(board);
+                    if(value > maxValue || selection == null)
+                    {
+                        maxValue = value;
+                        selection = card;
+                    }
+                }
+                selectedMove.DeckFieldSelection = selection.Title;
             }
             return selectedMove;
         }
@@ -89,6 +91,7 @@ namespace Hanafuda
 
             float PLocalMinimum = 0;
             float PGlobalMinimum = 0;
+            float PDeckValue = 0;
             if (PStateProps.Count > 0)
             {
                 PLocalMinimum = PStateProps.Max(x => x.LocalMinimum);
@@ -96,7 +99,8 @@ namespace Hanafuda
             }
 
             Result = (((State.computer.Hand.Count - ComStateProps.GlobalMinimum.MinTurns) * ComStateProps.GlobalMinimum.Probability) - PGlobalMinimum) * weights[_GlobalWeight]
-                + (ComStateProps.LocalMinimum - PLocalMinimum) * weights[_LocalWeight];
+                + (ComStateProps.LocalMinimum - PLocalMinimum) * weights[_LocalWeight]
+                + (ComStateProps.DeckValue - PDeckValue) * weights[_DeckWeight];
 
             return Result;
         }
@@ -114,6 +118,7 @@ namespace Hanafuda
 
             List<Card> activeCollection = Turn ? State.computer.CollectedCards : State.OpponentCollection;
             Dictionary<Card, float> activeHand = Turn ? State.computer.Hand.ToDictionary(x => x, x => 1f) : State.UnknownCards;
+            int activeHandSize = Turn ? State.computer.Hand.Count : State.OpponentHandSize;
 
             List<Card> NewCards = new List<Card>();
             if (State.LastMove != null)
@@ -130,6 +135,25 @@ namespace Hanafuda
                 Result.SelectionProbability = handSelection.Value;
                 State.UnknownCards.Remove(handSelection.Key);
             }
+
+            UninformedCards cardProps = new UninformedCards(PrecalcCardProps, State, Turn);
+            YakuCollection uninformedYakuProps = new YakuCollection(cardProps, NewCards, activeCollection, activeHandSize);
+
+            Result.GlobalMinimum = uninformedYakuProps[0];
+            foreach (YakuProperties yakuProp in uninformedYakuProps)
+            {
+                float value = (activeHandSize - yakuProp.MinTurns) * yakuProp.Probability;
+                if (value > (activeHandSize - Result.GlobalMinimum.MinTurns) * Result.GlobalMinimum.Probability)
+                    Result.GlobalMinimum = yakuProp;
+            }
+            float TotalCardValue = 0f;
+            try
+            {
+                TotalCardValue = uninformedYakuProps
+                    .Where(x => x.Targeted)
+                    .Sum(x => (activeHandSize - x.MinTurns) * x.Probability);
+            }
+            catch (Exception) { }
 
             /*
              * Berechnung der Yaku-Qualität

@@ -23,7 +23,7 @@ namespace Hanafuda
 
                 if (!parent.isFinal)
                 {
-                    Dictionary<Card, float> aHand = turn ? parent.UnknownCards : parent.computer.Hand.ToDictionary(x => x, x => 1f);
+                    Dictionary<Card, float> aHand = turn ? parent.computer.Hand.ToDictionary(x => x, x => 1f) : parent.UnknownCards;
                     for (int handID = 0; handID < aHand.Count; handID++)
                     {
                         List<Move> ToBuild = new List<Move>();
@@ -44,6 +44,8 @@ namespace Hanafuda
                                 ToBuild.Add(handMove);
                             }
                         }
+                        else
+                            ToBuild.Add(move);
                         for (int build = 0; build < ToBuild.Count; build++)
                         {
                             UninformedBoard child = parent.ApplyMove(new UninformedBoard.Coords { x = level, y = node }, ToBuild[build], turn);

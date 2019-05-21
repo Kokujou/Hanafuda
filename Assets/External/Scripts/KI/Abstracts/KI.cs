@@ -38,16 +38,18 @@ namespace Hanafuda
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
 
-            foreach (T state in Tree.GetLevel(1))
+            List<T> FirstLevel = Tree.GetLevel(1);
+            foreach (T state in FirstLevel)
                 state.Value = RateState(state);
 
             //Parallel.ForEach(Tree.GetLevel(1), state => state.Value = RateState(state));
-            for (var i = 0; i < Tree.GetLevel(1).Count; i++)
+
+            foreach(T state in FirstLevel)
             {
-                if (Tree.GetState(1, i).Value > maxValue)
+                if(state.Value > maxValue)
                 {
-                    maxValue = Tree.GetState(1, i).Value;
-                    selectedMove = Tree.GetState(1, i).LastMove;
+                    maxValue = state.Value;
+                    selectedMove = state.LastMove;
                 }
             }
             Global.Log($"Time for Enemy Turn Decision: {watch.ElapsedMilliseconds}");

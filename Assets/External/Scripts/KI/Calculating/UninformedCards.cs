@@ -41,7 +41,6 @@ namespace Hanafuda
                 foreach (var pair in State.UnknownCards)
                 {
                     PPlayableMonths[pair.Key.Monat]++;
-                    OppPlayableMonths[pair.Key.Monat]++;
                 }
 
                 OppPlayableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
