@@ -12,18 +12,12 @@ namespace Hanafuda
         {
             protected override object BuildChildNodes(object param)
             {
-                NodeParameters parameters = (NodeParameters)param;
-                int level = parameters.level;
-                int node = parameters.node;
-                bool turn = parameters.turn;
-                UninformedBoard parent = Content[level][parameters.node];
-                NodeReturn result = new NodeReturn();
-                result.level = level;
-                result.turn = turn;
+                UninformedBoard parent = (UninformedBoard)param;
+                List<UninformedBoard> result = new List<UninformedBoard>();
 
                 if (!parent.isFinal)
                 {
-                    Dictionary<Card, float> aHand = turn ? parent.computer.Hand.ToDictionary(x => x, x => 1f) : parent.UnknownCards;
+                    Dictionary<Card, float> aHand = parent.Turn ? parent.computer.Hand.ToDictionary(x => x, x => 1f) : parent.UnknownCards;
                     for (int handID = 0; handID < aHand.Count; handID++)
                     {
                         List<Move> ToBuild = new List<Move>();
@@ -48,15 +42,15 @@ namespace Hanafuda
                             ToBuild.Add(move);
                         for (int build = 0; build < ToBuild.Count; build++)
                         {
-                            UninformedBoard child = parent.ApplyMove(new UninformedBoard.Coords { x = level, y = node }, ToBuild[build], turn);
+                            UninformedBoard child = parent.ApplyMove(parent, ToBuild[build], parent.Turn);
                             if (child.HasNewYaku)
                             {
                                 child.SayKoikoi(true);
-                                UninformedBoard finalChild = parent.ApplyMove(new UninformedBoard.Coords { x = level, y = node }, ToBuild[build], turn);
+                                UninformedBoard finalChild = parent.ApplyMove(parent, ToBuild[build], parent.Turn);
                                 finalChild.SayKoikoi(false);
-                                result.states.Add(finalChild);
+                                result.Add(finalChild);
                             }
-                            result.states.Add(child);
+                            result.Add(child);
                         }
                     }
                 }

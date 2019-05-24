@@ -7,14 +7,12 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public partial class OmniscientAI : KI<OmniscientAI.OmniscientBoard>
+    public partial class OmniscientAI : KI<OmniscientBoard>
     {
         const string _LocalWeight = "_LocalWeight";
         const string _GlobalWeight = "_GlobalWeight";
 
         public int _MaxPTurns = 3;
-
-        List<CardProperties> CardProps = new List<CardProperties>();
 
         private Dictionary<string, float> weights = new Dictionary<string, float>()
         {
@@ -38,13 +36,7 @@ namespace Hanafuda
             Tree.Build(1);
         }
 
-        public OmniscientAI(string name) : base(name)
-        {
-            for (int i = 0; i < Global.allCards.Count; i++)
-            {
-                CardProps.Add(new CardProperties(i));
-            }
-        }
+        public OmniscientAI(string name) : base(name) { }
 
         public override float RateState(OmniscientBoard State)
         {
@@ -111,7 +103,7 @@ namespace Hanafuda
             List<Card> NewCards = new List<Card>();
             if (State.LastMove != null)
             {
-                OmniscientBoard state = Tree.GetState(State.parentCoords.x, State.parentCoords.y);
+                OmniscientBoard state = State.parent;
                 NewCards = activePlayer.CollectedCards.Except((Turn ? state.computer : state.player).CollectedCards).ToList();
             }
 

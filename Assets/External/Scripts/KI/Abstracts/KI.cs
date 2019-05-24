@@ -18,13 +18,7 @@ namespace Hanafuda
 {
     public abstract class KI<T> : Player, IArtificialIntelligence where T : IBoard<T>
     {
-        /*
-         * Berechnung der Mindestzüge über minTurn + >minturn der Karte
-         * Idee für unwissende KI: Gegner legt Karte aufs Feld -> 
-         *      - keine Monat der Feldkarten ist nicht in den Handkarten enthalten, und/oder
-         *      - Plan ist gespielte Karte einzusammeln
-         * 
-         */
+        protected List<CardProperties> CardProps = new List<CardProperties>();
         public abstract Dictionary<string, float> GetWeights();
         public abstract void SetWeight(string name, float value);
         protected abstract void BuildStateTree(Spielfeld cRoot);
@@ -44,9 +38,9 @@ namespace Hanafuda
 
             //Parallel.ForEach(Tree.GetLevel(1), state => state.Value = RateState(state));
 
-            foreach(T state in FirstLevel)
+            foreach (T state in FirstLevel)
             {
-                if(state.Value > maxValue)
+                if (state.Value > maxValue)
                 {
                     maxValue = state.Value;
                     selectedMove = state.LastMove;
@@ -59,7 +53,13 @@ namespace Hanafuda
 
         public IStateTree<T> Tree;
 
-        public KI(string name) : base(name) { }
+        public KI(string name) : base(name)
+        {
+            for (int i = 0; i < Global.allCards.Count; i++)
+            {
+                CardProps.Add(new CardProperties(i));
+            }
+        }
     }
     public class KI
     {
@@ -70,7 +70,7 @@ namespace Hanafuda
                 case Settings.AIMode.Omniscient:
                     return new OmniscientAI(name);
                 case Settings.AIMode.Searching:
-                    //return new SearchingAI(name);
+                    return new SearchingAI(name);
                 case Settings.AIMode.Statistic:
                     return new CalculatingAI(name);
                 default:

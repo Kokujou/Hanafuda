@@ -7,22 +7,13 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public partial class CalculatingAI : KI<CalculatingAI.UninformedBoard>
+    public partial class CalculatingAI : KI<UninformedBoard>
     {
         const string _LocalWeight = "_LocalWeight";
         const string _GlobalWeight = "_GlobalWeight";
         const string _DeckWeight = "_DeckWeight";
 
-        List<CardProperties> PrecalcCardProps = new List<CardProperties>();
-
-        public CalculatingAI(string name) : base(name)
-        {
-            Tree = new UninformedStateTree();
-            for (int i = 0; i < Global.allCards.Count; i++)
-            {
-                PrecalcCardProps.Add(new CardProperties(i));
-            }
-        }
+        public CalculatingAI(string name) : base(name) { }
 
         protected override void BuildStateTree(Spielfeld cRoot)
         {
@@ -56,12 +47,13 @@ namespace Hanafuda
             {
                 float maxValue = -100f;
                 Card selection = null;
-                foreach(Card card in matches)
+                foreach (Card card in matches)
                 {
                     selectedMove.DeckFieldSelection = card.Title;
-                    UninformedBoard board = new UninformedBoard(cRoot).ApplyMove(new IBoard<UninformedBoard>.Coords() { x = 0, y = 0 }, selectedMove, true);
+                    UninformedBoard root = new UninformedBoard(cRoot);
+                    UninformedBoard board = root.ApplyMove(root, selectedMove, true);
                     float value = RateState(board);
-                    if(value > maxValue || selection == null)
+                    if (value > maxValue || selection == null)
                     {
                         maxValue = value;
                         selection = card;
@@ -123,20 +115,20 @@ namespace Hanafuda
             List<Card> NewCards = new List<Card>();
             if (State.LastMove != null)
             {
-                UninformedBoard state = Tree.GetState(State.parentCoords.x, State.parentCoords.y);
+                UninformedBoard state = State.parent;
                 NewCards = activeCollection.Except(Turn ? state.computer.CollectedCards : state.OpponentCollection).ToList();
             }
 
             if (Turn) Result.SelectionProbability = 1;
             else
             {
-                var handSelection = Tree.GetState(State.parentCoords.x, State.parentCoords.y)
+                var handSelection = State.parent
                     .UnknownCards.First(x => x.Key.Title == State.LastMove.HandSelection);
                 Result.SelectionProbability = handSelection.Value;
                 State.UnknownCards.Remove(handSelection.Key);
             }
 
-            UninformedCards cardProps = new UninformedCards(PrecalcCardProps, State, Turn);
+            UninformedCards cardProps = new UninformedCards(CardProps, State, Turn);
             YakuCollection uninformedYakuProps = new YakuCollection(cardProps, NewCards, activeCollection, activeHandSize);
 
             Result.GlobalMinimum = uninformedYakuProps[0];
@@ -154,6 +146,7 @@ namespace Hanafuda
                     .Sum(x => (activeHandSize - x.MinTurns) * x.Probability);
             }
             catch (Exception) { }
+            Result.LocalMinimum = TotalCardValue;
 
             /*
              * Berechnung der Yaku-Qualität

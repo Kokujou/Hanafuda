@@ -67,19 +67,13 @@ namespace Hanafuda
 
             protected override object BuildChildNodes(object param)
             {
-                NodeParameters parameters = (NodeParameters)param;
-                int level = parameters.level;
-                int node = parameters.node;
-                bool turn = parameters.turn;
-                OmniscientBoard parent = Content[level][parameters.node];
-                NodeReturn result = new NodeReturn();
-                result.level = level;
-                result.turn = turn;
+                OmniscientBoard parent = (OmniscientBoard)param;
+                List<OmniscientBoard> result = new List<OmniscientBoard>();
                 // Memo: matches = 0
                 // Memo: Koikoi sagen!
                 if (!parent.isFinal)
                 {
-                    List<Card> aHand = turn ? parent.computer.Hand : parent.player.Hand;
+                    List<Card> aHand = parent.Turn ? parent.computer.Hand : parent.player.Hand;
                     for (var i = 0; i < aHand.Count; i++)
                     {
                         List<Move> ToBuild = new List<Move>();
@@ -107,15 +101,15 @@ namespace Hanafuda
                         else ToBuild.AddRange(AddDeckActions(deckMatches, move));
                         for (int build = 0; build < ToBuild.Count; build++)
                         {
-                            OmniscientBoard child = parent.ApplyMove(new OmniscientBoard.Coords { x = level, y = node }, ToBuild[build], turn);
+                            OmniscientBoard child = parent.ApplyMove(parent, ToBuild[build], parent.Turn);
                             if (child.HasNewYaku)
                             {
                                 child.SayKoikoi(true);
-                                OmniscientBoard finalChild = parent.ApplyMove(new OmniscientBoard.Coords { x = level, y = node }, ToBuild[build], turn);
+                                OmniscientBoard finalChild = parent.ApplyMove(parent, ToBuild[build], parent.Turn);
                                 finalChild.SayKoikoi(false);
-                                result.states.Add(finalChild);
+                                result.Add(finalChild);
                             }
-                            result.states.Add(child);
+                            result.Add(child);
                         }
                     }
                 }
@@ -123,17 +117,9 @@ namespace Hanafuda
             }
 
             // Memo: Konstruktion nur für einen Spieler einbauen: Jede 2. Karte ziehen.
-            public override void Build(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false)
-            {
-                base.Build(maxDepth, Turn, SkipOpponent);
-            }
+            public override void Build(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false) => base.Build(maxDepth, Turn, SkipOpponent);
 
             public OmniscientStateTree(OmniscientBoard root = null, List<List<OmniscientBoard>> tree = null) : base(root, tree) { }
-
-            public static implicit operator OmniscientStateTree(List<List<OmniscientBoard>> target)
-            {
-                return new OmniscientStateTree(target[0][0], target);
-            }
         }
     }
 }

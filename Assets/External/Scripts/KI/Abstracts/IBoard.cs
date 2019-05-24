@@ -15,16 +15,17 @@ namespace Hanafuda
         public bool Turn;
         public float Value;
 
-        [Serializable]
-        public struct Coords { public int x; public int y; }
-        public Coords parentCoords;
         public Move LastMove;
+
+        public T parent;
 
         public void SayKoikoi(bool koikoi)
         {
             isFinal = !koikoi;
             LastMove.Koikoi = koikoi;
         }
+
+        public IBoard() { }
 
         /// <summary>
         /// hard copy of reference board and variable initialization
@@ -50,12 +51,12 @@ namespace Hanafuda
             isFinal = board.isFinal;
         }
 
-        public virtual T ApplyMove(Coords boardCoords, Move move, bool turn)
+        public virtual T ApplyMove(T parent, Move move, bool turn)
         {
-            T board = this.Clone();
+            T board = parent.Clone();
 
             board.LastMove = move;
-            board.parentCoords = boardCoords;
+            board.parent = parent;
             
             board.ApplyMove(move.HandSelection, move.HandFieldSelection, true, turn);
 
@@ -69,6 +70,7 @@ namespace Hanafuda
             return board;
         }
         protected abstract T Clone();
+
         protected abstract void ApplyMove(string selection, string secondSelection, bool fromHand, bool turn);
         protected abstract bool CheckYaku(bool turn);
     }

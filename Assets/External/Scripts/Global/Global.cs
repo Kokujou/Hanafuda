@@ -33,6 +33,7 @@ namespace Hanafuda
 
         private static System.Diagnostics.Process process;
         private static bool AllowLog = false;
+        private static object thisLock = new object();
 
         public void OnApplicationQuit()
         {

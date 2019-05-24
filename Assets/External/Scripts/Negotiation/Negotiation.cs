@@ -38,6 +38,27 @@ namespace Hanafuda
             }
         }
         private Card selected;
+
+        public void OnGUI()
+        {
+#if UNITY_EDITOR
+            if (GUILayout.Button("Player starts game"))
+            {
+                List<Player> newList = new List<Player>() { Settings.Players[Settings.PlayerID], Settings.Players[1 - Settings.PlayerID] };
+                Settings.Players = newList;
+                Settings.PlayerID = 0;
+                SceneManager.LoadScene("Main");
+            }
+            if (GUILayout.Button("Opponoent starts game"))
+            {
+                List<Player> newList = new List<Player>() { Settings.Players[1 - Settings.PlayerID], Settings.Players[Settings.PlayerID] };
+                Settings.PlayerID = 1;
+                Settings.Players = newList;
+                SceneManager.LoadScene("Main");
+            }
+#endif
+        }
+
         /// <summary>
         ///     Platzierung der repräsentativen Deck-Karten im Kreis und Initialisierung von Startpositionen
         /// </summary>

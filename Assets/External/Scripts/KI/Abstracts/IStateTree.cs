@@ -10,6 +10,10 @@ namespace Hanafuda
 {
     public abstract class IStateTree<T> where T : IBoard<T>
     {
+        public int MaxDepth;
+        public bool StartTurn;
+        public bool SkipOpponent;
+
         public T Root;
         public int Size => Content.Count;
         public List<T> GetLevel(int id) => Content[id];
@@ -49,34 +53,77 @@ namespace Hanafuda
         /// <param name="maxDepth">Maximale Tiefe des Suchbaums</param>
         /// <param name="Turn">Gibt an, ob die KI am Zug ist</param>
         /// <param name="SkipOpponent">Gibt an, ob sich der Spieler während der Berechnung ändert</param>
-        public virtual void Build(int maxDepth = 16, bool Turn = true, bool SkipOpponent = false)
+        public virtual void Build(int maxDepth = 16, bool Turn = true, bool skipOpponent = false)
         {
+            MaxDepth = maxDepth;
+            StartTurn = Turn;
+            SkipOpponent = skipOpponent;
+
+            Root.Turn = StartTurn;
+
             Content.Clear();
             Content.Add(new List<T> { Root });
-            for (var i = 0; i < maxDepth; i++)
-                Content.Add(new List<T>());
-            Task<object> firstTask = new Task<object>(x => BuildChildNodes(x), (new NodeParameters() { level = 0, node = 0, turn = Turn }));
-            firstTask.Start();
-            tasks.Add(firstTask);
-            while (tasks.Count > 0 && Content.Last().Count == 0)
+
+            Content.Add(new List<T>());
+            List<T> firstResult = (List<T>)BuildChildNodes(Root);
+            Content[1].AddRange(firstResult);
+
+            if (maxDepth <= 1) return;
+
+            for (int taskID = 0; taskID < firstResult.Count; taskID++)
             {
-                Task.WaitAny(tasks.ToArray());
-                for (int task = tasks.Count - 1; task >= 0; task--)
-                {
-                    if (tasks[task].IsCompleted)
-                    {
-                        NodeReturn result = (NodeReturn)tasks[task].Result;
-                        tasks.RemoveAt(task);
-                        Content[result.level + 1].AddRange(result.states);
-                        if (result.level + 1 >= maxDepth) continue;
-                        for (int i = 0; i < result.states.Count; i++)
-                        {
-                            Task<object> newTask = new Task<object>(x => BuildChildNodes(x), (object)new NodeParameters() { level = result.level + 1, node = Content[result.level + 1].Count - (i + 1), turn = SkipOpponent ? Turn : !result.turn });
-                            newTask.Start();
-                        }
-                    }
-                }
+                Task<object> newTask = new Task<object>(DeepConstruction, firstResult[taskID]);
+                newTask.Start();
+                tasks.Add(newTask);
             }
+            while (tasks.Count > 0)
+            {
+                int taskID = Task.WaitAny(tasks.ToArray());
+                List<List<T>> results = (List<List<T>>)tasks[taskID].Result;
+                for (int level = 0; level < results.Count; level++)
+                {
+                    if (results[level].Count == 0) break;
+                    if (level + 2 >= Content.Count)
+                        Content.Add(new List<T>());
+                    Content[level + 2].AddRange(results[level]);
+                }
+                tasks.RemoveAt(taskID);
+            }
+        }
+
+        public object DeepConstruction(object param)
+        {
+            List<List<T>> stateTree = new List<List<T>>();
+            int level = 0;
+            int node = 0;
+
+            stateTree.Add(new List<T>());
+            stateTree[level].AddRange((List<T>)BuildChildNodes(param));
+            stateTree.Add(new List<T>());
+
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+
+            while (true)
+            {
+                if (node >= stateTree[level].Count)
+                {
+                    Global.Log($"Time for building level {level+2} from {MaxDepth}: {watch.ElapsedMilliseconds}\n");
+                    watch.Restart();
+                    if (stateTree[level + 1].Count == 0 || level + 1 >= (MaxDepth-2))
+                        break;
+                    level++;
+                    node = 0;
+                    stateTree.Add(new List<T>());
+                }
+                object anonparam = stateTree[level][node];
+                object anonResult = BuildChildNodes(anonparam);
+                List<T> results = (List<T>)anonResult;
+                stateTree[level + 1].AddRange(results);
+                node++;
+            }
+
+            return stateTree;
         }
 
         public IStateTree(T root = null, List<List<T>> tree = null)
