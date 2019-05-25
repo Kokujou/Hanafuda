@@ -51,7 +51,7 @@ namespace Hanafuda
             }
             Global.Log($"Synced time for gettings yakus: {watch.ElapsedMilliseconds}");
             Global.Log($"Different Yakus: {string.Join(";", yakuTree.Select(x => x.Title).Distinct())}");
-            Global.Log($"Max Collection Size: {string.Join(";", Tree.GetLevel(Tree.Size - 1).First(x => x.computerCollection.Count > 14).computerCollection)}");
+            Global.Log($"Max Collection Size: {string.Join(";", Tree.GetLevel(Tree.Size - 1).First(x => x.computerCollection.Count > 5).computerCollection)}");
         }
     }
 }

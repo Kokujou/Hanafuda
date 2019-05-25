@@ -9,10 +9,22 @@ namespace Hanafuda
 {
     public static class VirtualMethods
     {
+        public static Dictionary<int, T> ToDictionary<T>(this List<T> list, int Capacity = -1)
+        {
+            Dictionary<int, T> Result;
+            if (Capacity < 0)
+                Result = new Dictionary<int, T>();
+            else
+                Result = new Dictionary<int, T>(Capacity);
+            for (int id = 0; id < list.Count; id++)
+                Result.Add(id, list[id]);
+            return Result;
+        }
+
         public static void Clamp<T>(this T val, T min, T max) where T : IComparable<T>
         {
-            if (val.CompareTo(min) < 0) val =  min;
-            else if (val.CompareTo(max) > 0) val =  max;
+            if (val.CompareTo(min) < 0) val = min;
+            else if (val.CompareTo(max) > 0) val = max;
         }
 
         /// <summary>

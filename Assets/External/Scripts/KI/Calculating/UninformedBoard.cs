@@ -20,7 +20,7 @@ namespace Hanafuda
 
         public int OpponentHandSize;
 
-        protected override UninformedBoard Clone() => new UninformedBoard(this);
+        public override UninformedBoard Clone() => new UninformedBoard(this);
 
         /// <summary>
         /// Echte Kopie der Listen im Spielfeld und Anpassen des Informationsstandes eines echten Spielfeldes

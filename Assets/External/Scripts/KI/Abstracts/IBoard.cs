@@ -69,7 +69,7 @@ namespace Hanafuda
 
             return board;
         }
-        protected abstract T Clone();
+        public abstract T Clone();
 
         protected abstract void ApplyMove(string selection, string secondSelection, bool fromHand, bool turn);
         protected abstract bool CheckYaku(bool turn);

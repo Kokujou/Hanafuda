@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using ExtensionMethods;
 
 namespace Hanafuda
 {
@@ -46,6 +47,7 @@ namespace Hanafuda
         /// <param name="param">Serialisierte Instanz der NodeParameter-Klasse</param>
         /// <returns>Serialisierte Instanz der Note-Return-Klasse</returns>
         protected abstract object BuildChildNodes(object param);
+        
 
         /// <summary>
         /// Prototyp für Koordinierung des Multithreadings
@@ -55,6 +57,7 @@ namespace Hanafuda
         /// <param name="SkipOpponent">Gibt an, ob sich der Spieler während der Berechnung ändert</param>
         public virtual void Build(int maxDepth = 16, bool Turn = true, bool skipOpponent = false)
         {
+            Application.backgroundLoadingPriority = UnityEngine.ThreadPriority.High;
             MaxDepth = maxDepth;
             StartTurn = Turn;
             SkipOpponent = skipOpponent;
@@ -65,15 +68,16 @@ namespace Hanafuda
             Content.Add(new List<T> { Root });
 
             Content.Add(new List<T>());
-            List<T> firstResult = (List<T>)BuildChildNodes(Root);
+            List<T> firstResult = (List<T>)BuildChildNodes(Root.Clone());
             Content[1].AddRange(firstResult);
 
             if (maxDepth <= 1) return;
 
             for (int taskID = 0; taskID < firstResult.Count; taskID++)
             {
-                Task<object> newTask = new Task<object>(DeepConstruction, firstResult[taskID]);
-                newTask.Start();
+                object input = firstResult[taskID].Clone();
+                Task<object> newTask = new Task<object>(DeepConstruction, input, TaskCreationOptions.LongRunning );
+                newTask.RunSynchronously();
                 tasks.Add(newTask);
             }
             while (tasks.Count > 0)
@@ -93,6 +97,19 @@ namespace Hanafuda
 
         public object DeepConstruction(object param)
         {
+            try
+            {
+                // Change the thread priority to the one required.
+                Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Highest;
+
+                // Execute the task logic.
+            }
+            finally
+            {
+                // Restore the thread default priority.
+                Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Normal;
+            }
+
             List<List<T>> stateTree = new List<List<T>>();
             int level = 0;
             int node = 0;

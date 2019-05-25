@@ -38,14 +38,16 @@ namespace Hanafuda
             /// <param name="board"></param>
             /// <param name="card"></param>
             /// <returns></returns>
-            private List<Card> TryCollect(SearchingBoard board, Card card)
+            private List<Card> TryCollect(List<Card> Field, int turnID, Card card, bool opponent = false)
             {
-                List<Card> emptyReturn = new List<Card>();
-                List<Card> matches = new List<Card>();
+                List<Card> emptyReturn = new List<Card>(0);
+                List<Card> matches = new List<Card>(4);
 
-                for (int i = 0; i < board.Field.Count; i++)
-                    if (board.Field[i].Monat == card.Monat)
-                        matches.Add(board.Field[i]);
+                foreach (Card fieldCard in Field)
+                    if (fieldCard.Monat == card.Monat)
+                        matches.Add(fieldCard);
+
+                if (opponent) return matches;
 
                 if (matches.Count == 0)
                     return matches;
@@ -53,92 +55,71 @@ namespace Hanafuda
                 if (playerHandMonths[card.Monat] > 0 && matches.Count != 2)
                     return emptyReturn;
 
-                int turnID = 8 - board.computerHand.Count;
                 if (turnID > playerDeck[card.Monat])
                     return emptyReturn;
 
                 return matches;
-
             }
 
             protected override object BuildChildNodes(object param)
             {
-                bool fieldCopied = false;
                 SearchingBoard parent = (SearchingBoard)param;
-                List<SearchingBoard> result = new List<SearchingBoard>();
-
-                List<Card> targetHand = parent.Turn ? parent.computerHand : parent.playerHand;
-                List<Card> targetCollection = parent.Turn ? parent.computerCollection : parent.playerCollection;
-                for (int cardID = 0; cardID < targetHand.Count; cardID++)
+                List<SearchingBoard> result = new List<SearchingBoard>(8);
+                int turnID = 8 - parent.computerHand.Count;
+                foreach (Card card in parent.computerHand)
                 {
-                    Card card = targetHand[cardID];
                     SearchingBoard child = new SearchingBoard(parent);
-                    List<Card> matches = TryCollect(child, card);
+                    List<Card> newCollection = new List<Card>( parent.computerCollection);
+                    List<Card> newField = new List<Card>(16);
+                    newField.AddRange(parent.Field);
+                    List<Card> matches = TryCollect(newField, turnID, card);
                     if (matches.Count > 0)
                     {
-                        List<Card> newCollection = new List<Card>(targetCollection);
                         newCollection.Add(card);
                         newCollection.AddRange(matches);
-                        if (parent.Turn)
-                            child.computerCollection = newCollection;
-                        else
-                            child.playerCollection = newCollection;
+                        child.CardsCollected += 1 + matches.Count;
+                        foreach (Card match in matches)
+                            newField.Remove(match);
                     }
                     else
                     {
-                        fieldCopied = true;
-                        child.Field = new List<Card>();
-                        child.Field.AddRange(parent.Field);
-                        child.Field.Add(card);
+                        newField.Add(card);
                     }
 
-                    int deckID = (8 - (targetHand.Count)) * 2 + (Root.Turn ? 0 : 1);
+                    int deckID = (turnID) * 2;
                     Card deckCard = parent.Deck[deckID];
-                    List<Card> deckMatches = TryCollect(child, deckCard);
+                    List<Card> deckMatches = TryCollect(newField, turnID, deckCard);
                     if (deckMatches.Count > 0)
                     {
-                        List<Card> newCollection = new List<Card>(targetCollection);
                         newCollection.Add(deckCard);
                         newCollection.AddRange(deckMatches);
-                        if (parent.Turn)
-                            child.computerCollection = newCollection;
-                        else
-                            child.playerCollection = newCollection;
+                        child.CardsCollected += 1 + deckMatches.Count;
+                        foreach (Card match in deckMatches)
+                            newField.Remove(match);
                     }
                     else
                     {
-                        if (!fieldCopied)
-                        {
-                            fieldCopied = true;
-                            child.Field = new List<Card>();
-                            child.Field.AddRange(parent.Field);
-                        }
-                        child.Field.Add(deckCard);
+                        newField.Add(deckCard);
                     }
 
-                    int oppDeckID = (8 - (targetHand.Count)) * 2 + (Root.Turn ? 1 : 0);
+                    int oppDeckID = (turnID) * 2 + 1;
                     Card oppDeckCard = parent.Deck[deckID];
-                    List<Card> oppDeckMatches = TryCollect(child, oppDeckCard);
+                    List<Card> oppDeckMatches = TryCollect(newField, turnID, oppDeckCard, true);
                     if (oppDeckMatches.Count == 0)
                     {
-                        if (!fieldCopied)
-                        {
-                            fieldCopied = true;
-                            child.Field = new List<Card>();
-                            child.Field.AddRange(parent.Field);
-                        }
-                        child.Field.Add(oppDeckCard);
+                        newField.Add(oppDeckCard);
                     }
 
-                    List<Card> newHand = new List<Card>(targetHand);
-                    newHand.RemoveAt(cardID);
-                    child.computerHand = parent.Turn ? newHand : parent.computerHand;
-                    child.playerHand = parent.Turn ? parent.playerHand : newHand;
-
+                    List<Card> newHand = new List<Card>(8);
+                    foreach (Card newCard in parent.computerHand)
+                        if (newCard != card)
+                            newHand.Add(newCard);
+                    child.computerHand = newHand;
+                    child.computerCollection = newCollection;
+                    child.Field = newField;
                     child.LastMove = new Move();
                     child.LastMove.HandSelection = card.Title;
                     child.LastMove.DeckSelection = deckCard.Title;
-                    child.Turn = SkipOpponent ? parent.Turn : !parent.Turn;
                     result.Add(child);
                 }
                 return result;

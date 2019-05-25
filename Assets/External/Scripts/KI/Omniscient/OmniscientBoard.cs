@@ -12,7 +12,7 @@ namespace Hanafuda
         public Player player;
         public List<Card> Deck;
 
-        protected override OmniscientBoard Clone() => new OmniscientBoard(this);
+        public override OmniscientBoard Clone() => new OmniscientBoard(this);
 
         public OmniscientBoard(Spielfeld root) : base(root)
         {
