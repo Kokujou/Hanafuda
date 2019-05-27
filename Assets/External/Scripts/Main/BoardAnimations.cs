@@ -102,6 +102,7 @@ namespace Hanafuda
                 List<Card> HandCollection;
                 if (action.HandFieldSelection)
                     HandCollection = new List<Card>() { action.HandFieldSelection, action.HandSelection };
+                else if (Field.Count(x => x.Monat == action.HandSelection.Monat) == 3) throw new ArgumentException("Es wird versucht zwei identische Karten einzusammeln");
                 else
                     HandCollection = new List<Card>(Field.FindAll(x => x.Monat == action.HandSelection.Monat));
 
@@ -121,6 +122,7 @@ namespace Hanafuda
                 List<Card> DeckCollection;
                 if (action.DeckFieldSelection)
                     DeckCollection = new List<Card>() { action.DeckFieldSelection, action.DeckSelection };
+                else if (Field.Count(x => x.Monat == action.DeckSelection.Monat) == 3) throw new ArgumentException("Es wird versucht zwei identische Karten einzusammeln");
                 else
                     DeckCollection = new List<Card>(Field.FindAll(x => x.Monat == action.DeckSelection.Monat));
                 if (DeckCollection.Count != 1)

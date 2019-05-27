@@ -13,7 +13,8 @@ namespace Hanafuda
         public List<Card> computerHand;
         public List<Card> computerCollection;
         public readonly Dictionary<int, Card> Deck;
-        public int CardsCollected;
+        public List<int> CardsCollected;
+        public int TurnID;
 
         public SearchingBoard() { }
 
@@ -24,17 +25,22 @@ namespace Hanafuda
             playerHand = target.playerHand;
             computerHand = target.computerHand;
             computerCollection = target.computerCollection;
-            CardsCollected = 0;
+            CardsCollected = new List<int>(target.CardsCollected);
+            Root = target.Root;
+            TurnID = target.TurnID;
         }
 
 
         public SearchingBoard(Spielfeld root) : base(root)
         {
-            playerHand = root.players[1 - Settings.PlayerID].Hand;
+            playerHand = new Player(root.players[Settings.PlayerID]).Hand;
             computerHand = computer.Hand;
             computerCollection = computer.CollectedCards;
             Deck = root.Deck.ToDictionary(24);
-            CardsCollected = 0;
+            CardsCollected = new List<int>(8);
+            Root = -1;
+            TurnID = 0;
+            Global.Log(string.Join(";",computerHand));
         }
 
         protected override void ApplyMove(string selection, string secondSelection, bool fromHand, bool turn)
@@ -54,8 +60,10 @@ namespace Hanafuda
             Result.Field = new List<Card>(Field);
             Result.computerHand = new List<Card>(computerHand);
             Result.computerCollection = new List<Card>(computerCollection);
-            Result.CardsCollected = 0;
+            Result.CardsCollected = new List<int>(CardsCollected);
             Result.Turn = Turn;
+            Result.Root = Root;
+            Result.TurnID = TurnID;
 
             return Result;
         }

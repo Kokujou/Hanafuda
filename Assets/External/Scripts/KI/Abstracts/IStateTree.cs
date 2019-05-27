@@ -75,9 +75,10 @@ namespace Hanafuda
 
             for (int taskID = 0; taskID < firstResult.Count; taskID++)
             {
+                firstResult[taskID].Root = taskID;
                 object input = firstResult[taskID].Clone();
                 Task<object> newTask = new Task<object>(DeepConstruction, input, TaskCreationOptions.LongRunning );
-                newTask.RunSynchronously();
+                newTask.Start();
                 tasks.Add(newTask);
             }
             while (tasks.Count > 0)
@@ -118,15 +119,10 @@ namespace Hanafuda
             stateTree[level].AddRange((List<T>)BuildChildNodes(param));
             stateTree.Add(new List<T>());
 
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            watch.Start();
-
             while (true)
             {
                 if (node >= stateTree[level].Count)
                 {
-                    Global.Log($"Time for building level {level+2} from {MaxDepth}: {watch.ElapsedMilliseconds}\n");
-                    watch.Restart();
                     if (stateTree[level + 1].Count == 0 || level + 1 >= (MaxDepth-2))
                         break;
                     level++;

@@ -9,6 +9,12 @@ namespace Hanafuda
 {
     public static class VirtualMethods
     {
+        public static bool IsOmniscient(this Settings.AIMode mode)
+        {
+            if (mode == Settings.AIMode.Omniscient || mode == Settings.AIMode.Searching) return true;
+            return false;
+        }
+
         public static Dictionary<int, T> ToDictionary<T>(this List<T> list, int Capacity = -1)
         {
             Dictionary<int, T> Result;

@@ -12,7 +12,7 @@ namespace Hanafuda
         {
             Dictionary<Card.Months, int> computerDeck = Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => 9);
             Dictionary<Card.Months, int> playerDeck = Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => 9);
-            Dictionary<Card.Months, int> playerHandMonths = Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => 9);
+            Dictionary<Card.Months, int> playerHandMonths = Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => 0);
 
             public SearchingStateTree(SearchingBoard root, List<List<SearchingBoard>> tree = null) : base(root, tree)
             {
@@ -65,19 +65,20 @@ namespace Hanafuda
             {
                 SearchingBoard parent = (SearchingBoard)param;
                 List<SearchingBoard> result = new List<SearchingBoard>(8);
-                int turnID = 8 - parent.computerHand.Count;
                 foreach (Card card in parent.computerHand)
                 {
                     SearchingBoard child = new SearchingBoard(parent);
-                    List<Card> newCollection = new List<Card>( parent.computerCollection);
+                    child.TurnID = parent.TurnID + 1;
+                    List<Card> newCollection = new List<Card>(parent.computerCollection);
                     List<Card> newField = new List<Card>(16);
                     newField.AddRange(parent.Field);
-                    List<Card> matches = TryCollect(newField, turnID, card);
+                    List<Card> matches = TryCollect(newField, parent.TurnID, card);
+                    int collectedCards = 0;
                     if (matches.Count > 0)
                     {
                         newCollection.Add(card);
                         newCollection.AddRange(matches);
-                        child.CardsCollected += 1 + matches.Count;
+                        collectedCards += 1 + matches.Count;
                         foreach (Card match in matches)
                             newField.Remove(match);
                     }
@@ -86,14 +87,14 @@ namespace Hanafuda
                         newField.Add(card);
                     }
 
-                    int deckID = (turnID) * 2;
+                    int deckID = (parent.TurnID) * 2;
                     Card deckCard = parent.Deck[deckID];
-                    List<Card> deckMatches = TryCollect(newField, turnID, deckCard);
+                    List<Card> deckMatches = TryCollect(newField, parent.TurnID, deckCard);
                     if (deckMatches.Count > 0)
                     {
                         newCollection.Add(deckCard);
                         newCollection.AddRange(deckMatches);
-                        child.CardsCollected += 1 + deckMatches.Count;
+                        collectedCards += 1 + deckMatches.Count;
                         foreach (Card match in deckMatches)
                             newField.Remove(match);
                     }
@@ -102,9 +103,9 @@ namespace Hanafuda
                         newField.Add(deckCard);
                     }
 
-                    int oppDeckID = (turnID) * 2 + 1;
+                    int oppDeckID = (parent.TurnID) * 2 + 1;
                     Card oppDeckCard = parent.Deck[deckID];
-                    List<Card> oppDeckMatches = TryCollect(newField, turnID, oppDeckCard, true);
+                    List<Card> oppDeckMatches = TryCollect(newField, parent.TurnID, oppDeckCard, true);
                     if (oppDeckMatches.Count == 0)
                     {
                         newField.Add(oppDeckCard);
@@ -120,6 +121,7 @@ namespace Hanafuda
                     child.LastMove = new Move();
                     child.LastMove.HandSelection = card.Title;
                     child.LastMove.DeckSelection = deckCard.Title;
+                    child.CardsCollected.Add(collectedCards);
                     result.Add(child);
                 }
                 return result;

@@ -92,6 +92,7 @@ namespace Hanafuda
                 hit.collider.gameObject.name != card.Title)
             {
                 Card selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
+                if (selected.Monat != card.Monat) return;
                 for (int i = 0; i < Board.Field.Count; i++)
                     Board.Field[i].FadeCard(false);
                 Board.SelectCard(selected, fromDeck);
@@ -99,7 +100,7 @@ namespace Hanafuda
         }
 
         public void RequestFieldSelection(Card card, bool fromDeck)
-        {
+        { 
             InputRoutine = () => { FieldInteraction(card, fromDeck); };
             isActive = true;
         }

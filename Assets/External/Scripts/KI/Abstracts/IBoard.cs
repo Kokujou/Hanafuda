@@ -14,6 +14,7 @@ namespace Hanafuda
         public bool isFinal;
         public bool Turn;
         public float Value;
+        public int Root;
 
         public Move LastMove;
 

@@ -36,11 +36,8 @@ namespace Hanafuda
                     StartCoroutine(Animations.AfterAnimation(() => CollectCards(Collection)));
                     break;
                 case 3:
-                    for (int match = 0; match < matches.Count; match++)
-                    {
-                        if (matches[match] != card)
-                            matches[match].FadeCard(true);
-                    }
+                    HoverMatches(card.Monat);
+                    card.FadeCard();
                     gameObject.GetComponent<PlayerComponent>().RequestFieldSelection(card, fromDeck);
                     return false;
                 default:

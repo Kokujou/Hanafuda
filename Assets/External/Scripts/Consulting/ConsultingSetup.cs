@@ -59,7 +59,7 @@ namespace Hanafuda
             Consulting.BoardValidity hand2Validity;
             int diff = board.players[0].Hand.Count - board.players[1].Hand.Count;
             bool hand2Valid = true;
-            if (Settings.AiMode == Settings.AIMode.Omniscient)
+            if (Settings.AiMode.IsOmniscient())
             {
                 hand2Valid = (diff == 0 || diff == 1) && board.players[0].Hand.Count <= 8;
                 if (!hand2Valid) hand2Validity = Consulting.BoardValidity.Invalid;
@@ -122,6 +122,8 @@ namespace Hanafuda
         {
             if (Builder.activeInHierarchy) return;
             Builder.SetActive(true);
+            foreach (Transform child in Content)
+                Destroy(child.gameObject);
             target = new List<Card>();
             switch (SetupTarget)
             {
@@ -144,6 +146,7 @@ namespace Hanafuda
 
             for (int cardID = 0; cardID < target.Count + Board.Deck.Count; cardID++)
             {
+                
                 Card card;
                 if (cardID < target.Count)
                     card = target[cardID];
@@ -151,6 +154,7 @@ namespace Hanafuda
                     card = Board.Deck[cardID - target.Count];
                 GameObject cardObject = new GameObject("Card");
                 cardObject.transform.SetParent(Content, false);
+                
                 RawImage cardImage = cardObject.AddComponent<RawImage>();
                 cardImage.texture = card.Image.mainTexture;
                 if (cardID < target.Count)
