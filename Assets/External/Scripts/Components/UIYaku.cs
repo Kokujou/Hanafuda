@@ -35,7 +35,8 @@ namespace Hanafuda
                                 images[firstMissing].texture = card.Image.mainTexture;
                             }
                         }
-                        else {
+                        else
+                        {
                             foreach (RawImage image in images)
                             {
                                 if (image.color.r < .9f)
@@ -108,10 +109,18 @@ namespace Hanafuda
         public void BuildFromCardsMobile(List<Card> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
         {
             int Column = 0;
-            yakus = yakus.OrderBy(x => Global.allYaku[x.Key].minSize).ToDictionary(x => x.Key, x => x.Value);
+            if (!yakus.Keys.Contains(-1))
+                yakus = yakus.OrderBy(x => Global.allYaku[x.Key].minSize).ToDictionary(x => x.Key, x => x.Value);
             foreach (var collectedYaku in yakus)
             {
-                Yaku yaku = Global.allYaku[collectedYaku.Key];
+                Yaku yaku = null;
+                if (collectedYaku.Key >= 0)
+                    yaku = Global.allYaku[collectedYaku.Key];
+                else if (collectedYaku.Value == 4)
+                    yaku = new Yaku() { Title = "Teshi", JName = "手四", basePoints = 6, minSize = 4, Mask = null };
+                else if (collectedYaku.Value == 8)
+                    yaku = new Yaku() { Title = "Kuttsuki", JName = "くっつき", basePoints = 6, minSize = 8, Mask = null };
+
                 GameObject obj = Instantiate(YakuPrefab, YakuColumns[Column]);
                 YakuTransforms.Add(new KeyValuePair<Transform, Yaku>(obj.transform, yaku));
                 RawImage card = obj.GetComponentInChildren<RawImage>();
@@ -123,9 +132,14 @@ namespace Hanafuda
                 List<Card> YakuCards = new List<Card>();
                 List<Card> nYakucards = new List<Card>();
 
-                cYakuCards.AddRange(cards.FindAll(x => yaku.Contains(x)));
-                YakuCards.AddRange(Global.allCards.FindAll(x => yaku.Contains(x)));
-                nYakucards = YakuCards.Where(x => !cYakuCards.Contains(x)).ToList();
+                if (collectedYaku.Key < 0)
+                    cYakuCards = cards;
+                else
+                {
+                    cYakuCards.AddRange(cards.FindAll(x => yaku.Contains(x)));
+                    YakuCards.AddRange(Global.allCards.FindAll(x => yaku.Contains(x)));
+                    nYakucards = YakuCards.Where(x => !cYakuCards.Contains(x)).ToList();
+                }
 
                 for (int i = 0; i < yaku.minSize; i++)
                 {

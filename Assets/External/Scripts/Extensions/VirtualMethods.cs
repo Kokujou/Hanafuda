@@ -9,6 +9,25 @@ namespace Hanafuda
 {
     public static class VirtualMethods
     {
+        /// <summary>
+        /// Determines, if a hand is an initial win
+        /// </summary>
+        /// <param name="hand">input hand with 8 cards</param>
+        /// <returns>0: no win, 1: 4 matching cards, 2: 4 pairs</returns>
+        public static int IsInitialWin(this List<Card> hand)
+        {
+            if (hand.Count != 8) return 0;
+            Dictionary<Card.Months, int> months = Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => 0);
+            foreach (Card card in hand)
+                months[card.Monat]++;
+            int pairs = 0;
+            foreach (var pair in months)
+                if (pair.Value == 4) return 1;
+                else if (pair.Value == 2) pairs++;
+            if (pairs == 4) return 2;
+            return 0;
+        }
+
         public static bool IsOmniscient(this Settings.AIMode mode)
         {
             if (mode == Settings.AIMode.Omniscient || mode == Settings.AIMode.Searching) return true;

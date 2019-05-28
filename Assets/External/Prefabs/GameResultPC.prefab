@@ -191,6 +191,7 @@ MonoBehaviour:
   YakuInfo: {fileID: 0}
   WinnerColor: {r: 0.10980392, g: 0.64705884, b: 0.10980392, a: 1}
   LooserColor: {r: 0.64705884, g: 0.10980392, b: 0.10980392, a: 1}
+  DrawnColor: {r: 0.69803923, g: 0.69803923, b: 0.101960786, a: 1}
 --- !u!114 &3271419181540190566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4693,7 +4694,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.000015258789}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &8384711103067948890

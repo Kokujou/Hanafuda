@@ -80,8 +80,6 @@ namespace Hanafuda
 
             }
             InfoUI.GetYakuList(Turn ? Settings.PlayerID : 1 - Settings.PlayerID).AddCards(ToCollect);
-            ((Player)players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectCards(ToCollect);
-            ToCollect.Clear();
             HoverHand(null);
         }
 

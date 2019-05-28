@@ -95,7 +95,7 @@ namespace Hanafuda
                 }
                 InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), players[0].CollectedYaku);
                 InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), players[1].CollectedYaku);
-            }            
+            }
             else Settings.Players[1 - Settings.PlayerID] = KI.Init((Settings.AIMode)Settings.AiMode, "Computer");
         }
 
@@ -134,6 +134,8 @@ namespace Hanafuda
                     new Vector3(0, 180, 0), Animations.StandardScale / factor, (i + 18) * 0.2f));
                 //StartCoroutine(temp.transform.StandardAnimation( GameObject.Find("Feld").transform.position + new Vector3((int)(i/2), 0, 0), new Vector3(0, 180 * (1 - i), 0), temp.transform.localScale, 16 * 0.2f));
             }
+            foreach (Player player in players)
+                if (player.Hand.IsInitialWin() != 0) DrawnGame();
             if (!Turn && !Settings.Multiplayer)
                 StartCoroutine(Animations.AfterAnimation(OpponentTurn));
         }

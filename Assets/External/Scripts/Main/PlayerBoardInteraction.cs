@@ -157,8 +157,8 @@ namespace Hanafuda
             {
                 animationQueue.Add(() =>
                 {
-                    List<Yaku> NewYaku = Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0),
-                            players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedCards);
+                    Collection.Clear();
+                    List<Yaku> NewYaku = Yaku.GetNewYakus(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku, Collection, true);
                     if (NewYaku.Count > 0)
                         Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
                     else
@@ -174,9 +174,16 @@ namespace Hanafuda
             if (GUILayout.Button("Cheat Player"))
             {
                 players[Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
+                players[Settings.PlayerID].CollectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
+                Settings.Players = players;
+                List<Yaku> NewYaku = Yaku.GetNewYakus(players[Settings.PlayerID].CollectedYaku, players[Settings.PlayerID].CollectedCards, true);
+                Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(new List<Yaku>(Global.allYaku), this);
+
             }
             if (GUILayout.Button("Cheat Opp."))
                 players[1 - Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
+            if (GUILayout.Button("Skip to Finish"))
+                SceneManager.LoadScene("Finish");
 #endif
         }
     }
