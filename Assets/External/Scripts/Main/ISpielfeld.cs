@@ -33,6 +33,7 @@ namespace Hanafuda
          * Interaction Part
          */
         protected List<Card> Collection;
+        protected List<Card> TurnCollection;
         protected PlayerAction currentAction;
 
         public abstract void HoverHand(Card card);

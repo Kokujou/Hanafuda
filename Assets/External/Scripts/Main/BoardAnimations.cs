@@ -47,6 +47,7 @@ namespace Hanafuda
 
         public override void CollectCards(List<Card> ToCollect)
         {
+            TurnCollection.AddRange(ToCollect);
             HoverMatches(Card.Months.Null);
             Vector3 destPos = Vector3.zero;
             Vector3 destRot = Vector3.zero;
@@ -80,6 +81,7 @@ namespace Hanafuda
 
             }
             InfoUI.GetYakuList(Turn ? Settings.PlayerID : 1 - Settings.PlayerID).AddCards(ToCollect);
+            ToCollect.Clear();
             HoverHand(null);
         }
 
@@ -141,6 +143,7 @@ namespace Hanafuda
 
             actions.Add(() =>
             {
+                TurnCollection.Clear();
                 Turn = !Turn;
                 PlayerComponent player = gameObject.GetComponent<PlayerComponent>();
                 if (player)

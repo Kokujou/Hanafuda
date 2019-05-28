@@ -52,6 +52,7 @@ namespace Hanafuda
         {
             Camera.main.SetCameraRect();
             Collection = new List<Card>();
+            TurnCollection = new List<Card>();
             Hovered = new Card[] { };
             Deck = new List<Card>();
             Field = new List<Card>();

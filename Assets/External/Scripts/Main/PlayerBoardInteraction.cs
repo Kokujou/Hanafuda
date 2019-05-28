@@ -157,8 +157,10 @@ namespace Hanafuda
             {
                 animationQueue.Add(() =>
                 {
-                    Collection.Clear();
-                    List<Yaku> NewYaku = Yaku.GetNewYakus(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku, Collection, true);
+                    Debug.Log(string.Join(";", players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku.Values));
+                    Debug.Log(string.Join(";", TurnCollection));
+                    List<Yaku> NewYaku = Yaku.GetNewYakus(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku, TurnCollection, true);
+                    TurnCollection.Clear();
                     if (NewYaku.Count > 0)
                         Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
                     else

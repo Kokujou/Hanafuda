@@ -86,7 +86,7 @@ namespace Hanafuda
             Settings.Players[1].pTotalPoints.Add(Settings.Players[1].tempPoints);
 
             if (Settings.Mobile)
-                YakuInfo.BuildFromCards(initialWin > 0 ? winner.Hand : winner.CollectedCards, 
+                YakuInfo.BuildFromCards(initialWin > 0 ? winner.Hand : winner.CollectedCards,
                     (initialWin > 0 ? new Dictionary<int, int>() { { -1, initialWin == 1 ? 4 : 8 } } : winner.CollectedYaku), -45);
             else
                 SetupYakus(winner, initialWin);
@@ -105,7 +105,8 @@ namespace Hanafuda
         private void SetupYakus(Player winner, int initialWin)
         {
             Column = 0;
-            foreach (var collectedYaku in (initialWin > 0 ? new Dictionary<int, int>() { { -1, initialWin == 1 ? 4 : 8 } } : winner.CollectedYaku))
+            foreach (var collectedYaku in (initialWin > 0 ? new Dictionary<int, int>() { { -1, initialWin == 1 ? 4 : 8 } } : 
+                winner.CollectedYaku.Where(x => x.Value >= Global.allYaku[x.Key].minSize)))
             {
                 Yaku yaku = null;
                 if (initialWin == 0)
@@ -118,19 +119,11 @@ namespace Hanafuda
                 RawImage card = obj.GetComponentInChildren<RawImage>();
                 obj.GetComponentInChildren<Text>().text = yaku.Title + $" - {yaku.GetPoints(collectedYaku.Value)}P";
 
-                List<Card> yakuCards = new List<Card>();
+                List<Card> yakuCards;
                 if (initialWin > 0)
                     yakuCards = winner.Hand;
                 else
-                {
-                    if (yaku.Mask[1] == 1)
-                        yakuCards.AddRange(winner.CollectedCards.FindAll(x => yaku.Namen.Contains(x.Title)));
-                    if (yaku.Mask[0] == 1)
-                        yakuCards.AddRange(winner.CollectedCards.FindAll(x => !yaku.Namen.Contains(x.Title) && x.Typ == yaku.TypePref));
-                    if (yaku.Mask[1] == -1)
-                        yakuCards.RemoveAll(x => yaku.Namen.Contains(x.Title));
-                    if (yakuCards.Count < yaku.minSize) Debug.Log("Invalid Player Collection");
-                }
+                    yakuCards = winner.CollectedCards.Where(x => yaku.Contains(x)).ToList();
 
                 RawImage secondRowCard = null;
                 if (yaku.minSize > 5)

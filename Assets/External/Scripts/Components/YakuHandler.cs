@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Linq;
 
 namespace Hanafuda
 {
@@ -49,11 +50,7 @@ namespace Hanafuda
             const int CardOffset = 10;
             int CardSpace = CardWidth + CardOffset;
             SetupText(Yaku);
-            List<Card> yakuCards = new List<Card>();
-            if (Yaku.Mask[1] == 1)
-                yakuCards.AddRange(Collection.FindAll(x => Yaku.Namen.Contains(x.Title)));
-            if (Yaku.Mask[0] == 1)
-                yakuCards.AddRange(Collection.FindAll(x => x.Typ == Yaku.TypePref));
+            List<Card> yakuCards = Collection.Where(x=>Yaku.Contains(x)).ToList();
             Transform parent = Cards.transform;
             for (int yakuCard = 0; yakuCard < Yaku.minSize; yakuCard++)
             {

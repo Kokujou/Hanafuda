@@ -177,8 +177,8 @@ namespace Hanafuda
         {
             if (Mask[1] == -1 && Namen.Contains(card.Title))
                 return false;
-            if (Mask[0] == 1 && card.Typ == TypePref ||
-                Mask[1] == 1 && Namen.Contains(card.Title))
+            if ((Mask[0] == 1 && card.Typ == TypePref) ||
+                (Mask[1] == 1 && Namen.Contains(card.Title)))
                 return true;
             return false;
         }
