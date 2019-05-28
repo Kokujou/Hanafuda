@@ -34,7 +34,7 @@ namespace Hanafuda
         /// <param name="root"></param>
         public IBoard(Spielfeld root)
         {
-            Turn = !root.Turn;
+            Turn = root.Turn;
             Field = new List<Card>(root.Field);
             LastMove = null;
             computer = new Player(root.players[1 - Settings.PlayerID]);
@@ -44,7 +44,7 @@ namespace Hanafuda
 
         protected IBoard(IBoard<T> board)
         {
-            Turn = !board.Turn;
+            Turn = board.Turn;
             Field = new List<Card>(board.Field);
             LastMove = null;
             computer = new Player(board.computer);

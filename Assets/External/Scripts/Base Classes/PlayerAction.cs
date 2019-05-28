@@ -108,7 +108,7 @@ namespace Hanafuda
             else
             {
                 move.HandSelection = action.HandSelection.Title;
-                move.DeckSelection = action.DeckSelection.Title;
+                move.DeckSelection = action.DeckSelection?.Title;
                 if (action.HandFieldSelection)
                     move.HandFieldSelection = action.HandMatches[0].Title;
                 if (action.DeckFieldSelection)
@@ -129,9 +129,9 @@ namespace Hanafuda
                 action.SingleSelection = Global.allCards.Find(x => x.Title == move.SingleSelection);
             if (move.HandFieldSelection.Length > 0)
                 action.SelectHandMatch(Global.allCards.Find(x => x.Title == move.HandFieldSelection));
-            if (move.DeckSelection.Length > 0)
+            if (move.DeckSelection?.Length > 0)
                 action.DrawCard(Global.allCards.Find(x => x.Title == move.DeckSelection));
-            if (move.DeckFieldSelection.Length > 0)
+            if (move.DeckFieldSelection?.Length > 0)
                 action.SelectDeckMatch(Global.allCards.Find(x => x.Title == move.DeckFieldSelection));
             action.HadYaku = move.HadYaku;
             action.Koikoi = move.Koikoi;

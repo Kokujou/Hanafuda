@@ -60,14 +60,19 @@ namespace Hanafuda
             action = new PlayerAction();
             action.Init(Board);
 
+            if(turn)
             board.players.Reverse();
             IArtificialIntelligence computer = (IArtificialIntelligence)KI.Init(Settings.AiMode, "Computer");
-            aiRecommendation = PlayerAction.FromMove(computer.MakeTurn(board), board);
+            activeAI = computer;
+            Move move = computer.MakeTurn(board);
+            aiRecommendation = PlayerAction.FromMove(move, board);
+            if(turn)
+            board.players.Reverse();
             Debug.Log(aiRecommendation.ToString());
 
             ResetUI();
 
-            if (Settings.AiMode == Settings.AIMode.Omniscient)
+            if (Settings.AiMode.IsOmniscient())
                 SetMoveOptions(board);
             else
                 SetUninformedMoveOptions(board);

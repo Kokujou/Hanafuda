@@ -31,7 +31,8 @@ namespace Hanafuda
 
         protected override void BuildStateTree(Spielfeld cRoot)
         {
-            cRoot.Turn = true;
+            OmniscientBoard root = new OmniscientBoard(cRoot);
+            root.Turn = true;
             Tree = new OmniscientStateTree(new OmniscientBoard(cRoot));
             Tree.Build(1);
         }
@@ -141,6 +142,11 @@ namespace Hanafuda
                      $"{string.Join("\n", YakuInTurns.Where(x => YakuTargeted[x.Key]).Select(x => $"{Global.allYaku[x.Key].Title} in min. {x.Value} Turns."))}");
                      */
             return new StateProps() { GlobalMinimum = GlobalMinimum, LocalMinimum = TotalCardValue };
+        }
+
+        public override Move RequestDeckSelection(Spielfeld board, Move baseMove)
+        {
+            throw new NotImplementedException();
         }
     }
 }

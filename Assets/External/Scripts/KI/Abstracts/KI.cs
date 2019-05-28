@@ -51,6 +51,8 @@ namespace Hanafuda
         }
         public abstract float RateState(T state);
 
+        public abstract Move RequestDeckSelection(Spielfeld board, Move baseMove);
+
         public IStateTree<T> Tree;
 
         public KI(string name) : base(name)

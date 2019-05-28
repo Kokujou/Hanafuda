@@ -51,6 +51,8 @@ namespace Hanafuda
         }
         public void HandInteraction()
         {
+            if (Board.players[Settings.PlayerID].Hand.Count == 0)
+                Board.DrawnGame();
             if (Settings.Mobile)
                 CreateSlide();
             else
@@ -100,7 +102,7 @@ namespace Hanafuda
         }
 
         public void RequestFieldSelection(Card card, bool fromDeck)
-        { 
+        {
             InputRoutine = () => { FieldInteraction(card, fromDeck); };
             isActive = true;
         }

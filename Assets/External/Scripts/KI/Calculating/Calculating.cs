@@ -17,9 +17,10 @@ namespace Hanafuda
 
         protected override void BuildStateTree(Spielfeld cRoot)
         {
-            cRoot.Turn = true;
-            Tree = new UninformedStateTree(new UninformedBoard(cRoot));
-            Tree.Build(1);
+            UninformedBoard root = new UninformedBoard(cRoot);
+            root.Turn = true;
+            Tree = new UninformedStateTree(root);
+            Tree.Build(1, skipOpponent: true);
         }
 
         private Dictionary<string, float> weights = new Dictionary<string, float>()
@@ -36,6 +37,30 @@ namespace Hanafuda
             float temp;
             if (weights.TryGetValue(name, out temp))
                 weights[name] = value;
+        }
+
+        public override Move RequestDeckSelection(Spielfeld root, Move baseMove)
+        {
+            UninformedBoard uninformedRoot = new UninformedBoard(root);
+            Card deckCard = uninformedRoot.UnknownCards.First(x=>x.Key.Title == baseMove.DeckSelection).Key;
+            List<Card> matches = root.Field.FindAll(x => x.Monat == deckCard.Monat);
+            if (matches.Count != 2) return baseMove;
+            float maxValue = -100f;
+            Card selection = null;
+            foreach (Card card in matches)
+            {
+                baseMove.DeckFieldSelection = card.Title;
+                UninformedBoard child = uninformedRoot.Clone();
+                UninformedBoard board = uninformedRoot.ApplyMove(child, baseMove, true);
+                float value = RateState(board);
+                if (value > maxValue || selection == null)
+                {
+                    maxValue = value;
+                    selection = card;
+                }
+            }
+            baseMove.DeckFieldSelection = selection.Title;
+            return baseMove;
         }
 
         public override Move MakeTurn(Spielfeld cRoot)

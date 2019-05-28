@@ -87,6 +87,14 @@ namespace Hanafuda
             }
         }
 
+        public override void DrawnGame()
+        {
+            /*
+             * Drawn Game Animation
+             */
+            SceneManager.LoadScene("Finish");
+        }
+
         protected override void OpponentTurn()
         {
             Turn = false;
@@ -145,27 +153,31 @@ namespace Hanafuda
                 animationQueue.Add(() => StartCoroutine(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand.ResortCards(new CardLayout(true))));
                 animationQueue.Add(() => SelectCard(Deck[0], true));
             }
-            else if (Collection.Count > 1)
+            else
+            {
                 animationQueue.Add(() =>
                 {
-                    List<Yaku> NewYaku = Yaku.GetNewYakus(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID], Collection);
+                    List<Yaku> NewYaku = Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0),
+                            players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedCards);
                     if (NewYaku.Count > 0)
                         Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
                     else
                         OpponentTurn();
                 });
-            else animationQueue.Add(OpponentTurn);
+            }
 
             StartCoroutine(Animations.CoordinateQueue(animationQueue));
         }
         private void OnGUI()
         {
+#if UNITY_EDITOR
             if (GUILayout.Button("Cheat Player"))
             {
                 players[Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
             }
             if (GUILayout.Button("Cheat Opp."))
                 players[1 - Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
+#endif
         }
     }
 }

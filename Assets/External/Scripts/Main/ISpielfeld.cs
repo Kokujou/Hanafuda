@@ -39,6 +39,7 @@ namespace Hanafuda
         protected abstract bool HandleMatches(Card card, bool fromDeck = false);
         public abstract void SayKoiKoi(bool koikoi);
         public abstract void SelectCard(Card card, bool fromDeck = false);
+        public abstract void DrawnGame();
         protected abstract void OpponentTurn();
         protected abstract void ApplyMove(Move move);
 

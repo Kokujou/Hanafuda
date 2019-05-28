@@ -135,12 +135,18 @@ namespace Hanafuda
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
             Global.Log("Searching AI Tree Building started");
-            cRoot.Turn = true;
-            Tree = new SearchingStateTree(new SearchingBoard(cRoot));
+            SearchingBoard root = new SearchingBoard(cRoot);
+            root.Turn = true;
+            Tree = new SearchingStateTree(new SearchingBoard(root));
             Tree.Build(skipOpponent: true);
             Global.Log($"State Tree Building Time: {watch.ElapsedMilliseconds}");
             Global.Log($"State Tree Last Count: {Tree.GetLevel(Tree.Size - 1).Count}");
             StateValues = RateFirstLevel();
+        }
+
+        public override Move RequestDeckSelection(Spielfeld board, Move baseMove)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -37,6 +37,13 @@ namespace Hanafuda
                 foreach (Transform child in parent)
                     Destroy(child.gameObject);
                 List<Card> matches = Board.Field.FindAll(x => x.Monat == selected.Monat);
+                if (!Settings.AiMode.IsOmniscient() && matches.Count == 2 && key == DeckSelectionParent)
+                {
+                    Board.players.Reverse();
+                    aiRecommendation.DeckSelection = action.DeckSelection;
+                    aiRecommendation = PlayerAction.FromMove(activeAI.RequestDeckSelection(Board, aiRecommendation), Board);
+                    Board.players.Reverse();
+                }
                 foreach (Card match in matches)
                 {
                     RawImage cardImage = CreateCard(parent, match).GetComponent<RawImage>();
@@ -79,6 +86,6 @@ namespace Hanafuda
                 ApplyMove(action);
         }
 
-        
+
     }
 }

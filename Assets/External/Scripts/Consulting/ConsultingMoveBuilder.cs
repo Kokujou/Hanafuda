@@ -21,6 +21,8 @@ namespace Hanafuda
         private PlayerAction action;
         private PlayerAction aiRecommendation;
 
+        private IArtificialIntelligence activeAI;
+
         private bool HadYaku;
         private bool Koikoi;
 
