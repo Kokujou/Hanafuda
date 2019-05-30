@@ -108,7 +108,6 @@ namespace Hanafuda
 
                 if (HandCollection.Count != 1)
                 {
-                    Field.RemoveAll(x => HandCollection.Contains(x));
                     CollectCards(HandCollection);
                 }
             });
@@ -127,16 +126,19 @@ namespace Hanafuda
                     DeckCollection = new List<Card>(Field.FindAll(x => x.Monat == action.DeckSelection.Monat));
                 if (DeckCollection.Count != 1)
                 {
-                    Field.RemoveAll(x => DeckCollection.Contains(x));
                     CollectCards(DeckCollection);
                 }
             });
 
             if (action.HadYaku)
             {
-                if (action.Koikoi)
-                    players[action.PlayerID].Koikoi++;
-                actions.Add(() => SayKoiKoi(action.Koikoi));
+                actions.Add(() =>
+                {
+                    Dictionary<int, int> collectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
+                    Yaku.GetNewYakus(collectedYaku, players[1 - Settings.PlayerID].CollectedCards, true);
+                    players[1 - Settings.PlayerID].CollectedYaku = collectedYaku;
+                    SayKoiKoi(action.Koikoi);
+                });
             }
 
             actions.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));

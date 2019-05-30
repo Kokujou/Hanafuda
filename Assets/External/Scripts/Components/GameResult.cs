@@ -37,9 +37,6 @@ namespace Hanafuda
             P1Name.text = Settings.Players[0].Name;
             P2Name.text = Settings.Players[1].Name;
 
-            foreach (Player player in Settings.Players)
-                player.tempPoints = player.CollectedYaku.Sum(x => Global.allYaku[x.Key].GetPoints(x.Value));
-
             if (Settings.Players[0].tempPoints > Settings.Players[1].tempPoints || (initialWin = Settings.Players[0].Hand.IsInitialWin()) > 0)
             {
 
@@ -87,7 +84,8 @@ namespace Hanafuda
 
             if (Settings.Mobile)
                 YakuInfo.BuildFromCards(initialWin > 0 ? winner.Hand : winner.CollectedCards,
-                    (initialWin > 0 ? new Dictionary<int, int>() { { -1, initialWin == 1 ? 4 : 8 } } : winner.CollectedYaku), -45);
+                    (initialWin > 0 ? new Dictionary<int, int>() { { -1, initialWin == 1 ? 4 : 8 } } :
+                    winner.CollectedYaku.Where(x => Global.allYaku[x.Key].minSize <= x.Value).ToDictionary(x => x.Key, x => x.Value)), -45);
             else
                 SetupYakus(winner, initialWin);
 
@@ -105,7 +103,7 @@ namespace Hanafuda
         private void SetupYakus(Player winner, int initialWin)
         {
             Column = 0;
-            foreach (var collectedYaku in (initialWin > 0 ? new Dictionary<int, int>() { { -1, initialWin == 1 ? 4 : 8 } } : 
+            foreach (var collectedYaku in (initialWin > 0 ? new Dictionary<int, int>() { { -1, initialWin == 1 ? 4 : 8 } } :
                 winner.CollectedYaku.Where(x => x.Value >= Global.allYaku[x.Key].minSize)))
             {
                 Yaku yaku = null;
@@ -154,7 +152,7 @@ namespace Hanafuda
             if (Settings.Rounds < (Settings.Rounds6 ? 6 : 12))
             {
                 int winnerIndex = Settings.Players.IndexOf(winner);
-                if (winnerIndex != 0)
+                if (winnerIndex > 0)
                 {
                     Settings.Players.RemoveAt(winnerIndex);
                     Settings.Players.Insert(0, winner);

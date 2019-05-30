@@ -57,7 +57,7 @@ namespace Hanafuda
         {
             Hand.Clear();
             CollectedCards.Clear();
-            CollectedYaku.Clear();
+            CollectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
             tempPoints = 0;
             Koikoi = 0;
         }

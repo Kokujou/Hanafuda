@@ -30,7 +30,7 @@ namespace Hanafuda
                 PPlayableMonths = new Dictionary<Card.Months, uint>(
                     Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => (uint)0));
                 OppPlayableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
-                
+
                 for (int cardID = 0; cardID < opponent.Hand.Count; cardID++)
                 {
                     Card deckCard = State.Deck[cardID * 2 + 1];
@@ -167,11 +167,10 @@ namespace Hanafuda
                         this[card.ID].Probability = 1;
                     else
                     {
-                        this[card.ID].Probability = this
-                            .Where(x => x.card.Monat == card.Monat)
-                            .Sum(x => x.Probability);
-                        if (this[card.ID].Probability > 1)
-                            this[card.ID].Probability = 1;
+                        float prob = 1f;
+                        foreach (CardProperties month in this.Where(x => x.card.Monat == card.Monat))
+                            prob *= (1 - month.Probability);
+                        this[card.ID].Probability = 1 - prob;
                     }
                 }
                 foreach (Card card in playerDeck)
@@ -182,11 +181,10 @@ namespace Hanafuda
                         this[card.ID].Probability = 1;
                     else
                     {
-                        this[card.ID].Probability = this
-                            .Where(x => x.card.Monat == card.Monat)
-                            .Sum(x => x.Probability);
-                        if (this[card.ID].Probability > 1)
-                            this[card.ID].Probability = 1;
+                        float prob = 1f;
+                        foreach (CardProperties month in this.Where(x => x.card.Monat == card.Monat))
+                            prob *= (1 - month.Probability);
+                        this[card.ID].Probability = 1 - prob;
                     }
                 }
             }

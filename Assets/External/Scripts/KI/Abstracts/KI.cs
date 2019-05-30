@@ -27,7 +27,7 @@ namespace Hanafuda
             Debug.Log("KI Turn Decision started");
             BuildStateTree(board);
             //Bewertung möglicherweise in Threads?
-            var maxValue = -100f;
+            float maxValue = float.NegativeInfinity;
             Move selectedMove = null;
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();

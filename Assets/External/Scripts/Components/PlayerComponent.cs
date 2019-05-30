@@ -22,6 +22,7 @@ namespace Hanafuda
         private Spielfeld Board;
         private Action InputRoutine;
         private bool isActive;
+        private bool FieldSelectionRequested = false;
         private GameObject Slide;
         private Card Selection;
         public void Activate(bool active)
@@ -30,6 +31,7 @@ namespace Hanafuda
         }
         public void Reset()
         {
+            FieldSelectionRequested = false;
             InputRoutine = HandInteraction;
             isActive = true;
         }
@@ -46,7 +48,7 @@ namespace Hanafuda
         public void Update()
         {
             if (EventSystem.current && EventSystem.current.IsPointerOverGameObject()) return;
-            if (Board.Turn && isActive && Global.MovingCards == 0)
+            if (Board.Turn && isActive && (Global.MovingCards == 0 || (Global.MovingCards == 1 && FieldSelectionRequested)))
                 InputRoutine();
         }
         public void HandInteraction()
@@ -97,7 +99,10 @@ namespace Hanafuda
                 if (selected.Monat != card.Monat) return;
                 for (int i = 0; i < Board.Field.Count; i++)
                     Board.Field[i].FadeCard(false);
-                Board.SelectCard(selected, fromDeck);
+                if (fromDeck)
+                    Board.currentAction.SelectDeckMatch(selected);
+                else
+                    Board.currentAction.SelectHandMatch(selected);
             }
         }
 
@@ -105,6 +110,7 @@ namespace Hanafuda
         {
             InputRoutine = () => { FieldInteraction(card, fromDeck); };
             isActive = true;
+            FieldSelectionRequested = true;
         }
 
     }

@@ -25,7 +25,7 @@ namespace Hanafuda
             }
         }
 
-        protected override bool HandleMatches(Card card, bool fromDeck = false)
+        protected override void HandleMatches(Card card, List<Action> AnimationQueue, bool fromDeck = false)
         {
             List<Card> matches = Field.FindAll(x => x.Monat == card.Monat);
             switch (matches.Count)
@@ -33,24 +33,23 @@ namespace Hanafuda
                 case 2:
                 case 4:
                     Collection = matches;
-                    StartCoroutine(Animations.AfterAnimation(() => CollectCards(Collection)));
+                    CollectCards(Collection);
                     break;
                 case 3:
                     HoverMatches(card.Monat);
                     card.FadeCard();
                     gameObject.GetComponent<PlayerComponent>().RequestFieldSelection(card, fromDeck);
-                    return false;
+                    StartCoroutine(WaitForFieldSelection(fromDeck));
+                    break;
                 default:
                     Collection.Clear();
                     HoverMatches(Card.Months.Null);
                     break;
             }
-            return true;
         }
         public override void SayKoiKoi(bool koikoi)
         {
             bool turn = Turn;
-
             if (Settings.Multiplayer && turn)
             {
                 currentAction.SayKoikoi(koikoi);
@@ -63,6 +62,9 @@ namespace Hanafuda
             {
                 Settings.Players[0].tempPoints = 0;
                 Settings.Players[1].tempPoints = 0;
+                Player player = players[turn ? Settings.PlayerID : 1 - Settings.PlayerID];
+                player.tempPoints = player.CollectedYaku.Sum(x => Global.allYaku[x.Key].GetPoints(x.Value));
+                if (player.tempPoints == 0) Debug.Log(string.Join(";", player.CollectedCards));
                 if (turn)
                 {
                     /*
@@ -79,6 +81,7 @@ namespace Hanafuda
             }
             else
             {
+                players[turn ? Settings.PlayerID : 1 - Settings.PlayerID].Koikoi++;
                 /*
                  * Koikoi-Behandlung für Spieler bzw. Gegner
                  */
@@ -98,6 +101,11 @@ namespace Hanafuda
         protected override void OpponentTurn()
         {
             Turn = false;
+            if (players[1 - Settings.PlayerID].Hand.Count <= 0)
+            {
+                DrawnGame();
+                return;
+            }
             if (!Settings.Multiplayer)
             {
                 Move move = ((IArtificialIntelligence)players[1 - Settings.PlayerID]).MakeTurn(this);
@@ -107,6 +115,8 @@ namespace Hanafuda
             else
             {
                 PlayerInteraction.SendAction(currentAction);
+                currentAction = new PlayerAction();
+                currentAction.Init(this);
             }
         }
 
@@ -123,53 +133,62 @@ namespace Hanafuda
 
         public override void SelectCard(Card card, bool fromDeck = false)
         {
+            List<Action> animationQueue = new List<Action>();
             List<Card> Source = fromDeck ? Deck : players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand;
-            Collection.Add(card);
+            animationQueue.Add(() => Collection.Add(card));
             // = Erster Aufruf
-            if (Collection.Count == 1)
+            animationQueue.Add(() =>
             {
                 if (fromDeck)
                     currentAction.DrawCard();
                 else
                     currentAction.SelectFromHand(card);
-                SelectionToField(card);
                 Source.Remove(card);
-                if (!HandleMatches(card, fromDeck)) return;
-            }
-            else
-            {
-                if (fromDeck)
-                    currentAction.SelectDeckMatch(card);
-                else
-                    currentAction.SelectHandMatch(card);
-                StartCoroutine(Animations.AfterAnimation(() => CollectCards(Collection)));
-            }
-            HoverMatches(Card.Months.Null);
+                SelectionToField(card);
+            });
 
-            List<Action> animationQueue = new List<Action>();
+            animationQueue.Add(() => HandleMatches(card, animationQueue, fromDeck));
+            animationQueue.Add(() => HoverMatches(Card.Months.Null));
+
             animationQueue.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
-            if (!fromDeck)
+            animationQueue.Add(() => StartCoroutine(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand.ResortCards(new CardLayout(true))));
+
+            animationQueue.Add(() =>
             {
-                animationQueue.Add(() => StartCoroutine(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand.ResortCards(new CardLayout(true))));
-                animationQueue.Add(() => SelectCard(Deck[0], true));
-            }
-            else
+                currentAction.DrawCard();
+                SelectionToField(Deck[0]);
+            });
+
+            animationQueue.Add(() => HandleMatches(Deck[0], animationQueue, fromDeck));
+            animationQueue.Add(() => HoverMatches(Card.Months.Null));
+            animationQueue.Add(() => Deck.RemoveAt(0));
+
+            animationQueue.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
+
+            animationQueue.Add(() =>
             {
-                animationQueue.Add(() =>
-                {
-                    Debug.Log(string.Join(";", players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku.Values));
-                    Debug.Log(string.Join(";", TurnCollection));
-                    List<Yaku> NewYaku = Yaku.GetNewYakus(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku, TurnCollection, true);
-                    TurnCollection.Clear();
-                    if (NewYaku.Count > 0)
-                        Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
-                    else
-                        OpponentTurn();
-                });
-            }
+                Debug.Log(string.Join(";", players[Settings.PlayerID].CollectedCards));
+                List<Yaku> NewYaku = Yaku.GetNewYakus(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku, TurnCollection, true);
+                TurnCollection.Clear();
+                if (NewYaku.Count > 0)
+                    Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
+                else
+                    OpponentTurn();
+            });
 
             StartCoroutine(Animations.CoordinateQueue(animationQueue));
         }
+
+        private IEnumerator WaitForFieldSelection(bool fromDeck)
+        {
+            Global.MovingCards++;
+            while (fromDeck ? currentAction.DeckFieldSelection : currentAction.HandFieldSelection == null)
+                yield return null;
+            Collection.Add(fromDeck ? currentAction.DeckFieldSelection : currentAction.HandFieldSelection);
+            CollectCards(Collection);
+            Global.MovingCards--;
+        }
+
         private void OnGUI()
         {
 #if UNITY_EDITOR
@@ -183,7 +202,7 @@ namespace Hanafuda
 
             }
             if (GUILayout.Button("Cheat Opp."))
-                players[1 - Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
+                players[1 - Settings.PlayerID].CollectedCards = Global.allCards.FindAll(x => Global.allYaku.First(y => y.Title == "Hanamizake").Contains(x));
             if (GUILayout.Button("Skip to Finish"))
                 SceneManager.LoadScene("Finish");
 #endif
