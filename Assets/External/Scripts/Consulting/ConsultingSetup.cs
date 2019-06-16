@@ -43,9 +43,9 @@ namespace Hanafuda
             bool totalResult = true;
             Spielfeld board = MainSceneVariables.boardTransforms.Main;
 
-            for (int playerID = 0; playerID < board.players.Count; playerID++)
+            for (int playerID = 0; playerID < board.Players.Count; playerID++)
             {
-                bool tempResult = ValidateCollection(board.players[playerID]);
+                bool tempResult = ValidateCollection(board.Players[playerID]);
                 if (playerID == Settings.PlayerID)
                     Consulting.ConfirmArea(Target.PlayerCollection, tempResult ?
                         Consulting.BoardValidity.Valid : Consulting.BoardValidity.Invalid);
@@ -57,18 +57,18 @@ namespace Hanafuda
 
 
             Consulting.BoardValidity hand2Validity;
-            int diff = board.players[0].Hand.Count - board.players[1].Hand.Count;
+            int diff = board.Players[0].Hand.Count - board.Players[1].Hand.Count;
             bool hand2Valid = true;
             if (Settings.AiMode.IsOmniscient())
             {
-                hand2Valid = (diff == 0 || diff == 1) && board.players[0].Hand.Count <= 8;
+                hand2Valid = (diff == 0 || diff == 1) && board.Players[0].Hand.Count <= 8;
                 if (!hand2Valid) hand2Validity = Consulting.BoardValidity.Invalid;
-                else if (board.players[1 - Settings.PlayerID].Hand.Count == 0)
+                else if (board.Players[1 - Settings.PlayerID].Hand.Count == 0)
                     hand2Validity = Consulting.BoardValidity.Semivalid;
                 else hand2Validity = Consulting.BoardValidity.Valid;
                 Consulting.ConfirmArea(Target.OpponentHand, hand2Validity);
             }
-            bool hand1Valid = hand2Valid && board.players[Settings.PlayerID].Hand.Count > 0;
+            bool hand1Valid = hand2Valid && board.Players[Settings.PlayerID].Hand.Count > 0;
             if (!hand1Valid || !hand2Valid)
                 totalResult = false;
             Consulting.ConfirmArea(Target.PlayerHand, hand1Valid ?
@@ -128,19 +128,19 @@ namespace Hanafuda
             switch (SetupTarget)
             {
                 case Target.PlayerHand:
-                    target = Board.players[Settings.PlayerID].Hand;
+                    target = Board.Players[Settings.PlayerID].Hand;
                     break;
                 case Target.OpponentHand:
-                    target = Board.players[1 - Settings.PlayerID].Hand;
+                    target = Board.Players[1 - Settings.PlayerID].Hand;
                     break;
                 case Target.Field:
                     target = Board.Field;
                     break;
                 case Target.PlayerCollection:
-                    target = Board.players[Settings.PlayerID].CollectedCards;
+                    target = Board.Players[Settings.PlayerID].CollectedCards;
                     break;
                 case Target.OpponentCollection:
-                    target = Board.players[1 - Settings.PlayerID].CollectedCards;
+                    target = Board.Players[1 - Settings.PlayerID].CollectedCards;
                     break;
             }
 

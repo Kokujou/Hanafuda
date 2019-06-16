@@ -14,7 +14,7 @@ namespace Hanafuda
     {
         public override void Init(List<Player> Players)
         {
-            players = Players;
+            base.Players = Players;
             PlayerInteraction = Global.instance.GetComponent<Communication>();
             currentAction = new PlayerAction();
             currentAction.Init(this);
@@ -35,7 +35,7 @@ namespace Hanafuda
 
         protected override void GenerateDeck(int seed = -1)
         {
-            gameObject.AddComponent<PlayerComponent>().Init(players);
+            gameObject.AddComponent<PlayerComponent>().Init(Players);
             var rnd = seed == -1 ? new Random() : new Random(seed);
             List<int> indices = Enumerable.Range(0, Global.allCards.Count).ToList();
             Deck.Clear();
@@ -94,8 +94,8 @@ namespace Hanafuda
                         (Settings.Players[i]).Reset();
                     Init(Settings.Players);
                 }
-                InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), players[0].CollectedYaku);
-                InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), players[1].CollectedYaku);
+                InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), Players[0].CollectedYaku);
+                InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), Players[1].CollectedYaku);
             }
             else Settings.Players[1 - Settings.PlayerID] = KI.Init((Settings.AIMode)Settings.AiMode, "Computer");
         }
@@ -135,7 +135,7 @@ namespace Hanafuda
                     new Vector3(0, 180, 0), Animations.StandardScale / factor, (i + 18) * 0.2f));
                 //StartCoroutine(temp.transform.StandardAnimation( GameObject.Find("Feld").transform.position + new Vector3((int)(i/2), 0, 0), new Vector3(0, 180 * (1 - i), 0), temp.transform.localScale, 16 * 0.2f));
             }
-            foreach (Player player in players)
+            foreach (Player player in Players)
                 if (player.Hand.IsInitialWin() != 0) DrawnGame();
             if (!Turn && !Settings.Multiplayer)
                 StartCoroutine(Animations.AfterAnimation(OpponentTurn));
@@ -144,12 +144,12 @@ namespace Hanafuda
         public override void BuildHands(int hand1Size = 8, int hand2Size = 8)
         {
             int[] handSizes = new int[] { hand1Size, hand2Size };
-            for (int player = 0; player < players.Count; player++)
+            for (int player = 0; player < Players.Count; player++)
             {
                 bool active = player == Settings.PlayerID;
                 for (int card = 0; card < handSizes[player]; card++)
                 {
-                    ((Player)players[player]).Hand.Add(Deck[0]);
+                    ((Player)Players[player]).Hand.Add(Deck[0]);
                     GameObject temp = Deck[0].Object;
                     Deck.RemoveAt(0);
                     temp.transform.parent = active ? Hand1.transform : Hand2.transform;
@@ -179,10 +179,10 @@ namespace Hanafuda
             if (Settings.Mobile)
             {
                 StartCoroutine(Hand1.transform.StandardAnimation(Hand1.transform.position, new Vector3(0, 180, 0), Hand1.transform.localScale, 4f, AddFunc: () =>
-                { StartCoroutine(((Player)players[Settings.PlayerID]).Hand.ResortCards(new CardLayout(true))); }));
+                { StartCoroutine(((Player)Players[Settings.PlayerID]).Hand.ResortCards(new CardLayout(true))); }));
 #if UNITY_EDITOR
                 StartCoroutine(Hand2.transform.StandardAnimation(Hand2.transform.position, new Vector3(0, 180, 0), Hand2.transform.localScale, 4f, AddFunc: () =>
-                { StartCoroutine(((Player)players[1 - Settings.PlayerID]).Hand.ResortCards(new CardLayout(true))); }));
+                { StartCoroutine(((Player)Players[1 - Settings.PlayerID]).Hand.ResortCards(new CardLayout(true))); }));
 #else
                 StartCoroutine(((Player)players[1 - Settings.PlayerID]).Hand.ResortCards(new CardLayout(true, 4f)));
 #endif

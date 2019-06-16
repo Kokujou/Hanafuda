@@ -34,7 +34,8 @@ namespace Hanafuda
         }
 
         private Dictionary<int, float> StateValues = new Dictionary<int, float>();
-        public override float RateState(SearchingBoard state) => StateValues[Tree.GetLevel(1).IndexOf(state)];
+        public override float RateState(SearchingBoard state) => 
+            state.computerHand.Count <= 1 ? 0 : StateValues[Tree.GetLevel(1).IndexOf(state)];
 
         private int Faculty(uint number)
         {
@@ -102,7 +103,7 @@ namespace Hanafuda
                     {
                         foreach (Yaku yaku in yakus)
                         {
-                            int yakuID = Global.allYaku.FindIndex(x=>yaku.Title == x.Title);
+                            int yakuID = Global.allYaku.FindIndex(x => yaku.Title == x.Title);
                             if (partID < yakuDurations[board.Root][yakuID])
                                 yakuDurations[board.Root][yakuID] = partID;
                         }
@@ -130,7 +131,7 @@ namespace Hanafuda
             return Result;
         }
 
-        protected override void BuildStateTree(Spielfeld cRoot)
+        protected override void BuildStateTree(IHanafudaBoard cRoot)
         {
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();

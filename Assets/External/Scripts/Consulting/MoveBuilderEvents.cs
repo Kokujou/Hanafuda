@@ -39,10 +39,10 @@ namespace Hanafuda
                 List<Card> matches = Board.Field.FindAll(x => x.Monat == selected.Monat);
                 if (!Settings.AiMode.IsOmniscient() && matches.Count == 2 && key == DeckSelectionParent)
                 {
-                    Board.players.Reverse();
+                    Board.Players.Reverse();
                     aiRecommendation.DeckSelection = action.DeckSelection;
                     aiRecommendation = PlayerAction.FromMove(activeAI.RequestDeckSelection(Board, aiRecommendation), Board);
-                    Board.players.Reverse();
+                    Board.Players.Reverse();
                 }
                 foreach (Card match in matches)
                 {
@@ -64,7 +64,7 @@ namespace Hanafuda
                 return;
             }
             action.PlayerID = Turn ? Settings.PlayerID : 1 - Settings.PlayerID;
-            List<Yaku> newYakus = Yaku.GetNewYakus(Board.players[action.PlayerID], GetCollectedCards(action));
+            List<Yaku> newYakus = Yaku.GetNewYakus(Board.Players[action.PlayerID], GetCollectedCards(action));
             if (newYakus.Count > 0)
             {
                 HadYaku = true;

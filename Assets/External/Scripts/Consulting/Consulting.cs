@@ -34,7 +34,7 @@ namespace Hanafuda
         private void Start()
         {
             Board = MainSceneVariables.boardTransforms.Main;
-            Board.players = Settings.Players;
+            Board.Players = Settings.Players;
             Board.Deck = new List<Card>(Global.allCards);
             Board.Field = new List<Card>();
             if (Settings.Mobile)
@@ -133,29 +133,29 @@ namespace Hanafuda
 
         public static void LoadGame()
         {
-            Board.InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), Board.players[0].CollectedYaku);
-            Board.InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), Board.players[1].CollectedYaku);
+            Board.InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), Board.Players[0].CollectedYaku);
+            Board.InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), Board.Players[1].CollectedYaku);
 
             if (Settings.AiMode.IsOmniscient())
             {
-                Board.Deck = Board.players[0].Hand
-                    .Union(Board.players[1].Hand)
+                Board.Deck = Board.Players[0].Hand
+                    .Union(Board.Players[1].Hand)
                     .Union(Board.Field)
-                    .Union(Board.players[0].CollectedCards)
-                    .Union(Board.players[1].CollectedCards)
+                    .Union(Board.Players[0].CollectedCards)
+                    .Union(Board.Players[1].CollectedCards)
                     .Union(Board.Deck)
                     .ToList();
             }
             else
             {
                 List<Card> opponentHand = new List<Card>();
-                while (opponentHand.Count != Board.players[0].Hand.Count - (P1Oya ? 0 : 1))
+                while (opponentHand.Count != Board.Players[0].Hand.Count - (P1Oya ? 0 : 1))
                     opponentHand.Add(Card.CreateInstance<Card>());
-                Board.Deck = Board.players[0].Hand
+                Board.Deck = Board.Players[0].Hand
                     .Union(opponentHand)
                     .Union(Board.Field)
-                    .Union(Board.players[0].CollectedCards)
-                    .Union(Board.players[1].CollectedCards)
+                    .Union(Board.Players[0].CollectedCards)
+                    .Union(Board.Players[1].CollectedCards)
                     .ToList();
                 while (Board.Deck.Count != 48)
                     Board.Deck.Add(Card.CreateInstance<Card>());
@@ -163,23 +163,23 @@ namespace Hanafuda
 
             Board.BuildDeck();
 
-            int p1HandCount = Board.players[0].Hand.Count;
+            int p1HandCount = Board.Players[0].Hand.Count;
             int p2HandCount;
             if (Settings.AiMode.IsOmniscient())
-                p2HandCount = Board.players[1].Hand.Count;
+                p2HandCount = Board.Players[1].Hand.Count;
             else
                 p2HandCount = p1HandCount - (P1Oya ? 0 : 1);
             int fieldCount = Board.Field.Count;
-            Board.players[0].Hand.Clear();
-            Board.players[1].Hand.Clear();
+            Board.Players[0].Hand.Clear();
+            Board.Players[1].Hand.Clear();
             Board.Field.Clear();
             Board.BuildHands(p1HandCount, p2HandCount);
             Board.BuildField(fieldCount);
 
-            List<Card> p1Collected = Board.players[0].CollectedCards;
-            List<Card> p2Collected = Board.players[1].CollectedCards;
-            Board.players[0].CollectedCards.Clear();
-            Board.players[1].CollectedCards.Clear();
+            List<Card> p1Collected = Board.Players[0].CollectedCards;
+            List<Card> p2Collected = Board.Players[1].CollectedCards;
+            Board.Players[0].CollectedCards.Clear();
+            Board.Players[1].CollectedCards.Clear();
             Board.CollectCards(p1Collected);
             Board.Turn = false;
             Board.CollectCards(p2Collected);

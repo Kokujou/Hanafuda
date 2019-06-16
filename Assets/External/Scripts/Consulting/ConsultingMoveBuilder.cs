@@ -42,8 +42,8 @@ namespace Hanafuda
 
                 if (!action.HandSelection.Object)
                 {
-                    InitCard(Board.players[1].Hand[0], action.HandSelection);
-                    GameObject handSelection = Board.players[1].Hand[0].Object;
+                    InitCard(Board.Players[1].Hand[0], action.HandSelection);
+                    GameObject handSelection = Board.Players[1].Hand[0].Object;
                     handSelection.name = action.HandSelection.Title;
                     handSelection.GetComponentsInChildren<MeshRenderer>()[0].material = action.HandSelection.Image;
                     action.HandSelection.Object = handSelection;

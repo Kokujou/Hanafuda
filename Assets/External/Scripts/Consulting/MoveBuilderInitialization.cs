@@ -21,7 +21,7 @@ namespace Hanafuda
 
         public void SetMoveOptions(Spielfeld board)
         {
-            foreach (Card card in board.players[Turn ? 0 : 1].Hand)
+            foreach (Card card in board.Players[Turn ? 0 : 1].Hand)
             {
                 GameObject cardObject = CreateCard(HandSelectionParent, card);
             }
@@ -35,12 +35,12 @@ namespace Hanafuda
         {
             List<Card> handCards;
             List<Card> UnknownCards = Global.allCards
-                .Except(board.players[0].Hand)
-                .Except(board.players[0].CollectedCards)
+                .Except(board.Players[0].Hand)
+                .Except(board.Players[0].CollectedCards)
                 .Except(board.Field)
-                .Except(board.players[1].CollectedCards)
+                .Except(board.Players[1].CollectedCards)
                 .ToList();
-            if (Turn) handCards = board.players[0].Hand;
+            if (Turn) handCards = board.Players[0].Hand;
             else handCards = UnknownCards;
 
             foreach (Card card in handCards)
@@ -61,13 +61,13 @@ namespace Hanafuda
             action.Init(Board);
 
             if(turn)
-            board.players.Reverse();
+            board.Players.Reverse();
             IArtificialIntelligence computer = (IArtificialIntelligence)KI.Init(Settings.AiMode, "Computer");
             activeAI = computer;
             Move move = computer.MakeTurn(board);
             aiRecommendation = PlayerAction.FromMove(move, board);
             if(turn)
-            board.players.Reverse();
+            board.Players.Reverse();
             Debug.Log(aiRecommendation.ToString());
 
             ResetUI();

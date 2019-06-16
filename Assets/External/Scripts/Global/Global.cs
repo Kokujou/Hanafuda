@@ -40,9 +40,9 @@ namespace Hanafuda
             process.Kill();
         }
 
-        public static void Log(string output)
+        public static void Log(string output, bool allow = false)
         {
-            if (AllowLog)
+            if (AllowLog && allow)
             {
                 process.StandardInput.WriteLine(output);
             }

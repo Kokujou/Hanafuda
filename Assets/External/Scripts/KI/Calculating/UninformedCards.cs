@@ -177,8 +177,7 @@ namespace Hanafuda
                     {
                         AsPDeckProb = this
                             .Where(x => x.card.Monat == deckCard.Monat)
-                            .Sum(x => x.Probability);
-                        AsPDeckProb.Clamp(0f, 1f);
+                            .Sum(x => x.Probability).Clamp(0f, 1f);
                     }
 
                     float AsDeckProb = ((AsOppDeckProb + AsPDeckProb) / 2f) * (1 - pair.Value);
@@ -205,13 +204,13 @@ namespace Hanafuda
                     foreach (Card card in State.computer.Hand)
                     {
                         float handCardProb = 1f;
-                        foreach(var pair in State.UnknownCards.Where(x=>x.Key.Monat == card.Monat))
+                        foreach (var pair in State.UnknownCards.Where(x => x.Key.Monat == card.Monat))
                         {
                             //Probability for being in AIs Deck Drawn Cards
                             float cardProb = (1 - pair.Value) * 0.5f;
                             handCardProb += cardProb;
                         }
-                        handCardProb.Clamp(0f, 1f);
+                        handCardProb = handCardProb.Clamp(0f, 1f);
 
                         if (State.Field.FindAll(x => x.Monat == card.Monat).Count == 2)
                             this[card.ID].Probability = 1;

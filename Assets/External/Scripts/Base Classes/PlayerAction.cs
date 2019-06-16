@@ -17,7 +17,7 @@ namespace Hanafuda
         public List<Card> HandMatches = new List<Card>();
         public List<Card> DeckMatches = new List<Card>();
         public bool Koikoi = false;
-        private Spielfeld Board;
+        private IHanafudaBoard Board;
 
         public bool isFinal()
         {
@@ -29,7 +29,7 @@ namespace Hanafuda
             Koikoi = koikoi;
         }
 
-        public void Init(Spielfeld board)
+        public void Init(IHanafudaBoard board)
         {
             Board = board;
             PlayerID = Settings.PlayerID;
@@ -86,13 +86,13 @@ namespace Hanafuda
             {
                 string koikoiAction = "";
                 if (Koikoi)
-                    koikoiAction = $"{Settings.GetName()} hat 'Koi Koi' gesagt.";
+                    koikoiAction = $"{Settings.Players[PlayerID]} hat 'Koi Koi' gesagt.";
                 else
-                    koikoiAction = $"{Settings.GetName()} hat nicht 'Koi Koi' gesagt. Das Spiel ist beendet.";
+                    koikoiAction = $"{Settings.Players[PlayerID]} hat nicht 'Koi Koi' gesagt. Das Spiel ist beendet.";
 
                 yakuAction = $"Damit konnte er neue Yaku formen.\n{koikoiAction}\n";
             }
-            return $"{Settings.GetName()} {handAction}.\n " +
+            return $"{Settings.Players[PlayerID]} {handAction}.\n " +
                 $"Anschließend {deckAction}.\n" +
                 $"{yakuAction}";
         }
@@ -119,7 +119,7 @@ namespace Hanafuda
             return move;
         }
 
-        public static PlayerAction FromMove(Move move, Spielfeld board)
+        public static PlayerAction FromMove(Move move, IHanafudaBoard board)
         {
             PlayerAction action = new PlayerAction();
             action.Init(board);

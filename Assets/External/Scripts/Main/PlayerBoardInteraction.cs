@@ -62,7 +62,7 @@ namespace Hanafuda
             {
                 Settings.Players[0].tempPoints = 0;
                 Settings.Players[1].tempPoints = 0;
-                Player player = players[turn ? Settings.PlayerID : 1 - Settings.PlayerID];
+                Player player = Players[turn ? Settings.PlayerID : 1 - Settings.PlayerID];
                 player.tempPoints = player.CollectedYaku.Sum(x => Global.allYaku[x.Key].GetPoints(x.Value));
                 if (player.tempPoints == 0) Debug.Log(string.Join(";", player.CollectedCards));
                 if (turn)
@@ -81,7 +81,7 @@ namespace Hanafuda
             }
             else
             {
-                players[turn ? Settings.PlayerID : 1 - Settings.PlayerID].Koikoi++;
+                Players[turn ? Settings.PlayerID : 1 - Settings.PlayerID].Koikoi++;
                 /*
                  * Koikoi-Behandlung für Spieler bzw. Gegner
                  */
@@ -101,14 +101,14 @@ namespace Hanafuda
         protected override void OpponentTurn()
         {
             Turn = false;
-            if (players[1 - Settings.PlayerID].Hand.Count <= 0)
+            if (Players[1 - Settings.PlayerID].Hand.Count <= 0)
             {
                 DrawnGame();
                 return;
             }
             if (!Settings.Multiplayer)
             {
-                Move move = ((IArtificialIntelligence)players[1 - Settings.PlayerID]).MakeTurn(this);
+                Move move = ((IArtificialIntelligence)Players[1 - Settings.PlayerID]).MakeTurn(this);
                 move.PlayerID = 1 - Settings.PlayerID;
                 ApplyMove(move);
             }
@@ -134,7 +134,7 @@ namespace Hanafuda
         public override void SelectCard(Card card, bool fromDeck = false)
         {
             List<Action> animationQueue = new List<Action>();
-            List<Card> Source = fromDeck ? Deck : players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand;
+            List<Card> Source = fromDeck ? Deck : Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand;
             animationQueue.Add(() => Collection.Add(card));
             // = Erster Aufruf
             animationQueue.Add(() =>
@@ -151,7 +151,7 @@ namespace Hanafuda
             animationQueue.Add(() => HoverMatches(Card.Months.Null));
 
             animationQueue.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
-            animationQueue.Add(() => StartCoroutine(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand.ResortCards(new CardLayout(true))));
+            animationQueue.Add(() => StartCoroutine(Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand.ResortCards(new CardLayout(true))));
 
             animationQueue.Add(() =>
             {
@@ -167,8 +167,8 @@ namespace Hanafuda
 
             animationQueue.Add(() =>
             {
-                Debug.Log(string.Join(";", players[Settings.PlayerID].CollectedCards));
-                List<Yaku> NewYaku = Yaku.GetNewYakus(players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku, TurnCollection, true);
+                Debug.Log(string.Join(";", Players[Settings.PlayerID].CollectedCards));
+                List<Yaku> NewYaku = Yaku.GetNewYakus(Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku, TurnCollection, true);
                 TurnCollection.Clear();
                 if (NewYaku.Count > 0)
                     Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
@@ -194,15 +194,15 @@ namespace Hanafuda
 #if UNITY_EDITOR
             if (GUILayout.Button("Cheat Player"))
             {
-                players[Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
-                players[Settings.PlayerID].CollectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
-                Settings.Players = players;
-                List<Yaku> NewYaku = Yaku.GetNewYakus(players[Settings.PlayerID].CollectedYaku, players[Settings.PlayerID].CollectedCards, true);
+                Players[Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
+                Players[Settings.PlayerID].CollectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
+                Settings.Players = Players;
+                List<Yaku> NewYaku = Yaku.GetNewYakus(Players[Settings.PlayerID].CollectedYaku, Players[Settings.PlayerID].CollectedCards, true);
                 Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(new List<Yaku>(Global.allYaku), this);
 
             }
             if (GUILayout.Button("Cheat Opp."))
-                players[1 - Settings.PlayerID].CollectedCards = Global.allCards.FindAll(x => Global.allYaku.First(y => y.Title == "Hanamizake").Contains(x));
+                Players[1 - Settings.PlayerID].CollectedCards = Global.allCards.FindAll(x => Global.allYaku.First(y => y.Title == "Hanamizake").Contains(x));
             if (GUILayout.Button("Skip to Finish"))
                 SceneManager.LoadScene("Finish");
 #endif

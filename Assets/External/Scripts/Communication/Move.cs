@@ -31,5 +31,24 @@ namespace Hanafuda
             PlayerID = copy.PlayerID;
             MoveID = copy.MoveID;
         }
+
+        public override string ToString()
+        {
+            if (SingleSelection.Length > 0)
+                return SingleSelection;
+            else
+            {
+                string handFieldString = "";
+                if (HandFieldSelection.Length > 0)
+                    handFieldString = $"&& {HandFieldSelection}";
+                string deckFieldString = "";
+                if (DeckFieldSelection.Length > 0)
+                    deckFieldString = $"&& {DeckFieldSelection}";
+                string yakuString = HadYaku ? "Had Yaku" : "";
+                string KoikoiString = Koikoi ? "Said Koi Koi" : "Didn't say Koi Koi";
+                return $"Hand: {HandSelection} {handFieldString} >> Deck: {DeckSelection} {deckFieldString} >> {yakuString} >> {KoikoiString}";
+            }
+        }
+
     }
 }

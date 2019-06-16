@@ -77,7 +77,7 @@ namespace Hanafuda
                 }
                 StartCoroutine(ToCollect[card].Object.transform.StandardAnimation(destPos, destRot, destScale));
                 if (Field.Remove(ToCollect[card]))
-                    ((Player)players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectedCards.Add(ToCollect[card]);
+                    ((Player)Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectedCards.Add(ToCollect[card]);
 
             }
             InfoUI.GetYakuList(Turn ? Settings.PlayerID : 1 - Settings.PlayerID).AddCards(ToCollect);
@@ -94,8 +94,8 @@ namespace Hanafuda
         {
             List<Action> actions = new List<Action>();
             actions.Add(() => SelectionToField(action.HandSelection));
-            actions.Add(() => players[action.PlayerID].Hand.Remove(action.HandSelection));
-            actions.Add(() => StartCoroutine(players[action.PlayerID].Hand.ResortCards(new CardLayout(true))));
+            actions.Add(() => Players[action.PlayerID].Hand.Remove(action.HandSelection));
+            actions.Add(() => StartCoroutine(Players[action.PlayerID].Hand.ResortCards(new CardLayout(true))));
 
             actions.Add(() =>
             {
@@ -135,8 +135,8 @@ namespace Hanafuda
                 actions.Add(() =>
                 {
                     Dictionary<int, int> collectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
-                    Yaku.GetNewYakus(collectedYaku, players[1 - Settings.PlayerID].CollectedCards, true);
-                    players[1 - Settings.PlayerID].CollectedYaku = collectedYaku;
+                    Yaku.GetNewYakus(collectedYaku, Players[1 - Settings.PlayerID].CollectedCards, true);
+                    Players[1 - Settings.PlayerID].CollectedYaku = collectedYaku;
                     SayKoiKoi(action.Koikoi);
                 });
             }

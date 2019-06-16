@@ -42,7 +42,6 @@ namespace Hanafuda
             {
                 List<Card> emptyReturn = new List<Card>(0);
                 List<Card> matches = new List<Card>(4);
-
                 foreach (Card fieldCard in Field)
                     if (fieldCard.Monat == card.Monat)
                         matches.Add(fieldCard);

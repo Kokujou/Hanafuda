@@ -4,15 +4,15 @@ using UnityEngine;
 
 namespace Hanafuda
 {
-    public abstract class ISpielfeld : MonoBehaviour
+    public abstract class ISpielfeld : MonoBehaviour, IHanafudaBoard
     {
         /*
          * Main Variables
          */
-        public bool Turn;
-        public List<Card> Deck;
-        public List<Card> Field;
-        public List<Player> players;
+        public bool Turn { get; set; }
+        public List<Card> Deck { get; set; }
+        public List<Card> Field { get; set; }
+        public List<Player> Players { get; set; }
 
         protected Transform EffectCam, Hand1, Hand2, Field3D, Deck3D;
         protected Communication PlayerInteraction;

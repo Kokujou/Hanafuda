@@ -15,7 +15,7 @@ namespace Hanafuda
 
         public CalculatingAI(string name) : base(name) { }
 
-        protected override void BuildStateTree(Spielfeld cRoot)
+        protected override void BuildStateTree(IHanafudaBoard cRoot)
         {
             UninformedBoard root = new UninformedBoard(cRoot);
             root.Turn = true;
@@ -42,7 +42,7 @@ namespace Hanafuda
         public override Move RequestDeckSelection(Spielfeld root, Move baseMove)
         {
             UninformedBoard uninformedRoot = new UninformedBoard(root);
-            Card deckCard = uninformedRoot.UnknownCards.First(x=>x.Key.Title == baseMove.DeckSelection).Key;
+            Card deckCard = uninformedRoot.UnknownCards.First(x => x.Key.Title == baseMove.DeckSelection).Key;
             List<Card> matches = root.Field.FindAll(x => x.Monat == deckCard.Monat);
             if (matches.Count != 2) return baseMove;
             float maxValue = -100f;
@@ -63,7 +63,7 @@ namespace Hanafuda
             return baseMove;
         }
 
-        public override Move MakeTurn(Spielfeld cRoot)
+        public override Move MakeTurn(IHanafudaBoard cRoot)
         {
             Move selectedMove = base.MakeTurn(cRoot);
             selectedMove.DeckSelection = cRoot.Deck[0].Title;
@@ -91,8 +91,9 @@ namespace Hanafuda
         public override float RateState(UninformedBoard State)
         {
             lock (UninformedStateTree.thisLock)
-                Global.Log($"Zustand {State.GetHashCode()}: {PlayerAction.FromMove(State.LastMove, MainSceneVariables.boardTransforms.Main).ToString().Replace("\n", "")}");
+                Global.Log($"Zustand {State.GetHashCode()}: {State.LastMove.ToString().Replace("\n", "")}");
             if (State.isFinal) return Mathf.Infinity;
+            if (State.computer.Hand.Count <= 1) return 0;
 
             float Result = 0f;
 

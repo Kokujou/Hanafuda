@@ -57,7 +57,11 @@ namespace Hanafuda
         /// <param name="SkipOpponent">Gibt an, ob sich der Spieler während der Berechnung ändert</param>
         public virtual void Build(int maxDepth = 16, bool Turn = true, bool skipOpponent = false)
         {
-            Application.backgroundLoadingPriority = UnityEngine.ThreadPriority.High;
+            try
+            {
+                Application.backgroundLoadingPriority = UnityEngine.ThreadPriority.High;
+            }
+            catch (Exception) { }
             MaxDepth = maxDepth;
             StartTurn = Turn;
             SkipOpponent = skipOpponent;

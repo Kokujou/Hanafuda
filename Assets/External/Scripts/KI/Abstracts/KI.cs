@@ -21,8 +21,8 @@ namespace Hanafuda
         protected List<CardProperties> CardProps = new List<CardProperties>();
         public abstract Dictionary<string, float> GetWeights();
         public abstract void SetWeight(string name, float value);
-        protected abstract void BuildStateTree(Spielfeld cRoot);
-        public virtual Move MakeTurn(Spielfeld board)
+        protected abstract void BuildStateTree(IHanafudaBoard cRoot);
+        public virtual Move MakeTurn(IHanafudaBoard board)
         {
             Debug.Log("KI Turn Decision started");
             BuildStateTree(board);

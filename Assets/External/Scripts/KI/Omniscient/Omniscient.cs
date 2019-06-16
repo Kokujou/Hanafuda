@@ -41,7 +41,7 @@ namespace Hanafuda
                 weights[name] = value;
         }
 
-        protected override void BuildStateTree(Spielfeld cRoot)
+        protected override void BuildStateTree(IHanafudaBoard cRoot)
         {
             OmniscientBoard root = new OmniscientBoard(cRoot);
             root.Turn = true;
@@ -70,8 +70,9 @@ namespace Hanafuda
              *  - Balancing der verschiedenen Werte
              */
             lock (OmniscientStateTree.thisLock)
-                Global.Log($"Zustand {State.GetHashCode()}: {PlayerAction.FromMove(State.LastMove, MainSceneVariables.boardTransforms.Main).ToString().Replace("\n", "")}");
+                Global.Log($"Zustand {State.GetHashCode()}: {State.LastMove.ToString().Replace("\n", "")}");
             if (State.isFinal) return Mathf.Infinity;
+            if (State.computer.Hand.Count <= 1) return 0;
 
             float Result = 0f;
 
@@ -85,7 +86,6 @@ namespace Hanafuda
 
             foreach (OmniscientBoard PState in PStates)
                 PStateProps.Add(RateSingleState(PState, false));
-
             float PGlobalMinimum = PStateProps.Min(x => x.GlobalMinimum.MinTurns * (2f - x.GlobalMinimum.Probability));
             float ComGlobalMinimum = ComStateProps.GlobalMinimum.MinTurns * (2f - ComStateProps.GlobalMinimum.Probability);
             float GlobalValue = PGlobalMinimum -

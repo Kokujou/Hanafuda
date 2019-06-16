@@ -105,13 +105,13 @@ namespace Hanafuda
                 if (Queue[0].TypePref == Card.Type.Lichter)
                 {
                     handler = Instantiate(Global.prefabCollection.gKouYaku, transform).GetComponent<YakuHandler>();
-                    handler.KouYaku(Queue[0], ((Player)Board.players[Settings.PlayerID]).CollectedCards);
+                    handler.KouYaku(Queue[0], ((Player)Board.Players[Settings.PlayerID]).CollectedCards);
                     handler.name = "Kou";
                 }
                 else if (Queue[0].addPoints == 0)
                 {
                     handler = Instantiate(Global.prefabCollection.gFixedYaku, transform).GetComponent<YakuHandler>();
-                    handler.FixedYaku(Queue[0], ((Player)Board.players[Settings.PlayerID]).CollectedCards);
+                    handler.FixedYaku(Queue[0], ((Player)Board.Players[Settings.PlayerID]).CollectedCards);
                 }
                 else
                 {
@@ -144,7 +144,7 @@ namespace Hanafuda
             };
             entry.callback.AddListener((data) =>
             {
-                Board.players[Settings.PlayerID].Koikoi++;
+                Board.Players[Settings.PlayerID].Koikoi++;
                 Destroy(SlideIn.gameObject);
                 StartCoroutine(Global.prefabCollection.KoikoiText.KoikoiAnimation(() =>
                 {
