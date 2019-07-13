@@ -21,12 +21,12 @@ namespace Hanafuda
 
         public Color InfoColor, WarningColor, ErrorColor;
 
-        public static class IterationOutput
+        public struct IterationOutput
         {
-            public static int P1Wins;
-            public static int P2Wins;
-            public static int Draws;
-            public static float avgDuration;
+            public int P1Wins { get; set; }
+            public int P2Wins { get; set; }
+            public int Draws { get; set; }
+            public float avgDuration { get; set; }
         }
 
         struct VirtualBoard : IHanafudaBoard
@@ -75,27 +75,35 @@ namespace Hanafuda
             P1Mode = (Settings.AIMode)Player1.value;
             P2Mode = (Settings.AIMode)Player2.value;
 
-            for (int round = 1; round <= ExecutionTimes; round++)
-            {
-                Log($"Starting round #{round}");
-                PlayNewGame(true);
-            }
-            for (int round = 1; round <= ExecutionTimes; round++)
-            {
-                Log($"Starting round #{round}");
-                PlayNewGame(false);
-            }
+            object synchronizeOutput = new object();
+            IterationOutput totalOutput = new IterationOutput();
+            Random random = new Random();
+            object synchronizeRandom = new object();
 
-            Log($"\n\nP1Wins: {(float)IterationOutput.P1Wins / (ExecutionTimes * 2)}, P2Wins: {(float)IterationOutput.P2Wins / (ExecutionTimes * 2)}, " +
-                $"Draws: {(float)IterationOutput.Draws / (ExecutionTimes * 2)} Average Duration: {IterationOutput.avgDuration} ");
+            Parallel.For<IterationOutput>(0, ExecutionTimes, () => new IterationOutput(), (round, state, output) =>
+            {
+                PlayNewGame(true, output);
+                return output;
+            }, finalOutput =>
+            {
+                lock (synchronizeOutput)
+                {
+                    totalOutput.P1Wins += finalOutput.P1Wins;
+                    totalOutput.P2Wins += finalOutput.P2Wins;
+                    totalOutput.Draws += finalOutput.Draws;
+                }
+            });
 
-            IterationOutput.Draws = 0; 
-            IterationOutput.P1Wins = 0;
-            IterationOutput.P2Wins = 0;
-            IterationOutput.avgDuration = 0;
+            Log($"\n\nP1Wins: {(float)totalOutput.P1Wins / (ExecutionTimes * 2)}, P2Wins: {(float)totalOutput.P2Wins / (ExecutionTimes * 2)}, " +
+                $"Draws: {(float)totalOutput.Draws / (ExecutionTimes * 2)} Average Duration: {totalOutput.avgDuration} ");
+
+            totalOutput.Draws = 0;
+            totalOutput.P1Wins = 0;
+            totalOutput.P2Wins = 0;
+            totalOutput.avgDuration = 0;
         }
 
-        private void PlayNewGame(bool P1Oya)
+        private void PlayNewGame(bool P1Oya, IterationOutput output)
         {
             VirtualBoard newBoard = BuildRandomBoard(P1Oya);
             while (true)
@@ -105,7 +113,7 @@ namespace Hanafuda
                 {
                     if (newBoard.Players[playerID].Hand.Count == 0)
                     {
-                        EndGame();
+                        EndGame(output);
                         return;
                     }
 
@@ -119,7 +127,7 @@ namespace Hanafuda
                     Log(PlayerAction.FromMove(selectedMove, newBoard).ToString());
                     if (selectedMove.HadYaku && !selectedMove.Koikoi)
                     {
-                        EndGame(newBoard.Players[selectedMove.PlayerID]);
+                        EndGame(output, newBoard.Players[selectedMove.PlayerID]);
                         return;
                     }
                 }
@@ -127,21 +135,20 @@ namespace Hanafuda
             }
         }
 
-        private void EndGame(Player player = null)
+        private void EndGame(IterationOutput output, Player player = null)
         {
-
             if (player == null)
             {
-                IterationOutput.avgDuration += 8f / 40f;
-                IterationOutput.Draws++;
+                output.avgDuration += 8f / 40f;
+                output.Draws++;
                 Log("Unentschieden. Keine Karten mehr auf der Hand.", LogType.Error);
                 return;
             }
-            IterationOutput.avgDuration += (8f - player.Hand.Count) / ExecutionTimes;
+            output.avgDuration += (8f - player.Hand.Count) / ExecutionTimes;
             if (player.Name == "Player 1")
-                IterationOutput.P1Wins++;
+                output.P1Wins++;
             else
-                IterationOutput.P2Wins++;
+                output.P2Wins++;
             List<Yaku> yakuList = Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), player.CollectedCards);
             Log($"{player.Name} sammelt {string.Join(",", yakuList.Select(x => x.Title))}", LogType.Warning);
             Log($"{player.Name} hat nicht Koi Koi gesagt. Die Runde ist beendet.", LogType.Warning);
