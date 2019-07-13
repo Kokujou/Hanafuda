@@ -5,7 +5,7 @@ using UnityEngine;
 using Hanafuda;
 
 
-namespace Hanafuda.Extensions
+namespace Hanafuda
 {
     public static class Animations
     {
