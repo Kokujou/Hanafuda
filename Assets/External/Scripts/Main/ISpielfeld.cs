@@ -38,7 +38,7 @@ namespace Hanafuda
         public PlayerAction currentAction;
 
         public abstract void HoverHand(Card card);
-        protected abstract void HandleMatches(Card card, List<Action> animationQueue, bool fromDeck = false);
+        protected abstract void HandleMatches(Card card, bool fromDeck = false);
         public abstract void SayKoiKoi(bool koikoi);
         public abstract void SelectCard(Card card, bool fromDeck = false);
         public abstract void DrawnGame();

@@ -20,7 +20,8 @@ namespace Hanafuda
         {
             Statistic,
             Searching,
-            Omniscient
+            Omniscient,
+            Random
         }
         /// <summary>
         ///     Modus der KI: Normal, Schwer, Alptraum

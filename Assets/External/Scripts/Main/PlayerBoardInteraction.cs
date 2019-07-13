@@ -25,7 +25,7 @@ namespace Hanafuda
             }
         }
 
-        protected override void HandleMatches(Card card, List<Action> AnimationQueue, bool fromDeck = false)
+        protected override void HandleMatches(Card card, bool fromDeck = false)
         {
             List<Card> matches = Field.FindAll(x => x.Monat == card.Monat);
             switch (matches.Count)
@@ -147,7 +147,7 @@ namespace Hanafuda
                 SelectionToField(card);
             });
 
-            animationQueue.Add(() => HandleMatches(card, animationQueue, fromDeck));
+            animationQueue.Add(() => HandleMatches(card, fromDeck));
             animationQueue.Add(() => HoverMatches(Card.Months.Null));
 
             animationQueue.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
@@ -159,7 +159,7 @@ namespace Hanafuda
                 SelectionToField(Deck[0]);
             });
 
-            animationQueue.Add(() => HandleMatches(Deck[0], animationQueue, fromDeck));
+            animationQueue.Add(() => HandleMatches(Deck[0], fromDeck));
             animationQueue.Add(() => HoverMatches(Card.Months.Null));
             animationQueue.Add(() => Deck.RemoveAt(0));
 

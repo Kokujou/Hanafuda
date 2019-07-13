@@ -78,19 +78,26 @@ namespace Hanafuda
             for (int round = 1; round <= ExecutionTimes; round++)
             {
                 Log($"Starting round #{round}");
-                P1KI = KI.Init(P1Mode, "Player 1");
-                P2KI = KI.Init(P2Mode, "Player 2");
-                PlayNewGame();
+                PlayNewGame(true);
+            }
+            for (int round = 1; round <= ExecutionTimes; round++)
+            {
+                Log($"Starting round #{round}");
+                PlayNewGame(false);
             }
 
-            Log($"\n\nP1Wins: {(float)IterationOutput.P1Wins / ExecutionTimes}, P2Wins: {(float)IterationOutput.P2Wins / ExecutionTimes}, " +
-                $"Draws: {(float)IterationOutput.Draws / ExecutionTimes} Average Duration: {IterationOutput.avgDuration} ");
+            Log($"\n\nP1Wins: {(float)IterationOutput.P1Wins / (ExecutionTimes * 2)}, P2Wins: {(float)IterationOutput.P2Wins / (ExecutionTimes * 2)}, " +
+                $"Draws: {(float)IterationOutput.Draws / (ExecutionTimes * 2)} Average Duration: {IterationOutput.avgDuration} ");
 
+            IterationOutput.Draws = 0; 
+            IterationOutput.P1Wins = 0;
+            IterationOutput.P2Wins = 0;
+            IterationOutput.avgDuration = 0;
         }
 
-        private void PlayNewGame()
+        private void PlayNewGame(bool P1Oya)
         {
-            VirtualBoard newBoard = BuildRandomBoard();
+            VirtualBoard newBoard = BuildRandomBoard(P1Oya);
             while (true)
             {
                 Log("");
@@ -140,16 +147,14 @@ namespace Hanafuda
             Log($"{player.Name} hat nicht Koi Koi gesagt. Die Runde ist beendet.", LogType.Warning);
         }
 
-        private VirtualBoard BuildRandomBoard()
+        private VirtualBoard BuildRandomBoard(bool P1Oya)
         {
             VirtualBoard newBoard = new VirtualBoard();
 
-            Random rand = new Random();
-            bool P1Oya = rand.Next(0, 2) == 1;
             if (P1Oya)
-                newBoard.Players = new List<Player>() { P1KI, P2KI };
+                newBoard.Players = new List<Player>() { KI.Init(P1Mode, "Player 1"), KI.Init(P2Mode, "Player 2") };
             else
-                newBoard.Players = new List<Player>() { P2KI, P1KI };
+                newBoard.Players = new List<Player>() { KI.Init(P2Mode, "Player 2"), KI.Init(P1Mode, "Player 1") };
             Settings.Players = newBoard.Players;
             Log($"{newBoard.Players[0].Name} ist der Oya");
             Log($"Player 1 Type: {(P1Oya ? P1Mode : P2Mode).ToString()}");

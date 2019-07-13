@@ -75,6 +75,8 @@ namespace Hanafuda
                     return new SearchingAI(name);
                 case Settings.AIMode.Statistic:
                     return new CalculatingAI(name);
+                case Settings.AIMode.Random:
+                    return new RandomAI(name);
                 default:
                     return null;
             }

@@ -31,7 +31,8 @@ namespace Hanafuda
 
         protected override void SelectionToField(Card card)
         {
-            card.Object.transform.parent = Field3D.transform;
+            Field.Add(card);
+            card.Object.transform.SetParent(Field3D.transform);
             float scaleFactor = Settings.Mobile ? 1.5f : 1;
             int maxSize = Settings.Mobile ? 3 : 2;
             float offsetX = Animations.StandardScale.x / scaleFactor;
@@ -42,7 +43,6 @@ namespace Hanafuda
             Vector3 FieldPos = new Vector3((Field.Count / maxSize) * (cardWidth + offsetX), -alignY + (Field.Count % maxSize) * (cardHeight + offsetY), 0);
             StartCoroutine(card.Object.transform.StandardAnimation(Field3D.position + FieldPos, new Vector3(0, 180, 0),
                 Animations.StandardScale / scaleFactor));
-            Field.Add(card);
         }
 
         public override void CollectCards(List<Card> ToCollect)

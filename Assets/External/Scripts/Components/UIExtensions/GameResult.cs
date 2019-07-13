@@ -156,6 +156,7 @@ namespace Hanafuda
                 {
                     Settings.Players.RemoveAt(winnerIndex);
                     Settings.Players.Insert(0, winner);
+                    Settings.PlayerID = 1 - Settings.PlayerID;
                 }
                 SceneManager.LoadScene("Main");
             }

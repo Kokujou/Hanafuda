@@ -20,11 +20,11 @@ namespace Hanafuda
 
         public SearchingBoard(SearchingBoard target)
         {
-            Field = target.Field;
-            Deck = target.Deck;
-            playerHand = target.playerHand;
-            computerHand = target.computerHand;
-            computerCollection = target.computerCollection;
+            Field = new List<Card>(target.Field);
+            Deck = new Dictionary<int, Card>(target.Deck);
+            playerHand = new List<Card>(target.playerHand);
+            computerHand = new List<Card>(target.computerHand);
+            computerCollection = new List<Card>(target.computerCollection);
             CardsCollected = new List<int>(target.CardsCollected);
             Root = target.Root;
             TurnID = target.TurnID;

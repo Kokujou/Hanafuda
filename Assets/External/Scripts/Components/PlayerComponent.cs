@@ -34,6 +34,8 @@ namespace Hanafuda
             FieldSelectionRequested = false;
             InputRoutine = HandInteraction;
             isActive = true;
+            if (Board.Players[Settings.PlayerID].Hand.Count == 0)
+                Board.DrawnGame();
         }
         public void Awake()
         {
@@ -53,8 +55,6 @@ namespace Hanafuda
         }
         public void HandInteraction()
         {
-            if (Board.Players[Settings.PlayerID].Hand.Count == 0)
-                Board.DrawnGame();
             if (Settings.Mobile)
                 CreateSlide();
             else
@@ -66,6 +66,7 @@ namespace Hanafuda
                     Card selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
                     if (Input.GetMouseButtonDown(0))
                     {
+                        InputRoutine = () => { };
                         Board.HoverHand(null);
                         Board.SelectCard(selected);
                     }
