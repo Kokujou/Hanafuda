@@ -4,7 +4,7 @@
  * - Entgültigen Gewinner nach Ablauf der Runden anzeigen
  * - Korrekte Zugübermittlung prüfen, potenzielle Fehler!
  * - Memo: Randomseed wieder randomisieren
- * - Gegnerische Yakuübermittlung Prüfen
+ * - Gegnerische Yakuübermittlung Prüfen (multiplayer)
  * - Consulting: PC: Austeilen gesammelter Karten
  * - Memo: Gegnerkarten wieder zudecken
  * - Memo: neumischen bei 4 gleichen Karten auf dem Feld

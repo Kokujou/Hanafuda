@@ -10,6 +10,14 @@ namespace Hanafuda
     public static class VirtualMethods
     {
         /// <summary>
+        /// Determines if the field consists out of 4 matching cards and needs a redeal
+        /// </summary>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public static bool NeedsRedeal(this List<Card> field)
+            => field.Exists(x => field.Count(y => y.Monat == x.Monat) == 4);
+
+        /// <summary>
         /// Determines, if a hand is an initial win
         /// </summary>
         /// <param name="hand">input hand with 8 cards</param>
