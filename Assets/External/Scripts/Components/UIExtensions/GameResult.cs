@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -117,7 +121,7 @@ namespace Hanafuda
                 RawImage card = obj.GetComponentInChildren<RawImage>();
                 obj.GetComponentInChildren<Text>().text = yaku.Title + $" - {yaku.GetPoints(collectedYaku.Value)}P";
 
-                List<Card> yakuCards;
+                List<ICard> yakuCards;
                 if (initialWin > 0)
                     yakuCards = winner.Hand;
                 else
@@ -138,7 +142,7 @@ namespace Hanafuda
                     else if (i == 5) currentCard = secondRowCard;
                     else currentCard = Instantiate(secondRowCard.gameObject, secondRowCard.transform.parent).GetComponent<RawImage>();
                     if (i < yaku.minSize)
-                        currentCard.texture = yakuCards[i].Image.mainTexture;
+                        currentCard.texture = yakuCards[i].GetImage().mainTexture;
                     else
                         currentCard.color = new Color(0, 0, 0, 0);
                 }

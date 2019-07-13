@@ -1,4 +1,5 @@
-﻿using ExtensionMethods;
+﻿using Hanafuda.Base;
+using Hanafuda.Extensions;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -65,7 +66,7 @@ namespace Hanafuda
             SlideIn.sizeDelta = new Vector2(totalWidth * 2, 100);
             SlideIn.anchoredPosition = new Vector3(-totalWidth * 2, 0, 0);
             SlideIn.GetComponent<Image>().material.mainTextureScale = new Vector2(totalWidth / 50f, 1);
-            SlideIn.gameObject.SetActive(Queue[0].TypePref != Card.Type.Lichter);
+            SlideIn.gameObject.SetActive(Queue[0].TypePref != CardMotive.Lichter);
             
         }
         public void AlignYaku()
@@ -102,7 +103,7 @@ namespace Hanafuda
                     return;
                 }
                 YakuHandler handler;
-                if (Queue[0].TypePref == Card.Type.Lichter)
+                if (Queue[0].TypePref == CardMotive.Lichter)
                 {
                     handler = Instantiate(Global.prefabCollection.gKouYaku, transform).GetComponent<YakuHandler>();
                     handler.KouYaku(Queue[0], ((Player)Board.Players[Settings.PlayerID]).CollectedCards);

@@ -917,7 +917,7 @@
              true if IP is available (DNS name is resolved) and server is being connected. false on error.
              </returns>
         </member>
-        <member name="M:ExitGames.Client.Photon.PhotonPeer.Connect(System.String,System.String,System.Object)">
+        <member name="M:ExitGames.Client.Photon.PhotonPeer.Connect(System.String,System.String,System.GetObject())">
              <summary>
              Connects to a Photon server. This wraps up DNS name resolution, sending the AppId and establishing encryption.
              </summary>
@@ -1085,7 +1085,7 @@
              won't clash with painting objects or the game logic.
              </remarks>
         </member>
-        <member name="M:ExitGames.Client.Photon.PhotonPeer.SendOperation(System.Byte,System.Collections.Generic.Dictionary{System.Byte,System.Object},ExitGames.Client.Photon.SendOptions)">
+        <member name="M:ExitGames.Client.Photon.PhotonPeer.SendOperation(System.Byte,System.Collections.Generic.Dictionary{System.Byte,System.GetObject()},ExitGames.Client.Photon.SendOptions)">
              <summary>
              Prepares your operation (code and parameters) to be sent to the Photon Server with specified SendOptions.
              </summary>
@@ -1105,7 +1105,7 @@
              <param name="sendOptions">Wraps up DeliveryMode (reliability), Encryption and Channel values for sending.</param>
              <returns>If operation could be enqueued for sending.</returns>
         </member>
-        <member name="M:ExitGames.Client.Photon.PhotonPeer.OpCustom(System.Byte,System.Collections.Generic.Dictionary{System.Byte,System.Object},System.Boolean,System.Byte,System.Boolean)">
+        <member name="M:ExitGames.Client.Photon.PhotonPeer.OpCustom(System.Byte,System.Collections.Generic.Dictionary{System.Byte,System.GetObject()},System.Boolean,System.Byte,System.Boolean)">
             <summary>
             Allows the client to send any operation to the Photon Server by setting any opCode and the operation's parameters.
             </summary>
@@ -1255,14 +1255,14 @@
             Sent to server in Init-Request.
             </remarks>
         </member>
-        <member name="M:ExitGames.Client.Photon.PeerBase.Connect(System.String,System.String,System.Object)">
+        <member name="M:ExitGames.Client.Photon.PeerBase.Connect(System.String,System.String,System.GetObject())">
             <summary>Connect to server and send Init (which inlcudes the appId).</summary>
             <remarks>If customData is not null, the new init will be used (http-based).</remarks>
         </member>
         <member name="M:ExitGames.Client.Photon.PeerBase.InitCallback">
             <summary>Called when the server's Init Response arrived.</summary>
         </member>
-        <member name="M:ExitGames.Client.Photon.PeerBase.SerializeMessageToMessage(System.Object,System.Boolean,System.Byte[],System.Boolean)">
+        <member name="M:ExitGames.Client.Photon.PeerBase.SerializeMessageToMessage(System.GetObject(),System.Boolean,System.Byte[],System.Boolean)">
             <summary> Returns the UDP Payload starting with Magic Number for binary protocol </summary>
         </member>
         <member name="M:ExitGames.Client.Photon.PeerBase.SendOutgoingCommands">
@@ -1278,7 +1278,7 @@
             </summary>
             <returns>If a Dispatch happened or not, which shows if more Dispatches might be needed.</returns>
         </member>
-        <member name="M:ExitGames.Client.Photon.PeerBase.ExchangeKeysForEncryption(System.Object)">
+        <member name="M:ExitGames.Client.Photon.PeerBase.ExchangeKeysForEncryption(System.GetObject())">
             <summary>
             Internally uses an operation to exchange encryption keys with the server.
             </summary>
@@ -1407,7 +1407,7 @@
             </summary>
             <returns>True if any channel has a outgoing reliable command. False otherwise.</returns>
         </member>
-        <member name="M:ExitGames.Client.Photon.EnetPeer.EnqueueOperation(System.Collections.Generic.Dictionary{System.Byte,System.Object},System.Byte,ExitGames.Client.Photon.SendOptions,ExitGames.Client.Photon.EgMessageType)">
+        <member name="M:ExitGames.Client.Photon.EnetPeer.EnqueueOperation(System.Collections.Generic.Dictionary{System.Byte,System.GetObject()},System.Byte,ExitGames.Client.Photon.SendOptions,ExitGames.Client.Photon.EgMessageType)">
             <summary>
             Checks connected state and channel before operation is serialized and enqueued for sending.
             </summary>
@@ -1418,7 +1418,7 @@
             <remarks>only called when a custom operation should be send</remarks>
             <returns>the invocation ID for this operation (the payload)</returns>
         </member>
-        <member name="M:ExitGames.Client.Photon.EnetPeer.SerializeOperationToMessage(System.Byte,System.Collections.Generic.Dictionary{System.Byte,System.Object},ExitGames.Client.Photon.EgMessageType,System.Boolean)">
+        <member name="M:ExitGames.Client.Photon.EnetPeer.SerializeOperationToMessage(System.Byte,System.Collections.Generic.Dictionary{System.Byte,System.GetObject()},ExitGames.Client.Photon.EgMessageType,System.Boolean)">
             <summary>Serializes an operation into our binary messages (magic number, msg-type byte and message). Optionally encrypts.</summary>
             <remarks>This method is mostly the same in EnetPeer, TPeer and HttpPeerBase. Also, for raw messages, we have another variant.</remarks>
         </member>
@@ -1497,7 +1497,7 @@
             <summary>Sends a ping in intervals to keep connection alive (server will timeout connection if nothing is sent).</summary>
             <returns>Always false in this case (local queues are ignored. true would be: "call again to send remaining data").</returns>
         </member>
-        <member name="M:ExitGames.Client.Photon.TPeer.SerializeOperationToMessage(System.Byte,System.Collections.Generic.Dictionary{System.Byte,System.Object},ExitGames.Client.Photon.EgMessageType,System.Boolean)">
+        <member name="M:ExitGames.Client.Photon.TPeer.SerializeOperationToMessage(System.Byte,System.Collections.Generic.Dictionary{System.Byte,System.GetObject()},ExitGames.Client.Photon.EgMessageType,System.Boolean)">
             <summary>Serializes an operation into our binary messages (magic number, msg-type byte and message). Optionally encrypts.</summary>
             <remarks>This method is mostly the same in EnetPeer, TPeer and HttpPeerBase. Also, for raw messages, we have another variant.</remarks>
         </member>
@@ -1510,7 +1510,7 @@
         <member name="M:ExitGames.Client.Photon.TPeer.ReceiveIncomingCommands(System.Byte[],System.Int32)">
             <summary>reads incoming tcp-packages to create and queue incoming commands*</summary>
         </member>
-        <member name="M:ExitGames.Client.Photon.IProtocol.Serialize(System.Object)">
+        <member name="M:ExitGames.Client.Photon.IProtocol.Serialize(System.GetObject())">
             <summary>
             Serialize creates a byte-array from the given object and returns it.
             </summary>
@@ -1666,7 +1666,7 @@
             Provides tools for the Exit Games Protocol
             </summary>
         </member>
-        <member name="M:ExitGames.Client.Photon.Protocol.Serialize(System.Object)">
+        <member name="M:ExitGames.Client.Photon.Protocol.Serialize(System.GetObject())">
             <summary>
             Serialize creates a byte-array from the given object and returns it.
             </summary>
@@ -1775,7 +1775,7 @@
               An array of bytes.
             </summary>
         </member>
-        <member name="F:ExitGames.Client.Photon.Protocol16.GpType.ObjectArray">
+        <member name="F:ExitGames.Client.Photon.Protocol16.GpType.GetObject()Array">
             <summary>
               An array of objects.
             </summary>
@@ -1849,7 +1849,7 @@
               Null value don't have types.
             </summary>
         </member>
-        <member name="M:ExitGames.Client.Photon.Protocol16.Serialize(ExitGames.Client.Photon.StreamBuffer,System.Object,System.Boolean)">
+        <member name="M:ExitGames.Client.Photon.Protocol16.Serialize(ExitGames.Client.Photon.StreamBuffer,System.GetObject(),System.Boolean)">
             <summary>
             Calls the correct serialization method for the passed object.
             </summary>
@@ -1925,7 +1925,7 @@
         <member name="F:ExitGames.Client.Photon.Protocol18.GpType.Hashtable">
             <summary>Hashtable. GpType: 21.</summary>
         </member>
-        <member name="F:ExitGames.Client.Photon.Protocol18.GpType.ObjectArray">
+        <member name="F:ExitGames.Client.Photon.Protocol18.GpType.GetObject()Array">
             <summary>ObjectArray. GpType: 23.</summary>
         </member>
         <member name="F:ExitGames.Client.Photon.Protocol18.GpType.OperationRequest">

@@ -1,4 +1,8 @@
-﻿using System;
+﻿
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,11 +25,11 @@ namespace Hanafuda
 
         public void SetMoveOptions(Spielfeld board)
         {
-            foreach (Card card in board.Players[Turn ? 0 : 1].Hand)
+            foreach (ICard card in board.Players[Turn ? 0 : 1].Hand)
             {
                 GameObject cardObject = CreateCard(HandSelectionParent, card);
             }
-            foreach (Card card in board.Deck)
+            foreach (ICard card in board.Deck)
             {
                 GameObject cardObject = CreateCard(DeckSelectionParent, card);
             }
@@ -33,8 +37,8 @@ namespace Hanafuda
 
         public void SetUninformedMoveOptions(Spielfeld board)
         {
-            List<Card> handCards;
-            List<Card> UnknownCards = Global.allCards
+            List<ICard> handCards;
+            List<ICard> UnknownCards = Global.allCards
                 .Except(board.Players[0].Hand)
                 .Except(board.Players[0].CollectedCards)
                 .Except(board.Field)
@@ -43,11 +47,11 @@ namespace Hanafuda
             if (Turn) handCards = board.Players[0].Hand;
             else handCards = UnknownCards;
 
-            foreach (Card card in handCards)
+            foreach (ICard card in handCards)
             {
                 GameObject cardObject = CreateCard(HandSelectionParent, card);
             }
-            foreach (Card card in UnknownCards)
+            foreach (ICard card in UnknownCards)
             {
                 GameObject cardObject = CreateCard(DeckSelectionParent, card);
             }
@@ -99,13 +103,13 @@ namespace Hanafuda
                 Destroy(child.gameObject);
         }
 
-        private GameObject CreateCard(Transform parent, Card card)
+        private GameObject CreateCard(Transform parent, ICard card)
         {
             GameObject cardObject = new GameObject();
             cardObject.transform.SetParent(parent, false);
 
             RawImage cardImage = cardObject.AddComponent<RawImage>();
-            cardImage.texture = card.Image.mainTexture;
+            cardImage.texture = card.GetImage().mainTexture;
             cardImage.color = new Color(.5f, .5f, .5f);
 
             Button cardButton = cardObject.AddComponent<Button>();
@@ -133,15 +137,6 @@ namespace Hanafuda
             });
 
             return cardObject;
-        }
-
-        private void InitCard(Card target, Card source)
-        {
-            target.ID = source.ID;
-            target.Image = source.Image;
-            target.Monat = source.Monat;
-            target.Title = source.Title;
-            target.Typ = source.Typ;
         }
     }
 }

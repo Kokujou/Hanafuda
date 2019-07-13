@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
-using ExtensionMethods;
+using Hanafuda.Extensions;
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
 
 namespace Hanafuda
 {
@@ -34,7 +36,7 @@ namespace Hanafuda
                     HandMask = null;
                 }
                 else if (!HandMask)
-                    HandMask = CreateUIMask(NegMain.tempDeck[x].Object.transform.parent.gameObject, 0f);
+                    HandMask = CreateUIMask(NegMain.tempDeck[x].GetObject().transform.parent.gameObject, 0f);
                 NegMain.HoverCards(x >= 0 ? NegMain.tempDeck[x] : null);
             }, ControlSelection);
             Hide = Instantiate(Global.prefabCollection.UIHide);
@@ -59,8 +61,8 @@ namespace Hanafuda
 
         private void ControlSelection(int selection)
         {
-            Card selected = NegMain.tempDeck[selection];
-            if (selected.Monat == Card.Months.Dezember)
+            ICard selected = NegMain.tempDeck[selection];
+            if (selected.Month == Months.December)
             {
                 if (selection == 0)
                     selected = NegMain.tempDeck[selection + 1];
@@ -73,10 +75,10 @@ namespace Hanafuda
             Command = null;
             Command = Create3DText("Gegner\nwählt\naus");
             Command.transform.localPosition = Vector3.right * 10f + Vector3.up * 20f;
-            CreateUIMask(selected.Object, 1f);
+            CreateUIMask(selected.GetObject(), 1f);
             StartCoroutine(Animations.AfterAnimation(() =>
             {
-                StartCoroutine(NegMain.AnimOpponentChoice(Card.Months.Dezember));
+                StartCoroutine(NegMain.AnimOpponentChoice(Months.December));
                 StartCoroutine(AfterOppSelection());
             }));
         }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+using Hanafuda.Base.Interfaces;
+using System;
 using UnityEngine;
 
 /* To-Do:
@@ -14,7 +16,7 @@ namespace Hanafuda
 {
     public class CardComponent : MonoBehaviour
     {
-        public Card card;
+        public ICard card;
         public GameObject Foreground;
         public GameObject Background;
         private Action CardInteraction = () => { };

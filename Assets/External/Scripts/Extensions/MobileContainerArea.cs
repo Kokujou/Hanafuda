@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Hanafuda
+namespace Hanafuda.Extensions
 {
     [RequireComponent(typeof(ConsultingSetup))]
     public class MobileContainerArea : MonoBehaviour

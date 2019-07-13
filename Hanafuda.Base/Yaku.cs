@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hanafuda.Base.Interfaces;
 
 /* To-Do:
 - Anfangsspieler ermitteln
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 
 namespace Hanafuda.Base
 {
+    [Serializable]
     public class Yaku
     {
         public int addPoints;
@@ -28,7 +30,7 @@ namespace Hanafuda.Base
 
         public int minSize;
         public List<string> Namen = new List<string>();
-        public Card.Type TypePref;
+        public CardMotive TypePref;
 
         public int GetPoints(int collected)
         {
@@ -38,9 +40,9 @@ namespace Hanafuda.Base
             else return 0;
         }
 
-        public override bool Equals(object Right) => Right is List<Card> && this == (List<Card>)Right;
+        public override bool Equals(object Right) => Right is List<ICard> && this == (List<ICard>)Right;
 
-        public static bool operator ==(Yaku yaku, List<Card> Cards)
+        public static bool operator ==(Yaku yaku, List<ICard> Cards)
         {
             if (Cards.Count >= yaku.minSize)
             {
@@ -61,19 +63,19 @@ namespace Hanafuda.Base
                 return false;
         }
 
-        public static bool operator !=(Yaku Left, List<Card> Right) => Left == Right;
+        public static bool operator !=(Yaku Left, List<ICard> Right) => Left == Right;
 
-        public static bool operator ==(List<Card> Left, Yaku Right) => Right == Left;
+        public static bool operator ==(List<ICard> Left, Yaku Right) => Right == Left;
 
-        public static bool operator !=(List<Card> Left, Yaku Right) => Right != Left;
+        public static bool operator !=(List<ICard> Left, Yaku Right) => Right != Left;
 
         public override int GetHashCode() => base.GetHashCode();
 
-        public bool Contains(Card card)
+        public bool Contains(ICard card)
         {
             if (Mask[1] == -1 && Namen.Contains(card.Title))
                 return false;
-            if ((Mask[0] == 1 && card.Typ == TypePref) ||
+            if ((Mask[0] == 1 && card.Motive == TypePref) ||
                 (Mask[1] == 1 && Namen.Contains(card.Title)))
                 return true;
             return false;

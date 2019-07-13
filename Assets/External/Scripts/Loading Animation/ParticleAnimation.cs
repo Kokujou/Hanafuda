@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Hanafuda.Extensions;
 using Random = UnityEngine.Random;
 using Stopwatch = System.Diagnostics.Stopwatch;
 using Particle = UnityEngine.ParticleSystem.Particle;

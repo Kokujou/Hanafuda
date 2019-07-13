@@ -1,4 +1,8 @@
-﻿using System;
+﻿
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +31,7 @@ namespace Hanafuda
         private ConsultingMoveBuilder MoveBuilder;
         private Transform Content;
 
-        private List<Card> target;
+        private List<ICard> target;
         private static Spielfeld Board;
 
         private void Start()
@@ -95,8 +99,8 @@ namespace Hanafuda
         {
             bool CollectionIsValid = true;
             int[] months = new int[12];
-            foreach (Card card in player.CollectedCards)
-                months[(int)card.Monat]++;
+            foreach (ICard card in player.CollectedCards)
+                months[(int)card.Month]++;
             foreach (int value in months)
             {
                 if (value % 2 == 1)
@@ -124,7 +128,7 @@ namespace Hanafuda
             Builder.SetActive(true);
             foreach (Transform child in Content)
                 Destroy(child.gameObject);
-            target = new List<Card>();
+            target = new List<ICard>();
             switch (SetupTarget)
             {
                 case Target.PlayerHand:
@@ -147,7 +151,7 @@ namespace Hanafuda
             for (int cardID = 0; cardID < target.Count + Board.Deck.Count; cardID++)
             {
                 
-                Card card;
+                ICard card;
                 if (cardID < target.Count)
                     card = target[cardID];
                 else
@@ -156,7 +160,7 @@ namespace Hanafuda
                 cardObject.transform.SetParent(Content, false);
                 
                 RawImage cardImage = cardObject.AddComponent<RawImage>();
-                cardImage.texture = card.Image.mainTexture;
+                cardImage.texture = card.GetImage().mainTexture;
                 if (cardID < target.Count)
                     cardImage.color = Color.white;
                 else

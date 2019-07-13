@@ -1,4 +1,7 @@
-﻿using ExtensionMethods;
+﻿
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +12,7 @@ namespace Hanafuda
 {
     public partial class Spielfeld : ISpielfeld
     {
-        protected override void HoverCards(params Card[] cards)
+        protected override void HoverCards(params ICard[] cards)
         {
             for (int card = 0; card < Hovered.Length; card++)
                 Hovered[card]?.HoverCard(true);
@@ -18,21 +21,21 @@ namespace Hanafuda
             Hovered = cards;
         }
 
-        protected override void HoverMatches(Card.Months month)
+        protected override void HoverMatches(Months month)
         {
             for (int card = 0; card < Field.Count; card++)
             {
-                if (month == Card.Months.Null)
+                if (month == Months.Null)
                     Field[card].FadeCard(false);
                 else
-                    Field[card].FadeCard(month != Field[card].Monat);
+                    Field[card].FadeCard(month != Field[card].Month);
             }
         }
 
-        protected override void SelectionToField(Card card)
+        protected override void SelectionToField(ICard card)
         {
             Field.Add(card);
-            card.Object.transform.SetParent(Field3D.transform);
+            card.GetObject().transform.SetParent(Field3D.transform);
             float scaleFactor = Settings.Mobile ? 1.5f : 1;
             int maxSize = Settings.Mobile ? 3 : 2;
             float offsetX = Animations.StandardScale.x / scaleFactor;
@@ -41,14 +44,14 @@ namespace Hanafuda
             float cardHeight = Animations._CardSize * offsetY;
             float alignY = (cardHeight + offsetY) * (maxSize - 1) * 0.5f;
             Vector3 FieldPos = new Vector3((Field.Count / maxSize) * (cardWidth + offsetX), -alignY + (Field.Count % maxSize) * (cardHeight + offsetY), 0);
-            StartCoroutine(card.Object.transform.StandardAnimation(Field3D.position + FieldPos, new Vector3(0, 180, 0),
+            StartCoroutine(card.GetObject().transform.StandardAnimation(Field3D.position + FieldPos, new Vector3(0, 180, 0),
                 Animations.StandardScale / scaleFactor));
         }
 
-        public override void CollectCards(List<Card> ToCollect)
+        public override void CollectCards(List<ICard> ToCollect)
         {
             TurnCollection.AddRange(ToCollect);
-            HoverMatches(Card.Months.Null);
+            HoverMatches(Months.Null);
             Vector3 destPos = Vector3.zero;
             Vector3 destRot = Vector3.zero;
             Vector3 destScale = Vector3.zero;
@@ -66,16 +69,16 @@ namespace Hanafuda
                 Transform parent = null;
                 if (!Settings.Mobile)
                 {
-                    Card.Type type = ToCollect[card].Typ;
+                    CardMotive type = ToCollect[card].Motive;
                     parent = MainSceneVariables.boardTransforms.PCCollections[(Turn ? 0 : 1) * 4 + (int)type];
                     int inCollection = parent.GetComponentsInChildren<BoxCollider>().Length;
                     Vector3 insertPos = new Vector3((Animations._CardSize / 2f) * (int)(inCollection % 5), -(int)(inCollection / 5) * 5, -inCollection);
-                    ToCollect[card].Object.transform.parent = parent;
+                    ToCollect[card].GetObject().transform.parent = parent;
                     destPos = parent.position + insertPos;
 
-                    ToCollect[card].Object.layer = 0;
+                    ToCollect[card].GetObject().layer = 0;
                 }
-                StartCoroutine(ToCollect[card].Object.transform.StandardAnimation(destPos, destRot, destScale));
+                StartCoroutine(ToCollect[card].GetObject().transform.StandardAnimation(destPos, destRot, destScale));
                 if (Field.Remove(ToCollect[card]))
                     ((Player)Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID]).CollectedCards.Add(ToCollect[card]);
 
@@ -99,12 +102,12 @@ namespace Hanafuda
 
             actions.Add(() =>
             {
-                List<Card> HandCollection;
-                if (action.HandFieldSelection)
-                    HandCollection = new List<Card>() { action.HandFieldSelection, action.HandSelection };
-                else if (Field.Count(x => x.Monat == action.HandSelection.Monat) == 3) throw new ArgumentException("Es wird versucht zwei identische Karten einzusammeln");
+                List<ICard> HandCollection;
+                if (action.HandFieldSelection != null)
+                    HandCollection = new List<ICard>() { action.HandFieldSelection, action.HandSelection };
+                else if (Field.Count(x => x.Month == action.HandSelection.Month) == 3) throw new ArgumentException("Es wird versucht zwei identische Karten einzusammeln");
                 else
-                    HandCollection = new List<Card>(Field.FindAll(x => x.Monat == action.HandSelection.Monat));
+                    HandCollection = new List<ICard>(Field.FindAll(x => x.Month == action.HandSelection.Month));
 
                 if (HandCollection.Count != 1)
                 {
@@ -118,12 +121,12 @@ namespace Hanafuda
 
             actions.Add(() =>
             {
-                List<Card> DeckCollection;
-                if (action.DeckFieldSelection)
-                    DeckCollection = new List<Card>() { action.DeckFieldSelection, action.DeckSelection };
-                else if (Field.Count(x => x.Monat == action.DeckSelection.Monat) == 3) throw new ArgumentException("Es wird versucht zwei identische Karten einzusammeln");
+                List<ICard> DeckCollection;
+                if (action.DeckFieldSelection != null)
+                    DeckCollection = new List<ICard>() { action.DeckFieldSelection, action.DeckSelection };
+                else if (Field.Count(x => x.Month == action.DeckSelection.Month) == 3) throw new ArgumentException("Es wird versucht zwei identische Karten einzusammeln");
                 else
-                    DeckCollection = new List<Card>(Field.FindAll(x => x.Monat == action.DeckSelection.Monat));
+                    DeckCollection = new List<ICard>(Field.FindAll(x => x.Month == action.DeckSelection.Month));
                 if (DeckCollection.Count != 1)
                 {
                     CollectCards(DeckCollection);
@@ -135,7 +138,7 @@ namespace Hanafuda
                 actions.Add(() =>
                 {
                     Dictionary<int, int> collectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
-                    Yaku.GetNewYakus(collectedYaku, Players[1 - Settings.PlayerID].CollectedCards, true);
+                    YakuMethods.GetNewYakus(collectedYaku, Players[1 - Settings.PlayerID].CollectedCards, true);
                     Players[1 - Settings.PlayerID].CollectedYaku = collectedYaku;
                     SayKoiKoi(action.Koikoi);
                 });

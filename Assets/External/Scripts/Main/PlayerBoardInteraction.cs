@@ -2,32 +2,35 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ExtensionMethods;
+
 using UnityEngine.SceneManagement;
 using System.Linq;
 using System;
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
 
 namespace Hanafuda
 {
     public partial class Spielfeld : ISpielfeld
     {
-        public override void HoverHand(Card card)
+        public override void HoverHand(ICard card)
         {
-            if (card)
+            if (card != null)
             {
                 HoverCards(card);
-                HoverMatches(card.Monat);
+                HoverMatches(card.Month);
             }
             else
             {
                 HoverCards();
-                HoverMatches(Card.Months.Null);
+                HoverMatches(Months.Null);
             }
         }
 
-        protected override void HandleMatches(Card card, bool fromDeck = false)
+        protected override void HandleMatches(ICard card, bool fromDeck = false)
         {
-            List<Card> matches = Field.FindAll(x => x.Monat == card.Monat);
+            List<ICard> matches = Field.FindAll(x => x.Month == card.Month);
             switch (matches.Count)
             {
                 case 2:
@@ -36,14 +39,14 @@ namespace Hanafuda
                     CollectCards(Collection);
                     break;
                 case 3:
-                    HoverMatches(card.Monat);
+                    HoverMatches(card.Month);
                     card.FadeCard();
                     gameObject.GetComponent<PlayerComponent>().RequestFieldSelection(card, fromDeck);
                     StartCoroutine(WaitForFieldSelection(fromDeck));
                     break;
                 default:
                     Collection.Clear();
-                    HoverMatches(Card.Months.Null);
+                    HoverMatches(Months.Null);
                     break;
             }
         }
@@ -131,10 +134,10 @@ namespace Hanafuda
             currentAction.Init(this);
         }
 
-        public override void SelectCard(Card card, bool fromDeck = false)
+        public override void SelectCard(ICard card, bool fromDeck = false)
         {
             List<Action> animationQueue = new List<Action>();
-            List<Card> Source = fromDeck ? Deck : Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand;
+            List<ICard> Source = fromDeck ? Deck : Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand;
             animationQueue.Add(() => Collection.Add(card));
             // = Erster Aufruf
             animationQueue.Add(() =>
@@ -148,7 +151,7 @@ namespace Hanafuda
             });
 
             animationQueue.Add(() => HandleMatches(card, fromDeck));
-            animationQueue.Add(() => HoverMatches(Card.Months.Null));
+            animationQueue.Add(() => HoverMatches(Months.Null));
 
             animationQueue.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
             animationQueue.Add(() => StartCoroutine(Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].Hand.ResortCards(new CardLayout(true))));
@@ -160,7 +163,7 @@ namespace Hanafuda
             });
 
             animationQueue.Add(() => HandleMatches(Deck[0], fromDeck));
-            animationQueue.Add(() => HoverMatches(Card.Months.Null));
+            animationQueue.Add(() => HoverMatches(Months.Null));
             animationQueue.Add(() => Deck.RemoveAt(0));
 
             animationQueue.Add(() => StartCoroutine(Field.ResortCards(new CardLayout(false))));
@@ -168,7 +171,7 @@ namespace Hanafuda
             animationQueue.Add(() =>
             {
                 Debug.Log(string.Join(";", Players[Settings.PlayerID].CollectedCards));
-                List<Yaku> NewYaku = Yaku.GetNewYakus(Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku, TurnCollection, true);
+                List<Yaku> NewYaku = YakuMethods.GetNewYakus(Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku, TurnCollection, true);
                 TurnCollection.Clear();
                 if (NewYaku.Count > 0)
                     Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
@@ -182,7 +185,7 @@ namespace Hanafuda
         private IEnumerator WaitForFieldSelection(bool fromDeck)
         {
             Global.MovingCards++;
-            while (fromDeck ? currentAction.DeckFieldSelection : currentAction.HandFieldSelection == null)
+            while ((fromDeck ? currentAction.DeckFieldSelection : currentAction.HandFieldSelection) == null)
                 yield return null;
             Collection.Add(fromDeck ? currentAction.DeckFieldSelection : currentAction.HandFieldSelection);
             CollectCards(Collection);
@@ -194,15 +197,15 @@ namespace Hanafuda
 #if UNITY_EDITOR
             if (GUILayout.Button("Cheat Player"))
             {
-                Players[Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
+                Players[Settings.PlayerID].CollectedCards = new List<ICard>(Global.allCards);
                 Players[Settings.PlayerID].CollectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
                 Settings.Players = Players;
-                List<Yaku> NewYaku = Yaku.GetNewYakus(Players[Settings.PlayerID].CollectedYaku, Players[Settings.PlayerID].CollectedCards, true);
+                List<Yaku> NewYaku = YakuMethods.GetNewYakus(Players[Settings.PlayerID].CollectedYaku, Players[Settings.PlayerID].CollectedCards, true);
                 Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(new List<Yaku>(Global.allYaku), this);
 
             }
             if (GUILayout.Button("Cheat Opp."))
-                Players[1 - Settings.PlayerID].CollectedCards = Global.allCards.FindAll(x => Global.allYaku.First(y => y.Title == "Hanamizake").Contains(x));
+                Players[1 - Settings.PlayerID].CollectedCards = Global.allCards.FindAll(x => Global.allYaku.First(y => y.Title == "Hanamizake").Contains(x)).Cast<ICard>().ToList();
             if (GUILayout.Button("Skip to Finish"))
                 SceneManager.LoadScene("Finish");
 #endif

@@ -1,6 +1,9 @@
-﻿using System;
+﻿
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
 
 namespace Hanafuda
 {
@@ -10,9 +13,20 @@ namespace Hanafuda
          * Main Variables
          */
         public bool Turn { get; set; }
-        public List<Card> Deck { get; set; }
-        public List<Card> Field { get; set; }
+        public List<ICard> Deck { get; set; }
+        public List<ICard> Field { get; set; }
         public List<Player> Players { get; set; }
+
+        List<ICard> IHanafudaBoard.Deck
+        {
+            set { Deck = value.Cast<ICard>().ToList(); }
+            get => Deck.Cast<ICard>().ToList();
+        }
+        List<ICard> IHanafudaBoard.Field
+        {
+            set { Field = value.Cast<ICard>().ToList(); }
+            get => Field.Cast<ICard>().ToList();
+        }
 
         protected Transform EffectCam, Hand1, Hand2, Field3D, Deck3D;
         protected Communication PlayerInteraction;
@@ -21,26 +35,26 @@ namespace Hanafuda
         /*
          * Animation Part
          */
-        protected Card[] Hovered;
+        protected ICard[] Hovered;
 
         public abstract void AnimateAction(PlayerAction action);
-        public abstract void CollectCards(List<Card> ToCollect);
-        protected abstract void HoverCards(params Card[] cards);
-        protected abstract void HoverMatches(Card.Months month);
-        protected abstract void SelectionToField(Card card);
+        public abstract void CollectCards(List<ICard> ToCollect);
+        protected abstract void HoverCards(params ICard[] cards);
+        protected abstract void HoverMatches(Months month);
+        protected abstract void SelectionToField(ICard card);
         protected abstract void DrawFromDeck();
 
         /*
          * Interaction Part
          */
-        protected List<Card> Collection;
-        protected List<Card> TurnCollection;
+        protected List<ICard> Collection;
+        protected List<ICard> TurnCollection;
         public PlayerAction currentAction;
 
-        public abstract void HoverHand(Card card);
-        protected abstract void HandleMatches(Card card, bool fromDeck = false);
+        public abstract void HoverHand(ICard card);
+        protected abstract void HandleMatches(ICard card, bool fromDeck = false);
         public abstract void SayKoiKoi(bool koikoi);
-        public abstract void SelectCard(Card card, bool fromDeck = false);
+        public abstract void SelectCard(ICard card, bool fromDeck = false);
         public abstract void DrawnGame();
         protected abstract void OpponentTurn();
         protected abstract void ApplyMove(Move move);

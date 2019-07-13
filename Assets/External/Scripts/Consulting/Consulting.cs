@@ -1,4 +1,7 @@
-﻿using System;
+﻿
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,8 +24,8 @@ namespace Hanafuda
         private static bool P1Oya = true;
         private static ConsultingSetup Hand1, Hand2, Field, Collection1, Collection2;
 
-        private static List<Card> AnonymousDeck;
-        private static List<Card> AnonymousOppHand;
+        private static List<ICard> AnonymousDeck;
+        private static List<ICard> AnonymousOppHand;
 
         public enum BoardValidity
         {
@@ -35,8 +38,8 @@ namespace Hanafuda
         {
             Board = MainSceneVariables.boardTransforms.Main;
             Board.Players = Settings.Players;
-            Board.Deck = new List<Card>(Global.allCards);
-            Board.Field = new List<Card>();
+            Board.Deck = Global.allCards.Cast<ICard>().ToList();
+            Board.Field = new List<ICard>();
             if (Settings.Mobile)
             {
                 Hand1 = MainSceneVariables.consultingTransforms.Hand1M;
@@ -133,8 +136,8 @@ namespace Hanafuda
 
         public static void LoadGame()
         {
-            Board.InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), Board.Players[0].CollectedYaku);
-            Board.InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), Board.Players[1].CollectedYaku);
+            Board.InfoUI.GetYakuList(0).BuildFromCards(new List<ICard>(), Board.Players[0].CollectedYaku);
+            Board.InfoUI.GetYakuList(1).BuildFromCards(new List<ICard>(), Board.Players[1].CollectedYaku);
 
             if (Settings.AiMode.IsOmniscient())
             {
@@ -148,9 +151,9 @@ namespace Hanafuda
             }
             else
             {
-                List<Card> opponentHand = new List<Card>();
+                List<ICard> opponentHand = new List<ICard>();
                 while (opponentHand.Count != Board.Players[0].Hand.Count - (P1Oya ? 0 : 1))
-                    opponentHand.Add(Card.CreateInstance<Card>());
+                    opponentHand.Add(ScriptableObject.CreateInstance<Card3D>());
                 Board.Deck = Board.Players[0].Hand
                     .Union(opponentHand)
                     .Union(Board.Field)
@@ -158,7 +161,7 @@ namespace Hanafuda
                     .Union(Board.Players[1].CollectedCards)
                     .ToList();
                 while (Board.Deck.Count != 48)
-                    Board.Deck.Add(Card.CreateInstance<Card>());
+                    Board.Deck.Add(ScriptableObject.CreateInstance<Card3D>());
             }
 
             Board.BuildDeck();
@@ -176,8 +179,8 @@ namespace Hanafuda
             Board.BuildHands(p1HandCount, p2HandCount);
             Board.BuildField(fieldCount);
 
-            List<Card> p1Collected = Board.Players[0].CollectedCards;
-            List<Card> p2Collected = Board.Players[1].CollectedCards;
+            List<ICard> p1Collected = Board.Players[0].CollectedCards;
+            List<ICard> p2Collected = Board.Players[1].CollectedCards;
             Board.Players[0].CollectedCards.Clear();
             Board.Players[1].CollectedCards.Clear();
             Board.CollectCards(p1Collected);

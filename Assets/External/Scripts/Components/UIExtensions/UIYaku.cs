@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,16 +17,16 @@ namespace Hanafuda
 
         private List<KeyValuePair<Transform, Yaku>> YakuTransforms = new List<KeyValuePair<Transform, Yaku>>();
 
-        public void AddCards(List<Card> cards)
+        public void AddCards(List<ICard> cards)
         {
             for (int i = 0; i < YakuTransforms.Count; i++)
             {
                 RawImage[] images = YakuTransforms[i].Key.GetComponentsInChildren<RawImage>();
-                foreach (Card card in cards)
+                foreach (ICard card in cards)
                 {
                     if (YakuTransforms[i].Value.Contains(card))
                     {
-                        List<RawImage> existing = images.ToList().FindAll(x => x.texture == card.Image.mainTexture);
+                        List<RawImage> existing = images.ToList().FindAll(x => x.texture == card.GetImage().mainTexture);
                         if (existing.Count > 0)
                         {
                             int firstMissing = images.ToList().FindIndex(x => x.color.r < .9f);
@@ -32,7 +36,7 @@ namespace Hanafuda
                                 existing[0].color = images[firstMissing].color;
                                 images[firstMissing].color = Color.white;
                                 existing[0].texture = images[firstMissing].texture;
-                                images[firstMissing].texture = card.Image.mainTexture;
+                                images[firstMissing].texture = card.GetImage().mainTexture;
                             }
                         }
                         else
@@ -41,7 +45,7 @@ namespace Hanafuda
                             {
                                 if (image.color.r < .9f)
                                 {
-                                    image.texture = card.Image.mainTexture;
+                                    image.texture = card.GetImage().mainTexture;
                                     image.color = Color.white;
                                     break;
                                 }
@@ -51,7 +55,7 @@ namespace Hanafuda
                 }
             }
         }
-        public void BuildFromCards(List<Card> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
+        public void BuildFromCards(List<ICard> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
         {
             if (Settings.Mobile)
                 BuildFromCardsMobile(cards, yakus, GridSpacingX, GridSpacingY);
@@ -59,7 +63,7 @@ namespace Hanafuda
                 BuildFromCardsPC(cards, yakus, GridSpacingX, GridSpacingY);
         }
 
-        public void BuildFromCardsPC(List<Card> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
+        public void BuildFromCardsPC(List<ICard> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
         {
             int Column = 0;
             int CardsPerRow = 16;
@@ -82,9 +86,9 @@ namespace Hanafuda
 
                 obj.GetComponentInChildren<GridLayoutGroup>().spacing = new Vector2(GridSpacingX, GridSpacingY);
 
-                List<Card> cYakuCards = new List<Card>();
-                List<Card> YakuCards = new List<Card>();
-                List<Card> nYakucards = new List<Card>();
+                List<ICard> cYakuCards = new List<ICard>();
+                List<ICard> YakuCards = new List<ICard>();
+                List<ICard> nYakucards = new List<ICard>();
 
                 cYakuCards.AddRange(cards.FindAll(x => yaku.Contains(x)));
                 YakuCards.AddRange(Global.allCards.FindAll(x => yaku.Contains(x)));
@@ -96,17 +100,17 @@ namespace Hanafuda
                     if (i == 0) currentCard = card;
                     else currentCard = Instantiate(card.gameObject, card.transform.parent).GetComponent<RawImage>();
                     if (i < cYakuCards.Count)
-                        currentCard.texture = cYakuCards[i].Image.mainTexture;
+                        currentCard.texture = cYakuCards[i].GetImage().mainTexture;
                     else
                     {
-                        currentCard.texture = nYakucards[i - cYakuCards.Count].Image.mainTexture;
+                        currentCard.texture = nYakucards[i - cYakuCards.Count].GetImage().mainTexture;
                         currentCard.color = new Color(.5f, .5f, .5f, 1);
                     }
                 }
             }
         }
 
-        public void BuildFromCardsMobile(List<Card> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
+        public void BuildFromCardsMobile(List<ICard> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
         {
             int Column = 0;
             if (!yakus.Keys.Contains(-1))
@@ -128,9 +132,9 @@ namespace Hanafuda
 
                 obj.GetComponentInChildren<GridLayoutGroup>().spacing = new Vector2(GridSpacingX, GridSpacingY);
 
-                List<Card> cYakuCards = new List<Card>();
-                List<Card> YakuCards = new List<Card>();
-                List<Card> nYakucards = new List<Card>();
+                List<ICard> cYakuCards = new List<ICard>();
+                List<ICard> YakuCards = new List<ICard>();
+                List<ICard> nYakucards = new List<ICard>();
 
                 if (collectedYaku.Key < 0)
                     cYakuCards = cards;
@@ -147,10 +151,10 @@ namespace Hanafuda
                     if (i == 0) currentCard = card;
                     else currentCard = Instantiate(card.gameObject, card.transform.parent).GetComponent<RawImage>();
                     if (i < cYakuCards.Count)
-                        currentCard.texture = cYakuCards[i].Image.mainTexture;
+                        currentCard.texture = cYakuCards[i].GetImage().mainTexture;
                     else
                     {
-                        currentCard.texture = nYakucards[i - cYakuCards.Count].Image.mainTexture;
+                        currentCard.texture = nYakucards[i - cYakuCards.Count].GetImage().mainTexture;
                         currentCard.color = new Color(.5f, .5f, .5f, 1);
                     }
                 }

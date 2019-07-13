@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hanafuda.Base.Interfaces;
+using System;
 using System.Collections.Generic;
 
 /* To-Do:
@@ -12,38 +13,13 @@ using System.Collections.Generic;
 
 namespace Hanafuda.Base
 {
-
-    public class Card
+    [Serializable]
+    public partial class Card : ICard
     {
-        public enum Months
-        {
-            Januar,
-            Febraur,
-            März,
-            April,
-            Mai,
-            Juni,
-            Juli,
-            August,
-            September,
-            Oktober,
-            November,
-            Dezember,
-            Null
-        }
-
-        public enum Type
-        {
-            None = -1,
-            Landschaft,
-            Bänder,
-            Tiere,
-            Lichter
-        }
-        public string Title;
-        public int ID;
-        public Months Monat;
-        public Type Typ;
+        public string Title { get; }
+        public int ID { get; }
+        public Months Month { get; }
+        public CardMotive Motive { get; }
 
         public override bool Equals(object obj)
         {

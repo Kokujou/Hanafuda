@@ -1,5 +1,7 @@
-﻿using ExtensionMethods;
+﻿using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -7,17 +9,17 @@ namespace Hanafuda
 {
     public class PlayerAction
     {
-        public Card SingleSelection;
+        public ICard SingleSelection;
         public int PlayerID;
         public bool HadYaku;
-        public Card HandSelection = null;
-        public Card DeckSelection = null;
-        public Card HandFieldSelection = null;
-        public Card DeckFieldSelection = null;
-        public List<Card> HandMatches = new List<Card>();
-        public List<Card> DeckMatches = new List<Card>();
+        public ICard HandSelection = null;
+        public ICard DeckSelection = null;
+        public ICard HandFieldSelection = null;
+        public ICard DeckFieldSelection = null;
+        public List<ICard> HandMatches = new List<ICard>();
+        public List<ICard> DeckMatches = new List<ICard>();
         public bool Koikoi = false;
-        private IHanafudaBoard Board;
+        private Spielfeld Board;
 
         public bool isFinal()
         {
@@ -29,36 +31,36 @@ namespace Hanafuda
             Koikoi = koikoi;
         }
 
-        public void Init(IHanafudaBoard board)
+        public void Init(Spielfeld board)
         {
             Board = board;
             PlayerID = Settings.PlayerID;
         }
-        public void SelectFromHand(Card selection)
+        public void SelectFromHand(ICard selection)
         {
             HandSelection = selection;
-            HandMatches = Board.Field.FindAll(x => x.Monat == selection.Monat);
+            HandMatches = Board.Field.Cast<ICard>().ToList().FindAll(x => x.Month == selection.Month);
         }
-        public void SelectHandMatch(Card selection)
+        public void SelectHandMatch(ICard selection)
         {
             HandFieldSelection = selection;
             HandMatches.Clear();
-            HandMatches = new List<Card>() { HandSelection, HandFieldSelection };
+            HandMatches = new List<ICard>() { HandSelection, HandFieldSelection };
         }
-        public void DrawCard(Card selection = null)
+        public void DrawCard(ICard selection = null)
         {
-            if (selection)
+            if (selection != null)
                 DeckSelection = selection;
             else
                 DeckSelection = Board.Deck[0];
-            DeckMatches = Board.Field.FindAll(x => x.Monat == DeckSelection.Monat);
+            DeckMatches = Board.Field.FindAll(x => x.Month == DeckSelection.Month);
             DeckMatches.RemoveAll(x => HandMatches.Contains(x));
         }
-        public void SelectDeckMatch(Card fieldSelection)
+        public void SelectDeckMatch(ICard fieldSelection)
         {
             DeckFieldSelection = fieldSelection;
             DeckMatches.Clear();
-            DeckMatches = new List<Card>() { DeckSelection, DeckFieldSelection };
+            DeckMatches = new List<ICard>() { DeckSelection, DeckFieldSelection };
         }
 
         public override string ToString()
@@ -101,17 +103,17 @@ namespace Hanafuda
         {
             Move move = new Move();
             move.PlayerID = action.PlayerID;
-            if (action.SingleSelection)
+            if (action.SingleSelection != null)
             {
-                move.SingleSelection = action.SingleSelection.name;
+                move.SingleSelection = action.SingleSelection.Title;
             }
             else
             {
                 move.HandSelection = action.HandSelection.Title;
                 move.DeckSelection = action.DeckSelection?.Title;
-                if (action.HandFieldSelection)
+                if (action.HandFieldSelection != null)
                     move.HandFieldSelection = action.HandMatches[0].Title;
-                if (action.DeckFieldSelection)
+                if (action.DeckFieldSelection != null)
                     move.DeckFieldSelection = action.DeckMatches[0].Title;
                 move.HadYaku = action.HadYaku;
                 move.Koikoi = action.Koikoi;
@@ -122,7 +124,7 @@ namespace Hanafuda
         public static PlayerAction FromMove(Move move, IHanafudaBoard board)
         {
             PlayerAction action = new PlayerAction();
-            action.Init(board);
+            action.Init((Spielfeld)board);
             if (move.HandSelection.Length > 0)
                 action.SelectFromHand(Global.allCards.Find(x => x.Title == move.HandSelection));
             if (move.SingleSelection.Length > 0)

@@ -1,4 +1,7 @@
-﻿using System;
+﻿
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,19 +37,20 @@ namespace Hanafuda
             gameObject.SetActive(false);
             if(Settings.AiMode.IsOmniscient())
             {
-                InitCard(Board.Deck[0], action.DeckSelection);
-                GameObject deckSelection = Board.Deck[0].Object;
+                Board.Deck[0].SetObject(action.DeckSelection.GetObject());
+                Board.Deck[0] = action.DeckSelection;
+                GameObject deckSelection = Board.Deck[0].GetObject();
                 deckSelection.name = action.DeckSelection.Title;
-                deckSelection.GetComponentsInChildren<MeshRenderer>()[0].material = action.DeckSelection.Image;
-                action.DeckSelection.Object = deckSelection;
+                deckSelection.GetComponentsInChildren<MeshRenderer>()[0].material = action.DeckSelection.GetImage();
+                action.DeckSelection.SetObject( deckSelection);
 
-                if (!action.HandSelection.Object)
+                if (!action.HandSelection.GetObject())
                 {
-                    InitCard(Board.Players[1].Hand[0], action.HandSelection);
-                    GameObject handSelection = Board.Players[1].Hand[0].Object;
+                    Board.Players[1].Hand[0] = action.HandSelection;
+                    GameObject handSelection = Board.Players[1].Hand[0].GetObject();
                     handSelection.name = action.HandSelection.Title;
-                    handSelection.GetComponentsInChildren<MeshRenderer>()[0].material = action.HandSelection.Image;
-                    action.HandSelection.Object = handSelection;
+                    handSelection.GetComponentsInChildren<MeshRenderer>()[0].material = action.HandSelection.GetImage();
+                    action.HandSelection.SetObject(handSelection);
                 }
             }
             Board.AnimateAction(action);
@@ -65,34 +69,34 @@ namespace Hanafuda
 
         private bool ValidateAction(PlayerAction action)
         {
-            if (!action.HandSelection) return false;
-            if (Board.Field.FindAll(x => x.Monat == action.HandSelection.Monat).Count == 2
-                && !action.HandFieldSelection) return false;
-            if (!action.DeckSelection) return false;
-            if (Board.Field.FindAll(x => x.Monat == action.DeckSelection.Monat).Count == 2
-                && !action.DeckFieldSelection) return false;
+            if (action.HandSelection == null) return false;
+            if (Board.Field.FindAll(x => x.Month == action.HandSelection.Month).Count == 2
+                && action.HandFieldSelection == null) return false;
+            if (action.DeckSelection == null) return false;
+            if (Board.Field.FindAll(x => x.Month == action.DeckSelection.Month).Count == 2
+                && action.DeckFieldSelection == null) return false;
             if (action.HandFieldSelection == action.DeckFieldSelection
                 && action.HandFieldSelection != null) return false;
             return true;
         }
 
-        private List<Card> GetCollectedCards(PlayerAction action)
+        private List<ICard> GetCollectedCards(PlayerAction action)
         {
-            List<Card> toCollect = new List<Card>();
-            List<Card> handFieldMatches = Board.Field.FindAll(x => x.Monat == action.HandSelection.Monat);
+            List<ICard> toCollect = new List<ICard>();
+            List<ICard> handFieldMatches = Board.Field.FindAll(x => x.Month == action.HandSelection.Month);
             if (handFieldMatches.Count > 0)
             {
                 toCollect.Add(action.HandSelection);
-                if (action.HandFieldSelection)
+                if (action.HandFieldSelection != null)
                     toCollect.Add(action.HandFieldSelection);
                 else
                     toCollect.AddRange(handFieldMatches);
             }
-            List<Card> deckFieldMatches = Board.Field.FindAll(x => x.Monat == action.DeckSelection.Monat);
+            List<ICard> deckFieldMatches = Board.Field.FindAll(x => x.Month == action.DeckSelection.Month);
             if (deckFieldMatches.Count > 0)
             {
                 toCollect.Add(action.DeckSelection);
-                if (action.DeckFieldSelection)
+                if (action.DeckFieldSelection != null)
                     toCollect.Add(action.DeckFieldSelection);
                 else
                     toCollect.AddRange(deckFieldMatches);

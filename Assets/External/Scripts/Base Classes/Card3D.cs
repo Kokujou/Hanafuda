@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using UnityEditor;
+﻿using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using System;
 using UnityEngine;
+
 
 /* To-Do:
 - Anfangsspieler ermitteln
@@ -17,41 +16,19 @@ using UnityEngine;
 namespace Hanafuda
 {
 
-    [Serializable, CreateAssetMenu(menuName = "Card")]
-    public class Card : ScriptableObject, IComparable
+    [Serializable, CreateAssetMenu(menuName = "Card2")]
+    public class Card3D : ScriptableObject, ICardObject, ICard
     {
-        public enum Months
-        {
-            Januar,
-            Febraur,
-            März,
-            April,
-            Mai,
-            Juni,
-            Juli,
-            August,
-            September,
-            Oktober,
-            November,
-            Dezember,
-            Null
-        }
+        public string Title { get; set; }
+        public int ID { get; set; }
+        public Months Month { get; set; }
+        public CardMotive Motive { get; set; }
 
-        public enum Type
-        {
-            None = -1,
-            Landschaft,
-            Bänder,
-            Tiere,
-            Lichter
-        }
-        public string Title;
-        public int ID;
-        public Material Image;
-        public Months Monat;
+        public Material Image { get; set; }
+
         GameObject _Objekt;
         public GameObject Object { get { return _Objekt; } set { _Objekt = value; _Objekt.GetComponent<CardComponent>().card = this; } }
-        public Type Typ;
+
         public void FadeCard(bool hide = true)
         {
             var mat = Object.GetComponent<CardComponent>().Foreground.GetComponent<MeshRenderer>().material;
@@ -79,8 +56,8 @@ namespace Hanafuda
         }
         public override bool Equals(object obj)
         {
-            if (obj.GetType() == typeof(Card))
-                return ((Card)obj).Title == Title;
+            if (obj.GetType() == typeof(ICard))
+                return ((ICard)obj).Title == Title;
             return false;
         }
 
@@ -95,8 +72,8 @@ namespace Hanafuda
 
         public int CompareTo(object obj)
         {
-            if (obj.GetType() == typeof(Card))
-                return GetHashCode().CompareTo(((Card)obj).GetHashCode());
+            if (obj.GetType() == typeof(ICard))
+                return GetHashCode().CompareTo(((ICard)obj).GetHashCode());
             else throw new NotImplementedException();
         }
     }

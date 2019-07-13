@@ -1,4 +1,5 @@
 ﻿using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,20 +13,20 @@ namespace Hanafuda.Extensions
         /// </summary>
         /// <param name="field"></param>
         /// <returns></returns>
-        public static bool NeedsRedeal(this List<Card> field)
-            => field.Exists(x => field.Count(y => y.Monat == x.Monat) == 4);
+        public static bool NeedsRedeal(this List<ICard> field)
+            => field.Exists(x => field.Count(y => y.Month == x.Month) == 4);
 
         /// <summary>
         /// Determines, if a hand is an initial win
         /// </summary>
         /// <param name="hand">input hand with 8 cards</param>
         /// <returns>0: no win, 1: 4 matching cards, 2: 4 pairs</returns>
-        public static int IsInitialWin(this List<Card> hand)
+        public static int IsInitialWin(this List<ICard> hand)
         {
             if (hand.Count != 8) return 0;
-            Dictionary<Card.Months, int> months = Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => 0);
+            Dictionary<Months, int> months = Enumerable.Range(0, 12).ToDictionary(x => (Months)x, x => 0);
             foreach (Card card in hand)
-                months[card.Monat]++;
+                months[card.Month]++;
             int pairs = 0;
             foreach (var pair in months)
                 if (pair.Value == 4) return 1;

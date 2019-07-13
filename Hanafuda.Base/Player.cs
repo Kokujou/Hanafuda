@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Hanafuda.Base.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 
 /* To-Do:
@@ -14,8 +15,9 @@ namespace Hanafuda.Base
 {
     public class Player
     {
-        public List<Card> CollectedCards;
-        public List<Card> Hand;
+        public Dictionary<int, int> CollectedYaku;
+        public List<ICard> CollectedCards;
+        public List<ICard> Hand;
         public int Koikoi;
         public string Name;
         public List<int> pTotalPoints = new List<int>();
@@ -29,8 +31,8 @@ namespace Hanafuda.Base
         /// <param name="copy">Originalspieler</param>
         public Player(Player copy)
         {
-            CollectedCards = new List<Card>(copy.CollectedCards);
-            Hand = new List<Card>(copy.Hand);
+            CollectedCards = new List<ICard>(copy.CollectedCards);
+            Hand = new List<ICard>(copy.Hand);
             Koikoi = copy.Koikoi;
             Name = copy.Name;
             pTotalPoints = new List<int>(copy.pTotalPoints);
@@ -42,8 +44,8 @@ namespace Hanafuda.Base
         {
             Name = name;
             Koikoi = 0;
-            Hand = new List<Card>();
-            CollectedCards = new List<Card>();
+            Hand = new List<ICard>();
+            CollectedCards = new List<ICard>();
             TotalPoints = 0;
         }
 

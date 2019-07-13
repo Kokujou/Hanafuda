@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hanafuda.Base;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -22,7 +23,7 @@ namespace Hanafuda
 
         public void OnAIModeChanged(int value)
         {
-            Settings.AiMode = (Settings.AIMode)value;
+            Settings.AiMode = (AIMode)value;
         }
 
         public void OnGameModeChanged(int mode)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hanafuda.Base.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Hanafuda.Base
 {
     public static class YakuMethods
     {
-        public static List<Yaku> GetNewYakus(Dictionary<int, int> currentYakus, List<Card> newCards, bool AllowWrite = false)
+        public static List<Yaku> GetNewYakus(Dictionary<int, int> currentYakus, List<ICard> newCards, bool AllowWrite = false)
         {
             List<Yaku> NewYaku = new List<Yaku>();
             for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
@@ -54,7 +55,7 @@ namespace Hanafuda.Base
                 list.RemoveAll(x => x.Title.Contains("tan") && x.Title != "Aka Ao Kasane");
         }
 
-        public static List<Yaku> GetYaku(List<Card> Hand)
+        public static List<Yaku> GetYaku(List<ICard> Hand)
         {
             var temp = new List<Yaku>();
             for (var i = 0; i < Global.allYaku.Count; i++)
@@ -63,7 +64,7 @@ namespace Hanafuda.Base
             return temp;
         }
 
-        public static List<int> GetYakuIDs(List<Card> Hand)
+        public static List<int> GetYakuIDs(List<ICard> Hand)
         {
             var temp = new List<int>();
             for (var i = 0; i < Global.allYaku.Count; i++)

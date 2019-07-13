@@ -1,4 +1,5 @@
-﻿using ExtensionMethods;
+﻿using Hanafuda.Base;
+using Hanafuda.Extensions;
 using Photon.Pun;
 using Photon.Realtime;
 using System;

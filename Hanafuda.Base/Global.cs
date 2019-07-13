@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hanafuda.Base.Interfaces;
+using System;
 using System.Collections.Generic;
 // ReSharper disable All
 /*
@@ -13,7 +14,7 @@ namespace Hanafuda.Base
         public static Action NoAction = () => { };
         public static int MovingCards;
         public static int Turn = -1;
-        public static List<Card> allCards = new List<Card>();
+        public static List<ICard> allCards = new List<ICard>();
         public static List<Yaku> allYaku = new List<Yaku>();
         public static List<string> Spielverlauf = new List<string>();
 

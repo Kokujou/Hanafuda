@@ -1,4 +1,4 @@
-﻿using ExtensionMethods;
+﻿
 using System;
 using System.Linq;
 using System.Collections;
@@ -8,6 +8,10 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 using Photon.Pun;
+
+using Hanafuda.Extensions;
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Base;
 
 /*
  * Todo:
@@ -22,10 +26,10 @@ namespace Hanafuda
     {
         private GameObject Kartenziehen, Order;
         private GameObject[] Infos;
-        private Card[] Hovered;
+        private ICard[] Hovered;
         private Communication PlayerInteraction;
-        public Card[] Selections;
-        public List<Card> tempDeck;
+        public ICard[] Selections;
+        public List<ICard> tempDeck;
         private int _Turn = -1;
         public int Turn
         {
@@ -37,7 +41,7 @@ namespace Hanafuda
                     StartCoroutine(Animations.AfterAnimation(CreateSlide));
             }
         }
-        private Card selected;
+        private ICard selected;
 
         public void OnGUI()
         {
@@ -64,9 +68,9 @@ namespace Hanafuda
         /// </summary>
         public void Start()
         {
-            Selections = new Card[Settings.Players.Count];
+            Selections = new ICard[Settings.Players.Count];
             Infos = new GameObject[Settings.Players.Count];
-            Hovered = new Card[] { };
+            Hovered = new ICard[] { };
             PlayerInteraction = Global.instance.gameObject.GetComponent<Communication>();
             var seed = Random.Range(0, 100);
             if (Settings.Multiplayer)
@@ -87,19 +91,19 @@ namespace Hanafuda
 
         private void LoadDeck(int seed)
         {
-            tempDeck = new List<Card>();
+            tempDeck = new List<ICard>();
             Kartenziehen = new GameObject("Kartenziehen");
             var rand = new System.Random(seed);
-            var all = new List<Card>(Global.allCards);
+            var all = new List<ICard>(Global.allCards);
             for (var i = 0; i < 12; i++)
             {
                 var rnd = rand.Next(0, all.Count);
                 tempDeck.Add(all[rnd]);
-                Card.Months month = all[rnd].Monat;
-                all.RemoveAll(x => x.Monat == month);
+                Months month = all[rnd].Month;
+                all.RemoveAll(x => x.Month == month);
                 var go = Instantiate(Global.prefabCollection.PKarte, Kartenziehen.transform);
-                go.GetComponentsInChildren<MeshRenderer>()[0].material = tempDeck[i].Image;
-                go.name = tempDeck[i].Title;
+                go.GetComponentsInChildren<MeshRenderer>()[0].material = tempDeck[i].GetImage();
+                go.name = ((ICard)tempDeck[i]).Title;
                 if (Settings.Mobile)
                 {
                     go.transform.localPosition = new Vector3(0, 0, i * 0.1f);
@@ -112,7 +116,7 @@ namespace Hanafuda
                     go.transform.Rotate(0, 0, 360f / 12f * i);
                     go.transform.Translate(0, 30, 0);
                 }
-                tempDeck[i].Object = go;
+                tempDeck[i].SetObject(go);
             }
             Order = Instantiate(Global.prefabCollection.PText);
             Order.name = "Order";
@@ -123,7 +127,7 @@ namespace Hanafuda
             }
             Turn = 0;
         }
-        public void HoverCards(params Card[] cards)
+        public void HoverCards(params ICard[] cards)
         {
             for (int card = 0; card < Hovered.Length; card++)
                 Hovered[card]?.HoverCard(true);
@@ -131,7 +135,7 @@ namespace Hanafuda
                 cards[card]?.HoverCard();
             Hovered = cards;
         }
-        public void OnSelectItem(Card Selection)
+        public void OnSelectItem(ICard Selection)
         {
             PlayerAction action = new PlayerAction();
             action.SingleSelection = Selection;
@@ -148,7 +152,7 @@ namespace Hanafuda
         /// </summary>
         /// <param name="sel">Wahl des Spielers</param>
         /// <returns></returns>
-        public IEnumerator AnimOpponentChoice(Card.Months outcome = Card.Months.Null)
+        public IEnumerator AnimOpponentChoice(Months outcome = Months.Null)
         {
             yield return new WaitForSeconds(1);
             float rndTime = Random.Range(1000, 2000);
@@ -161,9 +165,9 @@ namespace Hanafuda
                 for (int caption = 0; caption < captions.Length; caption++)
                     captions[caption].text = "Gegner wählt\naus";
             }
-            while (watch.ElapsedMilliseconds < rndTime || (outcome != Card.Months.Null && tempDeck[i].Monat != outcome))
+            while (watch.ElapsedMilliseconds < rndTime || (outcome != Months.Null && ((ICard)tempDeck[i]).Month != outcome))
             {
-                BoxCollider col = tempDeck[i].Object.GetComponent<BoxCollider>();
+                BoxCollider col = tempDeck[i].GetObject().GetComponent<BoxCollider>();
                 Global.prev?.HoverCard(true);
                 col.HoverCard();
                 yield return new WaitForSeconds(.05f);
@@ -195,10 +199,10 @@ namespace Hanafuda
                 targetScale = 2;
                 InfoY = 25;
             }
-            Card SingleSelection = tempDeck.Find(x => x.Title == action.SingleSelection);
+            ICard SingleSelection = tempDeck.Find(x => ((ICard)x).Title == action.SingleSelection);
             Selections[action.PlayerID] = SingleSelection;
             Global.prev = null;
-            GameObject sel = SingleSelection.Object;
+            GameObject sel = SingleSelection.GetObject();
             sel.transform.parent = null;
             tempDeck.Remove(SingleSelection);
             sel.layer = 0;
@@ -224,7 +228,7 @@ namespace Hanafuda
         {
             SortedList<int, int> selections = new SortedList<int, int>();
             for (int selection = 0; selection < Selections.Length; selection++)
-                selections.Add((int)Selections[selection].Monat, selection);
+                selections.Add((int)Selections[selection].Month, selection);
             List<Player> rearrange = new List<Player>(Settings.Players);
             Infos[selections.Values[0]].GetComponent<TextMesh>().color = new Color(28, 165, 28, 255) / 255f;
             Player self = Settings.Players[Settings.PlayerID];

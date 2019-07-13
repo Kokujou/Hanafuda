@@ -6,6 +6,8 @@ using System;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
+using Hanafuda.Base;
+using Player = Hanafuda.Base.Player;
 
 namespace Hanafuda
 {

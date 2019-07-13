@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Linq;
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
 
 namespace Hanafuda
 {
@@ -44,13 +47,13 @@ namespace Hanafuda
             Subtitle_Text.text = Yaku.Title;
         }
 
-        public void FixedYaku(Yaku Yaku, List<Card> Collection)
+        public void FixedYaku(Yaku Yaku, List<ICard> Collection)
         {
             const int CardWidth = 25;
             const int CardOffset = 10;
             int CardSpace = CardWidth + CardOffset;
             SetupText(Yaku);
-            List<Card> yakuCards = Collection.Where(x=>Yaku.Contains(x)).ToList();
+            List<ICard> yakuCards = Collection.Where(x=>Yaku.Contains(x)).ToList();
             Transform parent = Cards.transform;
             for (int yakuCard = 0; yakuCard < Yaku.minSize; yakuCard++)
             {
@@ -70,7 +73,7 @@ namespace Hanafuda
                 GameObject Image = new GameObject("Image");
                 Image.transform.SetParent(card.transform, false);
                 Image img = Image.AddComponent<Image>();
-                Texture2D tex = (Texture2D)yakuCards[yakuCard].Image.mainTexture;
+                Texture2D tex = (Texture2D)yakuCards[yakuCard].GetImage().mainTexture;
                 img.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f));
                 rect = img.GetComponent<RectTransform>();
                 rect.localPosition = new Vector3(0, 0);
@@ -78,18 +81,18 @@ namespace Hanafuda
             }
         }
 
-        public void KouYaku(Yaku Yaku, List<Card> Collection)
+        public void KouYaku(Yaku Yaku, List<ICard> Collection)
         {
             if(Settings.Mobile)
                 transform.localScale = (transform.parent.GetComponent<CanvasScaler>().referenceResolution.x / Screen.width) * Vector3.one;
             transform.localScale = (1f / transform.parent.GetComponent<Canvas>().scaleFactor) * Vector3.one;
             Caption.sprite = Captions[(int)Enum.Parse(typeof(LightYaku), Yaku.Title)];
-            List<Card> Matches = Global.allCards.FindAll(y => y.Typ == Card.Type.Lichter);
+            List<ICard> Matches = Global.allCards.FindAll(y => y.Motive == CardMotive.Lichter).Cast<ICard>().ToList();
             for (int cardID = 0; cardID < 5; cardID++)
             {
                 if (Collection.Exists(x => x.Title == Matches[cardID].Title))
                 {
-                    Texture2D tex = (Texture2D)Matches[cardID].Image.mainTexture;
+                    Texture2D tex = (Texture2D)Matches[cardID].GetImage().mainTexture;
                     Lights[cardID].sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f));
                 }
                 else

@@ -1,4 +1,8 @@
-﻿using System;
+﻿
+using Hanafuda.Base;
+using Hanafuda.Extensions;
+using Hanafuda.Base.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -24,7 +28,7 @@ namespace Hanafuda
         private bool isActive;
         private bool FieldSelectionRequested = false;
         private GameObject Slide;
-        private Card Selection;
+        private ICard Selection;
         public void Activate(bool active)
         {
             isActive = active;
@@ -63,7 +67,7 @@ namespace Hanafuda
                 RaycastHit hit = new RaycastHit();
                 if (Physics.Raycast(ray, out hit, 500f, LayerMask.GetMask("P1Hand")))
                 {
-                    Card selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
+                    ICard selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
                     if (Input.GetMouseButtonDown(0))
                     {
                         InputRoutine = () => { };
@@ -89,15 +93,15 @@ namespace Hanafuda
             Activate(false);
         }
 
-        public void FieldInteraction(Card card, bool fromDeck)
+        public void FieldInteraction(ICard card, bool fromDeck)
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit = new RaycastHit();
             if (Input.GetMouseButtonDown(0) && Physics.Raycast(ray, out hit, 1 << LayerMask.NameToLayer("Feld")) &&
                 hit.collider.gameObject.name != card.Title)
             {
-                Card selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
-                if (selected.Monat != card.Monat) return;
+                ICard selected = hit.collider.gameObject.GetComponent<CardComponent>().card;
+                if (selected.Month != card.Month) return;
                 for (int i = 0; i < Board.Field.Count; i++)
                     Board.Field[i].FadeCard(false);
                 if (fromDeck)
@@ -107,7 +111,7 @@ namespace Hanafuda
             }
         }
 
-        public void RequestFieldSelection(Card card, bool fromDeck)
+        public void RequestFieldSelection(ICard card, bool fromDeck)
         {
             InputRoutine = () => { FieldInteraction(card, fromDeck); };
             isActive = true;

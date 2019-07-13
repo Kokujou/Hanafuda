@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -15,7 +18,7 @@ namespace Hanafuda
         public Dropdown Player1, Player2;
 
         private uint ExecutionTimes;
-        private Settings.AIMode P1Mode, P2Mode;
+        private AIMode P1Mode, P2Mode;
 
         private Player P1KI, P2KI;
 
@@ -29,51 +32,11 @@ namespace Hanafuda
             public float avgDuration { get; set; }
         }
 
-        struct VirtualBoard : IHanafudaBoard
-        {
-            public List<Card> Deck { get; set; }
-            public List<Card> Field { get; set; }
-            public List<Player> Players { get; set; }
-            public bool Turn { get; set; }
-
-            public void ApplyMove(Move move)
-            {
-                Player activePlayer = Players[move.PlayerID];
-                Card handSelection = activePlayer.Hand.Find(x => x.Title == move.HandSelection);
-                activePlayer.Hand.Remove(handSelection);
-
-                List<Card> handMatches = Field.FindAll(x => x.Monat == handSelection.Monat);
-                if (handMatches.Count == 2)
-                    handMatches = new List<Card>() { handMatches.First(x => x.Title == move.HandFieldSelection) };
-                else if (handMatches.Count == 0)
-                    Field.Add(handSelection);
-                else
-                    handMatches.Add(handSelection);
-                activePlayer.CollectedCards.AddRange(handMatches);
-                foreach (Card card in handMatches)
-                    Field.Remove(card);
-
-                Card deckSelection = Deck[0];
-                Deck.RemoveAt(0);
-
-                List<Card> deckMatches = Field.FindAll(x => x.Monat == deckSelection.Monat);
-                if (deckMatches.Count == 2)
-                    deckMatches = new List<Card>() { deckMatches.First(x => x.Title == move.DeckFieldSelection) };
-                else if (deckMatches.Count == 0)
-                    Field.Add(deckSelection);
-                else
-                    deckMatches.Add(deckSelection);
-                activePlayer.CollectedCards.AddRange(deckMatches);
-                foreach (Card card in deckMatches)
-                    Field.Remove(card);
-
-            }
-        }
         public void StartSimulation()
         {
             ExecutionTimes = Times.Value;
-            P1Mode = (Settings.AIMode)Player1.value;
-            P2Mode = (Settings.AIMode)Player2.value;
+            P1Mode = (AIMode)Player1.value;
+            P2Mode = (AIMode)Player2.value;
 
             object synchronizeOutput = new object();
             IterationOutput totalOutput = new IterationOutput();
@@ -149,7 +112,7 @@ namespace Hanafuda
                 output.P1Wins++;
             else
                 output.P2Wins++;
-            List<Yaku> yakuList = Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), player.CollectedCards);
+            List<Yaku> yakuList = YakuMethods.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), player.CollectedCards);
             Log($"{player.Name} sammelt {string.Join(",", yakuList.Select(x => x.Title))}", LogType.Warning);
             Log($"{player.Name} hat nicht Koi Koi gesagt. Die Runde ist beendet.", LogType.Warning);
         }
@@ -183,9 +146,9 @@ namespace Hanafuda
             return newBoard;
         }
 
-        private List<Card> BuildRandomDeck()
+        private List<ICard> BuildRandomDeck()
         {
-            List<Card> Deck = new List<Card>();
+            List<ICard> Deck = new List<ICard>();
             var rnd = new Random();
             List<int> indices = Enumerable.Range(0, Global.allCards.Count).ToList();
             Deck.Clear();

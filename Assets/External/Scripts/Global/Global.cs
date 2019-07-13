@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hanafuda.Base;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
-using ExtensionMethods;
+
 // ReSharper disable All
 /*
  * Todo:
@@ -23,10 +24,10 @@ namespace Hanafuda
         public static Sprite[] CardSkins;
         public static int Turn = -1;
         public static BoxCollider prev;
-        public static List<Card> allCards = new List<Card>();
+        public static List<Card3D> allCards = new List<Card3D>();
         public static List<Yaku> allYaku = new List<Yaku>();
         public static List<string> Spielverlauf = new List<string>();
-        public List<Card> AllCards = new List<Card>();
+        public List<Card3D> AllCards = new List<Card3D>();
         public List<Yaku> AllYaku = new List<Yaku>();
         public Texture2D[] Skins;
         public UnityEngine.Object Logger;
@@ -97,7 +98,7 @@ namespace Hanafuda
             asset.Name = Name;
             asset.Monat = monat;
             asset.Typ = typ;
-            asset.Image = Resources.Load<Material>("Motive/Materials/" + Name);
+            asset.GetImage() = Resources.Load<Material>("Motive/Materials/" + Name);
             return asset;
         }
         */

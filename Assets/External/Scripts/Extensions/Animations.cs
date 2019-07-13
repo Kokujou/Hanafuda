@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Hanafuda;
+using Hanafuda.Base.Interfaces;
 
-
-namespace Hanafuda
+namespace Hanafuda.Extensions
 {
     public static class Animations
     {
@@ -17,6 +17,15 @@ namespace Hanafuda
         public const float _CardSize = _OrthoPlaneSize / 1.6f;
         public const float _CardAngle = 20f;
         public static readonly Vector3 StandardScale = new Vector3(1, 1.6f, 1);
+
+        public static void SetCameraRect(this Camera cam)
+        {
+            if (Screen.width >= Screen.height)
+                cam.aspect = 16f / 9f;
+            else
+                cam.aspect = .6f;
+        }
+
         /// <summary>
         /// Transparenz-Animation des Hilfs-Pfeils für die mobile Handkarten-Animation
         /// </summary>
@@ -134,10 +143,10 @@ namespace Hanafuda
         /// <param name="maxCols">Maximale Anzahl von Spalten</param>
         /// <returns></returns>
         /// 
-        public static IEnumerator ResortCards(this List<Card> toSort, CardLayout layout)
+        public static IEnumerator ResortCards(this List<ICard> toSort, CardLayout layout)
         {
             if (toSort.Count == 0) yield break;
-            Vector3 StartPos = toSort[0].Object.transform.parent.position;
+            Vector3 StartPos = toSort[0].GetObject().transform.parent.position;
             yield return new WaitForSeconds(layout.Delay);
             if (layout.IsMobileHand)
                 yield return SortMobileHand(toSort);
@@ -145,33 +154,33 @@ namespace Hanafuda
                 yield return SortCollection(toSort, layout.MaxSize, layout.RowWise, StartPos);
         }
 
-        private static IEnumerator SortCollection(List<Card> toSort, int maxSize, bool rowWise, Vector3 StartPos)
+        private static IEnumerator SortCollection(List<ICard> toSort, int maxSize, bool rowWise, Vector3 StartPos)
         {
             int iterations = maxSize;
             for (int i = 0; i < toSort.Count; i++)
             {
-                float offsetX = toSort[i].Object.transform.localScale.x;
-                float offsetY = toSort[i].Object.transform.localScale.y;
+                float offsetX = toSort[i].GetObject().transform.localScale.x;
+                float offsetY = toSort[i].GetObject().transform.localScale.y;
                 float cardWidth = _CardSize * offsetX;
                 float cardHeight = _CardSize * offsetY;
                 float alignY = (cardHeight + offsetY) * ((maxSize - 1) * 0.5f);
                 if (rowWise)
-                    Global.instance.StartCoroutine(toSort[i].Object.transform.StandardAnimation(StartPos +
+                    Global.instance.StartCoroutine(toSort[i].GetObject().transform.StandardAnimation(StartPos +
                         new Vector3((i % iterations) * (cardWidth + offsetX), -alignY + (i / iterations) * (cardHeight + offsetY), 0),
-                        toSort[i].Object.transform.rotation.eulerAngles, toSort[i].Object.transform.localScale, 1f / toSort.Count, .5f));
+                        toSort[i].GetObject().transform.rotation.eulerAngles, toSort[i].GetObject().transform.localScale, 1f / toSort.Count, .5f));
                 else
-                    Global.instance.StartCoroutine(toSort[i].Object.transform.StandardAnimation(StartPos +
+                    Global.instance.StartCoroutine(toSort[i].GetObject().transform.StandardAnimation(StartPos +
                     new Vector3((i / iterations) * (cardWidth + offsetX), -alignY + (i % iterations) * (cardHeight + offsetY), 0),
-                    toSort[i].Object.transform.rotation.eulerAngles, toSort[i].Object.transform.localScale, 1f / toSort.Count, .5f));
+                    toSort[i].GetObject().transform.rotation.eulerAngles, toSort[i].GetObject().transform.localScale, 1f / toSort.Count, .5f));
                 yield return null;
             }
         }
 
-        private static IEnumerator SortMobileHand(List<Card> toSort)
+        private static IEnumerator SortMobileHand(List<ICard> toSort)
         {
             for (int card = 0; card < toSort.Count; card++)
             {
-                GameObject temp = toSort[card].Object;
+                GameObject temp = toSort[card].GetObject();
                 bool hand1 = temp.transform.parent.name.Contains("1");
                 Global.instance.StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, new Vector3(0, temp.transform.rotation.eulerAngles.y, hand1 ? 0 : 180), temp.transform.localScale, 0, .3f, () =>
                 {

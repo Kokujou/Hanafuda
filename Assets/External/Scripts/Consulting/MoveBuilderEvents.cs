@@ -1,4 +1,8 @@
-﻿using System;
+﻿
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +19,7 @@ namespace Hanafuda
             SetupMoveBuilder(Board, Turn);
         }
 
-        private void OnSelectionChanged(Transform key, Card selected)
+        private void OnSelectionChanged(Transform key, ICard selected)
         {
             Transform parent = null;
             if (key == HandSelectionParent)
@@ -36,7 +40,7 @@ namespace Hanafuda
             {
                 foreach (Transform child in parent)
                     Destroy(child.gameObject);
-                List<Card> matches = Board.Field.FindAll(x => x.Monat == selected.Monat);
+                List<ICard> matches = Board.Field.FindAll(x => x.Month == selected.Month);
                 if (!Settings.AiMode.IsOmniscient() && matches.Count == 2 && key == DeckSelectionParent)
                 {
                     Board.Players.Reverse();
@@ -44,7 +48,7 @@ namespace Hanafuda
                     aiRecommendation = PlayerAction.FromMove(activeAI.RequestDeckSelection(Board, aiRecommendation), Board);
                     Board.Players.Reverse();
                 }
-                foreach (Card match in matches)
+                foreach (ICard match in matches)
                 {
                     RawImage cardImage = CreateCard(parent, match).GetComponent<RawImage>();
                     cardImage.color = matches.Count == 2 ?
@@ -64,7 +68,7 @@ namespace Hanafuda
                 return;
             }
             action.PlayerID = Turn ? Settings.PlayerID : 1 - Settings.PlayerID;
-            List<Yaku> newYakus = Yaku.GetNewYakus(Board.Players[action.PlayerID], GetCollectedCards(action));
+            List<Yaku> newYakus = YakuMethods.GetNewYakus(Board.Players[action.PlayerID].CollectedYaku, GetCollectedCards(action));
             if (newYakus.Count > 0)
             {
                 HadYaku = true;

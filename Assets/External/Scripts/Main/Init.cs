@@ -1,5 +1,4 @@
-﻿using ExtensionMethods;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -8,6 +7,9 @@ using Random = System.Random;
 using UnityEngine.Networking;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
+using Hanafuda.Base;
+using Hanafuda.Base.Interfaces;
+using Hanafuda.Extensions;
 
 namespace Hanafuda
 {
@@ -19,8 +21,8 @@ namespace Hanafuda
             PlayerInteraction = Global.instance.GetComponent<Communication>();
             currentAction = new PlayerAction();
             currentAction.Init(this);
-            Deck = new List<Card>();
-            Field = new List<Card>();
+            Deck = new List<ICard>();
+            Field = new List<ICard>();
             if (Settings.Multiplayer)
             {
                 PlayerInteraction.OnDeckSync = GenerateDeck;
@@ -52,11 +54,11 @@ namespace Hanafuda
         void Start()
         {
             Camera.main.SetCameraRect();
-            Collection = new List<Card>();
-            TurnCollection = new List<Card>();
-            Hovered = new Card[] { };
-            Deck = new List<Card>();
-            Field = new List<Card>();
+            Collection = new List<ICard>();
+            TurnCollection = new List<ICard>();
+            Hovered = new ICard[] { };
+            Deck = new List<ICard>();
+            Field = new List<ICard>();
             currentAction = new PlayerAction();
             Turn = Settings.PlayerID == 0;
             EffectCam = MainSceneVariables.boardTransforms.EffectCamera;
@@ -85,7 +87,7 @@ namespace Hanafuda
                         Init(Settings.Players);
                     else
                     {
-                        Settings.Players[1 - Settings.PlayerID] = KI.Init((Settings.AIMode)Settings.AiMode, "Computer");
+                        Settings.Players[1 - Settings.PlayerID] = KI.Init((AIMode)Settings.AiMode, "Computer");
                         Init(Settings.Players);
                     }
                 }
@@ -95,10 +97,10 @@ namespace Hanafuda
                         (Settings.Players[i]).Reset();
                     Init(Settings.Players);
                 }
-                InfoUI.GetYakuList(0).BuildFromCards(new List<Card>(), Players[0].CollectedYaku);
-                InfoUI.GetYakuList(1).BuildFromCards(new List<Card>(), Players[1].CollectedYaku);
+                InfoUI.GetYakuList(0).BuildFromCards(new List<ICard>(), Players[0].CollectedYaku);
+                InfoUI.GetYakuList(1).BuildFromCards(new List<ICard>(), Players[1].CollectedYaku);
             }
-            else Settings.Players[1 - Settings.PlayerID] = KI.Init((Settings.AIMode)Settings.AiMode, "Computer");
+            else Settings.Players[1 - Settings.PlayerID] = KI.Init((AIMode)Settings.AiMode, "Computer");
         }
 
         /// <summary>
@@ -123,7 +125,7 @@ namespace Hanafuda
             for (int i = 0; i < fieldSize; i++)
             {
                 Field.Add(Deck[0]);
-                GameObject temp = Deck[0].Object;
+                GameObject temp = Deck[0].GetObject();
                 Deck.RemoveAt(0);
                 temp.layer = LayerMask.NameToLayer("Feld");
                 temp.transform.parent = Field3D.transform;
@@ -155,7 +157,7 @@ namespace Hanafuda
                 for (int card = 0; card < handSizes[player]; card++)
                 {
                     ((Player)Players[player]).Hand.Add(Deck[0]);
-                    GameObject temp = Deck[0].Object;
+                    GameObject temp = Deck[0].GetObject();
                     Deck.RemoveAt(0);
                     temp.transform.parent = active ? Hand1.transform : Hand2.transform;
                     if (!Settings.Mobile)
@@ -200,10 +202,10 @@ namespace Hanafuda
             {
                 GameObject temp = Instantiate(Global.prefabCollection.PKarte);
                 temp.name = Deck[i].Title;
-                temp.GetComponentsInChildren<MeshRenderer>()[0].material = Deck[i].Image;
+                temp.GetComponentsInChildren<MeshRenderer>()[0].material = Deck[i].GetImage();
                 temp.transform.parent = Deck3D.transform;
                 temp.transform.localPosition = new Vector3(0, 0, i * 0.015f);
-                Deck[i].Object = temp;
+                Deck[i].SetObject(temp);
             }
         }
     }

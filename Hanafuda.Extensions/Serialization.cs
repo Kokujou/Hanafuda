@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace ExtensionMethods
+namespace Hanafuda.Extensions
 {
     public static class Serialization
     {

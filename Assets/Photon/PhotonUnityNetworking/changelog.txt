@@ -85,7 +85,7 @@ Changed: Internals of PhotonNetwork.Instantiate and .Destroy. The process is str
 Added: DefaultPool class, which is a simple remake of the previous workflow with prefabs and resources.
 Changed: The LevelPrefix is now a byte value. It was a short, even though PUN always just sent a byte. It's not changed otherwise and pending an overhault to become more usable.
 Changed: AllocateViewId() and AllocateSceneViewId() now have a PhotonView as parameter. This allocates the viewId and applies it right away. Due to that, we no longer need a workaround for "allocated but not yet used" viewIds.
-Removed: PhotonNetwork.ObjectPool value. Use PrefabPool to set a new pool.
+Removed: PhotonNetwork.GetObject()Pool value. Use PrefabPool to set a new pool.
 Removed: UnAllocateViewID(). You no longer have to return any viewIDs, not even manually allocated ones.
 Changed: SendInstantiate and ServerCleanInstantiateAndDestroy (called by an object's Destroy) now reuse their Hashtables for the events and the RaiseEventOptions. This reduces GC.
 Changed: Internally, PUN stores which prefabs don't implement IPunInstantiateMagicCallback. This avoids calling GetComponents more than once in best case.
