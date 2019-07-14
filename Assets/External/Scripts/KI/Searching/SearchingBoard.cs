@@ -31,9 +31,9 @@ namespace Hanafuda
         }
 
 
-        public SearchingBoard(IHanafudaBoard root) : base(root)
+        public SearchingBoard(IHanafudaBoard root, int playerID) : base(root, playerID)
         {
-            playerHand = new Player(root.Players[Settings.PlayerID]).Hand;
+            playerHand = new Player(root.Players[playerID]).Hand;
             computerHand = computer.Hand;
             computerCollection = computer.CollectedCards;
             Deck = root.Deck.ToDictionary(24);

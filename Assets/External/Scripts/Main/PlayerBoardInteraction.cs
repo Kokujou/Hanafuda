@@ -108,7 +108,7 @@ namespace Hanafuda
             }
             if (!Settings.Multiplayer)
             {
-                Move move = ((IArtificialIntelligence)Players[1 - Settings.PlayerID]).MakeTurn(this);
+                Move move = ((IArtificialIntelligence)Players[1 - Settings.PlayerID]).MakeTurn(this, Settings.PlayerID);
                 move.PlayerID = 1 - Settings.PlayerID;
                 ApplyMove(move);
             }

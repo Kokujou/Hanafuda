@@ -15,9 +15,9 @@ namespace Hanafuda
 
         public CalculatingAI(string name) : base(name) { }
 
-        protected override void BuildStateTree(IHanafudaBoard cRoot)
+        protected override void BuildStateTree(IHanafudaBoard cRoot, int playerID)
         {
-            UninformedBoard root = new UninformedBoard(cRoot);
+            UninformedBoard root = new UninformedBoard(cRoot, playerID);
             root.Turn = true;
             Tree = new UninformedStateTree(root);
             Tree.Build(1, skipOpponent: true);
@@ -39,9 +39,9 @@ namespace Hanafuda
                 weights[name] = value;
         }
 
-        public override Move RequestDeckSelection(Spielfeld root, Move baseMove)
+        public override Move RequestDeckSelection(Spielfeld root, Move baseMove, int playerID)
         {
-            UninformedBoard uninformedRoot = new UninformedBoard(root);
+            UninformedBoard uninformedRoot = new UninformedBoard(root, playerID);
             Card deckCard = uninformedRoot.UnknownCards.First(x => x.Key.Title == baseMove.DeckSelection).Key;
             List<Card> matches = root.Field.FindAll(x => x.Monat == deckCard.Monat);
             if (matches.Count != 2) return baseMove;
@@ -63,9 +63,9 @@ namespace Hanafuda
             return baseMove;
         }
 
-        public override Move MakeTurn(IHanafudaBoard cRoot)
+        public override Move MakeTurn(IHanafudaBoard cRoot, int playerID)
         {
-            Move selectedMove = base.MakeTurn(cRoot);
+            Move selectedMove = base.MakeTurn(cRoot, playerID);
             selectedMove.DeckSelection = cRoot.Deck[0].Title;
             List<Card> matches = cRoot.Field.FindAll(x => x.Monat == cRoot.Deck[0].Monat);
             if (matches.Count == 2)
@@ -75,7 +75,7 @@ namespace Hanafuda
                 foreach (Card card in matches)
                 {
                     selectedMove.DeckFieldSelection = card.Title;
-                    UninformedBoard root = new UninformedBoard(cRoot);
+                    UninformedBoard root = new UninformedBoard(cRoot, playerID);
                     UninformedBoard board = root.ApplyMove(root, selectedMove, true);
                     float value = RateState(board);
                     if (value > maxValue || selection == null)

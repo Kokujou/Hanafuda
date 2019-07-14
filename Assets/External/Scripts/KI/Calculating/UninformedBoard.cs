@@ -27,12 +27,11 @@ namespace Hanafuda
         /// auf den einer unwissenden KI.
         /// </summary>
         /// <param name="root">Referenz-Spielfeld</param>
-        public UninformedBoard(IHanafudaBoard root) : base(root)
+        public UninformedBoard(IHanafudaBoard root, int playerID) : base(root, playerID)
         {
-            CollectedYaku = root.Players[Settings.PlayerID].CollectedYaku;
-            OpponentCollection = root.Players[Settings.PlayerID].CollectedCards;
-            OpponentHandSize = root.Players[Settings.PlayerID].Hand.Count;
-
+            CollectedYaku = root.Players[playerID].CollectedYaku;
+            OpponentCollection = root.Players[playerID].CollectedCards;
+            OpponentHandSize = root.Players[playerID].Hand.Count;
             UnknownCards = Global.allCards
                 .Except(OpponentCollection)
                 .Except(computer.Hand)

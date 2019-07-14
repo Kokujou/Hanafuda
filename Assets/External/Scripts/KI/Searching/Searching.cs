@@ -131,12 +131,12 @@ namespace Hanafuda
             return Result;
         }
 
-        protected override void BuildStateTree(IHanafudaBoard cRoot)
+        protected override void BuildStateTree(IHanafudaBoard cRoot, int playerID)
         {
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
             Global.Log("Searching AI Tree Building started");
-            SearchingBoard root = new SearchingBoard(cRoot);
+            SearchingBoard root = new SearchingBoard(cRoot, playerID);
             root.Turn = true;
             Tree = new SearchingStateTree(new SearchingBoard(root));
             Tree.Build(skipOpponent: true);
@@ -145,7 +145,7 @@ namespace Hanafuda
             StateValues = RateFirstLevel();
         }
 
-        public override Move RequestDeckSelection(Spielfeld board, Move baseMove)
+        public override Move RequestDeckSelection(Spielfeld board, Move baseMove, int playerID)
         {
             throw new NotImplementedException();
         }

@@ -14,9 +14,9 @@ namespace Hanafuda
 
         public override OmniscientBoard Clone() => new OmniscientBoard(this);
 
-        public OmniscientBoard(IHanafudaBoard root) : base(root)
+        public OmniscientBoard(IHanafudaBoard root,int playerID) : base(root, playerID)
         {
-            player = new Player(root.Players[Settings.PlayerID]);
+            player = new Player(root.Players[playerID]);
             Deck = new List<Card>(root.Deck);
         }
 

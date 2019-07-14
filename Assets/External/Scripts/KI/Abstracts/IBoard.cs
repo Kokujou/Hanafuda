@@ -32,12 +32,12 @@ namespace Hanafuda
         /// hard copy of reference board and variable initialization
         /// </summary>
         /// <param name="root"></param>
-        public IBoard(IHanafudaBoard root)
+        public IBoard(IHanafudaBoard root, int playerID)
         {
             Turn = root.Turn;
             Field = new List<Card>(root.Field);
             LastMove = null;
-            computer = new Player(root.Players[1 - Settings.PlayerID]);
+            computer = new Player(root.Players[1 - playerID]);
             Value = 0f;
             isFinal = false;
         }

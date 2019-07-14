@@ -64,7 +64,7 @@ namespace Hanafuda
             board.Players.Reverse();
             IArtificialIntelligence computer = (IArtificialIntelligence)KI.Init(Settings.AiMode, "Computer");
             activeAI = computer;
-            Move move = computer.MakeTurn(board);
+            Move move = computer.MakeTurn(board, Settings.PlayerID);
             aiRecommendation = PlayerAction.FromMove(move, board);
             if(turn)
             board.Players.Reverse();

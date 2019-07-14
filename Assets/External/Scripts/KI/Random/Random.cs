@@ -13,16 +13,16 @@ namespace Hanafuda
 
         public override float RateState(OmniscientBoard state) => 0f;
 
-        public override Move RequestDeckSelection(Spielfeld board, Move baseMove) => baseMove;
+        public override Move RequestDeckSelection(Spielfeld board, Move baseMove, int playerID) => baseMove;
 
         public override void SetWeight(string name, float value) { }
 
-        protected override void BuildStateTree(IHanafudaBoard cRoot) { }
+        protected override void BuildStateTree(IHanafudaBoard cRoot, int playerID) { }
 
-        public override Move MakeTurn(IHanafudaBoard board)
+        public override Move MakeTurn(IHanafudaBoard board, int playerID)
         {
             System.Random rnd = new System.Random();
-            OmniscientBoard currentBoard = new OmniscientBoard(board);
+            OmniscientBoard currentBoard = new OmniscientBoard(board, playerID);
             Move move = new Move();
 
             List<Card> newCollection = new List<Card>(currentBoard.computer.CollectedCards);

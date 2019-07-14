@@ -21,11 +21,11 @@ namespace Hanafuda
         protected List<CardProperties> CardProps = new List<CardProperties>();
         public abstract Dictionary<string, float> GetWeights();
         public abstract void SetWeight(string name, float value);
-        protected abstract void BuildStateTree(IHanafudaBoard cRoot);
-        public virtual Move MakeTurn(IHanafudaBoard board)
+        protected abstract void BuildStateTree(IHanafudaBoard cRoot, int playerID);
+        public virtual Move MakeTurn(IHanafudaBoard board, int playerID)
         {
             Debug.Log("KI Turn Decision started");
-            BuildStateTree(board);
+            BuildStateTree(board, playerID);
             //Bewertung möglicherweise in Threads?
             float maxValue = float.NegativeInfinity;
             Move selectedMove = null;
@@ -51,7 +51,7 @@ namespace Hanafuda
         }
         public abstract float RateState(T state);
 
-        public abstract Move RequestDeckSelection(Spielfeld board, Move baseMove);
+        public abstract Move RequestDeckSelection(Spielfeld board, Move baseMove, int playerID);
 
         public IStateTree<T> Tree;
 

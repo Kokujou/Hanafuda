@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -21,12 +22,12 @@ namespace Hanafuda
 
         public Color InfoColor, WarningColor, ErrorColor;
 
-        public static class IterationOutput
+        public class IterationOutput
         {
-            public static int P1Wins;
-            public static int P2Wins;
-            public static int Draws;
-            public static float avgDuration;
+            public int P1Wins { get; set; }
+            public int P2Wins { get; set; }
+            public int Draws { get; set; }
+            public float avgDuration { get; set; }
         }
 
         struct VirtualBoard : IHanafudaBoard
@@ -75,29 +76,42 @@ namespace Hanafuda
             P1Mode = (Settings.AIMode)Player1.value;
             P2Mode = (Settings.AIMode)Player2.value;
 
-            for (int round = 1; round <= ExecutionTimes; round++)
-            {
-                Log($"Starting round #{round}");
-                PlayNewGame(true);
-            }
-            for (int round = 1; round <= ExecutionTimes; round++)
-            {
-                Log($"Starting round #{round}");
-                PlayNewGame(false);
-            }
+            object synchronizeOutput = new object();
+            IterationOutput totalOutput = new IterationOutput();
+            Random random = new Random();
 
-            Log($"\n\nP1Wins: {(float)IterationOutput.P1Wins / (ExecutionTimes * 2)}, P2Wins: {(float)IterationOutput.P2Wins / (ExecutionTimes * 2)}, " +
-                $"Draws: {(float)IterationOutput.Draws / (ExecutionTimes * 2)} Average Duration: {IterationOutput.avgDuration} ");
+            Parallel.For<IterationOutput>(0, ExecutionTimes, () => new IterationOutput(), (round, state, output) =>
+            {
+                var result = PlayNewGame(true, P1Mode, P2Mode);
+                if (result == 0)
+                    output.Draws++;
+                else if (result == 1)
+                    output.P1Wins++;
+                else
+                    output.P2Wins++;
+                return output;
+            }, finalOutput =>
+            {
+                lock (synchronizeOutput)
+                {
+                    totalOutput.P1Wins += finalOutput.P1Wins;
+                    totalOutput.P2Wins += finalOutput.P2Wins;
+                    totalOutput.Draws += finalOutput.Draws;
+                }
+            });
 
-            IterationOutput.Draws = 0; 
-            IterationOutput.P1Wins = 0;
-            IterationOutput.P2Wins = 0;
-            IterationOutput.avgDuration = 0;
+            Log($"\n\nP1Wins: {(float)totalOutput.P1Wins / (ExecutionTimes)}, P2Wins: {(float)totalOutput.P2Wins / (ExecutionTimes)}, " +
+                $"Draws: {(float)totalOutput.Draws / (ExecutionTimes)} Average Duration: {totalOutput.avgDuration} ");
+
+            totalOutput.Draws = 0;
+            totalOutput.P1Wins = 0;
+            totalOutput.P2Wins = 0;
+            totalOutput.avgDuration = 0;
         }
 
-        private void PlayNewGame(bool P1Oya)
+        private static int PlayNewGame(bool P1Oya, Settings.AIMode P1Mode, Settings.AIMode P2Mode)
         {
-            VirtualBoard newBoard = BuildRandomBoard(P1Oya);
+            VirtualBoard newBoard = BuildRandomBoard(P1Oya, P1Mode, P2Mode);
             while (true)
             {
                 Log("");
@@ -105,12 +119,10 @@ namespace Hanafuda
                 {
                     if (newBoard.Players[playerID].Hand.Count == 0)
                     {
-                        EndGame();
-                        return;
+                        return EndGame();
                     }
 
-                    Settings.PlayerID = 1 - playerID;
-                    Move selectedMove = ((IArtificialIntelligence)newBoard.Players[playerID]).MakeTurn(newBoard);
+                    Move selectedMove = ((IArtificialIntelligence)newBoard.Players[playerID]).MakeTurn(newBoard, 1 - playerID);
 
                     selectedMove.PlayerID = playerID;
                     selectedMove.DeckSelection = newBoard.Deck[0].Title;
@@ -119,35 +131,27 @@ namespace Hanafuda
                     Log(PlayerAction.FromMove(selectedMove, newBoard).ToString());
                     if (selectedMove.HadYaku && !selectedMove.Koikoi)
                     {
-                        EndGame(newBoard.Players[selectedMove.PlayerID]);
-                        return;
+                        return EndGame( newBoard.Players[selectedMove.PlayerID]);
                     }
                 }
 
             }
         }
 
-        private void EndGame(Player player = null)
+        private static int EndGame(Player player = null)
         {
-
             if (player == null)
             {
-                IterationOutput.avgDuration += 8f / 40f;
-                IterationOutput.Draws++;
                 Log("Unentschieden. Keine Karten mehr auf der Hand.", LogType.Error);
-                return;
+                return 0;
             }
-            IterationOutput.avgDuration += (8f - player.Hand.Count) / ExecutionTimes;
             if (player.Name == "Player 1")
-                IterationOutput.P1Wins++;
+                return 1;
             else
-                IterationOutput.P2Wins++;
-            List<Yaku> yakuList = Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), player.CollectedCards);
-            Log($"{player.Name} sammelt {string.Join(",", yakuList.Select(x => x.Title))}", LogType.Warning);
-            Log($"{player.Name} hat nicht Koi Koi gesagt. Die Runde ist beendet.", LogType.Warning);
+                return 2;
         }
 
-        private VirtualBoard BuildRandomBoard(bool P1Oya)
+        private static VirtualBoard BuildRandomBoard(bool P1Oya, Settings.AIMode P1Mode, Settings.AIMode P2Mode)
         {
             VirtualBoard newBoard = new VirtualBoard();
 
@@ -156,6 +160,7 @@ namespace Hanafuda
             else
                 newBoard.Players = new List<Player>() { KI.Init(P2Mode, "Player 2"), KI.Init(P1Mode, "Player 1") };
             Settings.Players = newBoard.Players;
+
             Log($"{newBoard.Players[0].Name} ist der Oya");
             Log($"Player 1 Type: {(P1Oya ? P1Mode : P2Mode).ToString()}");
             Log($"Player 2 Type: {(P1Oya ? P2Mode : P1Mode).ToString()}");
@@ -176,7 +181,7 @@ namespace Hanafuda
             return newBoard;
         }
 
-        private List<Card> BuildRandomDeck()
+        private static List<Card> BuildRandomDeck()
         {
             List<Card> Deck = new List<Card>();
             var rnd = new Random();
@@ -194,7 +199,7 @@ namespace Hanafuda
         }
 
         private enum LogType { Info, Warning, Error }
-        private void Log(string text, LogType type = LogType.Info) => Global.Log(text, true);
+        private static void Log(string text, LogType type = LogType.Info) => Global.Log(text, true);
         /*{
             return;
             Text newText = new GameObject().AddComponent<Text>();

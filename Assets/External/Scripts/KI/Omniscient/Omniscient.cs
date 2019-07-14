@@ -41,11 +41,11 @@ namespace Hanafuda
                 weights[name] = value;
         }
 
-        protected override void BuildStateTree(IHanafudaBoard cRoot)
+        protected override void BuildStateTree(IHanafudaBoard cRoot, int playerID)
         {
-            OmniscientBoard root = new OmniscientBoard(cRoot);
+            OmniscientBoard root = new OmniscientBoard(cRoot, playerID);
             root.Turn = true;
-            Tree = new OmniscientStateTree(new OmniscientBoard(cRoot));
+            Tree = new OmniscientStateTree(new OmniscientBoard(cRoot, playerID));
             Tree.Build(1);
         }
 
@@ -245,7 +245,7 @@ namespace Hanafuda
             return new StateProps() { GlobalMinimum = GlobalMinimum, LocalMinimum = TotalCardValue };
         }
 
-        public override Move RequestDeckSelection(Spielfeld board, Move baseMove)
+        public override Move RequestDeckSelection(Spielfeld board, Move baseMove, int playerID)
         {
             throw new NotImplementedException();
         }

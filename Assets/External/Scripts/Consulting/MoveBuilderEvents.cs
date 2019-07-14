@@ -41,7 +41,7 @@ namespace Hanafuda
                 {
                     Board.Players.Reverse();
                     aiRecommendation.DeckSelection = action.DeckSelection;
-                    aiRecommendation = PlayerAction.FromMove(activeAI.RequestDeckSelection(Board, aiRecommendation), Board);
+                    aiRecommendation = PlayerAction.FromMove(activeAI.RequestDeckSelection(Board, aiRecommendation, Settings.PlayerID), Board);
                     Board.Players.Reverse();
                 }
                 foreach (Card match in matches)
