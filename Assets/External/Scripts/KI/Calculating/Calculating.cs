@@ -17,7 +17,7 @@ namespace Hanafuda
 
         protected override void BuildStateTree(IHanafudaBoard cRoot, int playerID)
         {
-            UninformedBoard root = new UninformedBoard(cRoot, playerID);
+            var root = new UninformedBoard(cRoot, playerID);
             root.Turn = true;
             Tree = new UninformedStateTree(root);
             Tree.Build(1, skipOpponent: true);
@@ -25,9 +25,9 @@ namespace Hanafuda
 
         private Dictionary<string, float> weights = new Dictionary<string, float>()
         {
-            { _LocalWeight, 1f },
-            { _GlobalWeight, 1f },
-            { _DeckWeight, 1f },
+            { _LocalWeight, 5 },
+            { _GlobalWeight, 100 },
+            { _DeckWeight, 0 },
         };
 
         public override Dictionary<string, float> GetWeights() => weights;
@@ -41,10 +41,11 @@ namespace Hanafuda
 
         public override Move RequestDeckSelection(Spielfeld root, Move baseMove, int playerID)
         {
-            UninformedBoard uninformedRoot = new UninformedBoard(root, playerID);
-            Card deckCard = uninformedRoot.UnknownCards.First(x => x.Key.Title == baseMove.DeckSelection).Key;
+            var uninformedRoot = new UninformedBoard(root, playerID);
+            var deckCard = uninformedRoot.UnknownCards.First(x => x.Key.Title == baseMove.DeckSelection).Key;
             List<Card> matches = root.Field.FindAll(x => x.Monat == deckCard.Monat);
-            if (matches.Count != 2) return baseMove;
+            if (matches.Count != 2)
+                return baseMove;
             float maxValue = -100f;
             Card selection = null;
             foreach (Card card in matches)
@@ -90,10 +91,11 @@ namespace Hanafuda
         }
         public override float RateState(UninformedBoard State)
         {
-            lock (UninformedStateTree.thisLock)
-                Global.Log($"Zustand {State.GetHashCode()}: {State.LastMove.ToString().Replace("\n", "")}");
-            if (State.isFinal) return Mathf.Infinity;
-            if (State.computer.Hand.Count <= 1) return 0;
+            Global.Log($"Zustand {State.GetHashCode()}: {State.LastMove.ToString().Replace("\n", "")}");
+            if (State.isFinal)
+                return Mathf.Infinity;
+            if (State.computer.Hand.Count <= 1)
+                return 0;
 
             float Result = 0f;
 
@@ -116,7 +118,7 @@ namespace Hanafuda
                 PGlobalMinimum = PStateProps.Max(x => x.GlobalMinimum.Probability);
             }
 
-            Result = (((State.computer.Hand.Count - ComStateProps.GlobalMinimum.MinTurns) * ComStateProps.GlobalMinimum.Probability) - PGlobalMinimum) * weights[_GlobalWeight]
+            Result = (((8 - ComStateProps.GlobalMinimum.MinTurns) * ComStateProps.GlobalMinimum.Probability) - PGlobalMinimum) * weights[_GlobalWeight]
                 + (ComStateProps.LocalMinimum - PLocalMinimum) * weights[_LocalWeight]
                 + (ComStateProps.DeckValue - PDeckValue) * weights[_DeckWeight];
 
@@ -145,7 +147,8 @@ namespace Hanafuda
                 NewCards = activeCollection.Except(Turn ? state.computer.CollectedCards : state.OpponentCollection).ToList();
             }
 
-            if (Turn) Result.SelectionProbability = 1;
+            if (Turn)
+                Result.SelectionProbability = 1;
             else
             {
                 var handSelection = State.parent
@@ -169,7 +172,7 @@ namespace Hanafuda
             {
                 TotalCardValue = uninformedYakuProps
                     .Where(x => x.Targeted)
-                    .Sum(x => (activeHandSize - x.MinTurns) * x.Probability);
+                    .Sum(x => (8 - x.MinTurns) * x.Probability);
             }
             catch (Exception) { }
             Result.LocalMinimum = TotalCardValue;
@@ -182,8 +185,6 @@ namespace Hanafuda
             {
                 float isDeckProb = 1f - pair.Value;
                 float MoveValue = 0f;
-
-
 
                 Result.DeckValue = MoveValue * isDeckProb;
             }

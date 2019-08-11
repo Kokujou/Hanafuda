@@ -22,14 +22,15 @@ namespace Hanafuda
 
         private Dictionary<string, float> weights = new Dictionary<string, float>()
         {
-            { _GlobalWeight, 100f },
-            { _LocalWeight, 1f },
-            { _CollectionWeight, 6f },
-            { _PassWeight, 1f },
-            {_WaitTurnCompensation, 0.1f },
-            {_WaitWeight,6f },
-            {_OpponentInterestWeight, 4f },
-            { _PassCollectionWeight, 2f }
+            { _GlobalWeight, 20 },
+            { _LocalWeight, 100 },
+            { _CollectionWeight, 5 },
+
+            { _PassWeight,1},
+            {_WaitTurnCompensation, 0 },
+            {_WaitWeight, 0 },
+            {_OpponentInterestWeight, 20 },
+            { _PassCollectionWeight, 0 }
         };
 
         public override Dictionary<string, float> GetWeights() => weights;
@@ -69,10 +70,11 @@ namespace Hanafuda
              *  - Memo: IsFinal implementieren
              *  - Balancing der verschiedenen Werte
              */
-            lock (OmniscientStateTree.thisLock)
-                Global.Log($"Zustand {State.GetHashCode()}: {State.LastMove.ToString().Replace("\n", "")}");
-            if (State.isFinal) return Mathf.Infinity;
-            if (State.computer.Hand.Count <= 1) return 0;
+            Global.Log($"Zustand {State.GetHashCode()}: {State.LastMove.ToString().Replace("\n", "")}");
+            if (State.isFinal)
+                return Mathf.Infinity;
+            if (State.computer.Hand.Count <= 1)
+                return 0;
 
             float Result = 0f;
 
@@ -86,12 +88,11 @@ namespace Hanafuda
 
             foreach (OmniscientBoard PState in PStates)
                 PStateProps.Add(RateSingleState(PState, false));
-            float PGlobalMinimum = PStateProps.Min(x => x.GlobalMinimum.MinTurns * (2f - x.GlobalMinimum.Probability));
-            float ComGlobalMinimum = ComStateProps.GlobalMinimum.MinTurns * (2f - ComStateProps.GlobalMinimum.Probability);
-            float GlobalValue = PGlobalMinimum -
-                ComGlobalMinimum;
+            float PGlobalMinimum = PStateProps.Max(x => (8 - x.GlobalMinimum.MinTurns) * x.GlobalMinimum.Probability);
+            float ComGlobalMinimum = (8 - ComStateProps.GlobalMinimum.MinTurns) * ComStateProps.GlobalMinimum.Probability;
+            float GlobalValue = ComGlobalMinimum - PGlobalMinimum;
             float PLocalMinimum = PStateProps.Max(x => x.LocalMinimum);
-            float LocalValue = PLocalMinimum - ComStateProps.LocalMinimum;
+            float LocalValue = ComStateProps.LocalMinimum - PLocalMinimum;
 
             float CollectionValue = NewCards
                 .Sum(x => CardProps.First(y => y.card.Title == x.Title)
@@ -148,44 +149,35 @@ namespace Hanafuda
 
         private float GetWaitValue(OmniscientBoard State, Card passedCard)
         {
-            Card bestFieldMatch = null;
-            float maxFieldValue = 0f;
-            foreach (Card handCard in State.computer.Hand)
-            {
-                if (handCard == passedCard) continue;
-                foreach (Card fieldCard in State.Field)
-                {
-                    if (fieldCard.Monat == handCard.Monat)
-                    {
-                        float relevanceSum = CardProps.First(y => y.card.Title == fieldCard.Title).RelevanceForYaku.Sum(x => x.Value);
-                        if (relevanceSum > maxFieldValue)
-                        {
-                            maxFieldValue = relevanceSum;
-                            bestFieldMatch = handCard;
-                        }
-                    }
-                }
-            }
-
-            if (bestFieldMatch == null)
-                return 0f;
-
-            float maxDeckValue = 0f;
-            int bestDeckTurnID = 0;
+            List<Card> deckCards = new List<Card>();
             for (int turnID = 0; turnID < State.computer.Hand.Count; turnID++)
             {
-                Card deckCard = State.Deck[turnID * 2 + 1];
-                if (deckCard.Monat == bestFieldMatch.Monat)
-                {
-                    float relevanceSum = CardProps.First(y => y.card.Title == deckCard.Title).RelevanceForYaku.Sum(x => x.Value);
-                    if (relevanceSum > maxFieldValue)
-                    {
-                        maxFieldValue = relevanceSum;
-                        bestDeckTurnID = turnID;
-                    }
-                }
+                deckCards.Add(State.Deck[turnID * 2 + 1]);
             }
-            return (maxDeckValue - weights[_WaitTurnCompensation] * bestDeckTurnID) - maxFieldValue;
+
+            foreach (Card handCard in State.computer.Hand)
+            {
+                List<Card> fieldMatches = State.Field.FindAll(x => x.Monat == handCard.Monat);
+                if (fieldMatches.Count == 0)
+                    continue;
+                float maxFieldValue = fieldMatches
+                    .Max(card => CardProps
+                    .First(prop => prop.card.Title == card.Title)
+                    .RelevanceForYaku.Sum(rel => rel.Value));
+
+                List<Card> deckMatches = deckCards.FindAll(x => x.Monat == handCard.Monat);
+                if (deckMatches.Count == 0)
+                    return 0;
+                float maxDeckValue = deckMatches
+                    .Max(card => CardProps
+                    .First(prop => prop.card.Title == card.Title)
+                    .RelevanceForYaku.Sum(rel => rel.Value)
+                    - ((8 - State.computer.Hand.Count) - deckCards.IndexOf(card)) * weights[_WaitTurnCompensation]);
+                if (maxFieldValue > maxDeckValue)
+                    return 0;
+            }
+
+            return 1;
         }
 
         public struct StateProps
@@ -214,17 +206,18 @@ namespace Hanafuda
 
             foreach (YakuProperties yakuProp in OmniscientYakuProps.Where(x => x.Probability > 0))
             {
-                float value = yakuProp.MinTurns * (2f - yakuProp.Probability);
-                if (GlobalMinimum == null || value < GlobalMinimum.MinTurns * (2f - GlobalMinimum.Probability))
+                float value = (8 - yakuProp.MinTurns) * yakuProp.Probability;
+                if (GlobalMinimum == null || value < (8 - GlobalMinimum.MinTurns) * GlobalMinimum.Probability)
                     GlobalMinimum = yakuProp;
             }
-            if (GlobalMinimum == null) GlobalMinimum = OmniscientYakuProps.OrderByDescending(x => x.MinTurns).ToArray()[0];
+            if (GlobalMinimum == null)
+                GlobalMinimum = OmniscientYakuProps.OrderByDescending(x => x.MinTurns).ToArray()[0];
 
             try
             {
                 TotalCardValue = OmniscientYakuProps
                     .Where(x => x.Targeted && x.Probability > 0)
-                    .Sum(x => x.MinTurns * (2f - x.Probability));
+                    .Sum(x => (8 - x.MinTurns) * x.Probability);
             }
             catch (Exception) { }
 

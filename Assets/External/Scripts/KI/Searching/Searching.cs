@@ -33,20 +33,89 @@ namespace Hanafuda
         {
         }
 
+        public override Move MakeTurn(IHanafudaBoard board, int playerID)
+        {
+            Debug.Log("KI Turn Decision started");
+            BuildStateTree(board, playerID);
+            //Bewertung möglicherweise in Threads?
+            float maxValue = float.NegativeInfinity;
+            SearchingBoard selectedBoard = null;
+
+            List<SearchingBoard> firstLevel = Tree.GetLevel(1);
+            foreach (SearchingBoard state in firstLevel)
+                state.Value = (float)new System.Random().NextDouble();
+
+            //Parallel.ForEach(Tree.GetLevel(1), state => state.Value = RateState(state));
+
+            foreach (SearchingBoard state in firstLevel)
+            {
+                if (state.Value > maxValue)
+                {
+                    maxValue = state.Value;
+                    selectedBoard = state;
+                }
+            }
+            CorrectMove(selectedBoard.LastMove, board);
+
+            if (Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), selectedBoard.computerCollection).Count > 0)
+            {
+                selectedBoard.LastMove.HadYaku = true;
+                selectedBoard.LastMove.Koikoi = false;
+            }
+
+            Global.Log($"{selectedBoard}", true);
+            return selectedBoard.LastMove;
+        }
+
+        private void CorrectMove(Move move, IHanafudaBoard parent)
+        {
+            var handSelection = Global.allCards.FirstOrDefault(x => x.Title == move.HandSelection);
+            var deckSelection = Global.allCards.FirstOrDefault(x => x.Title == move.DeckSelection);
+            var handMatches = parent.Field.FindAll(x => x.Monat == handSelection.Monat);
+            if (handMatches.Count == 2)
+            {
+                if (handSelection.Monat == deckSelection.Monat)
+                {
+                    move.HandFieldSelection = handMatches[0].Title;
+                    move.DeckFieldSelection = handMatches[1].Title;
+                    return;
+                }
+                else
+                    move.HandFieldSelection = ChooseBestCard(handMatches).Title;
+            }
+            var deckMatches = parent.Field.FindAll(x => x.Monat == deckSelection.Monat);
+            if (deckMatches.Count == 2)
+                move.DeckFieldSelection = ChooseBestCard(deckMatches).Title;
+        }
+
+        private Card ChooseBestCard(List<Card> cards)
+        {
+            CardProperties bestProperty = null;
+            foreach (var card in cards)
+            {
+                var cardProperty = CardProps.FirstOrDefault(x => x.card.Title == card.Title);
+                if (bestProperty == null ||
+                    cardProperty.RelevanceForYaku.Sum(x => x.Value) > bestProperty.RelevanceForYaku.Sum(x => x.Value))
+                    bestProperty = cardProperty;
+            }
+            return bestProperty.card;
+        }
+
         private Dictionary<int, float> StateValues = new Dictionary<int, float>();
-        public override float RateState(SearchingBoard state) => 
+        public override float RateState(SearchingBoard state) =>
             state.computerHand.Count <= 1 ? 0 : StateValues[Tree.GetLevel(1).IndexOf(state)];
 
-        private int Faculty(uint number)
+        private long Faculty(long number)
         {
-            if (number <= 1) return 1;
-            uint result = number;
+            if (number <= 1)
+                return 1;
+            long result = number;
             while (number > 1)
             {
                 result *= number;
                 number--;
             }
-            return (int)result;
+            return result;
         }
 
         /// <summary>
@@ -63,7 +132,7 @@ namespace Hanafuda
             float yakuDurationValue = yakuDurations.Sum(x => 8 - (x.Value > 8 ? 8 : x.Value));
 
             int maxMinSize = Global.allYaku.Max(x => x.minSize);
-            float yakuProgressValue = yakuProgess.Average(x => 1f / Faculty((uint)(Global.allYaku[x.Key].minSize - x.Value)));
+            float yakuProgressValue = yakuProgess.Average(x => 1f / Faculty((Global.allYaku[x.Key].minSize - x.Value)));
 
             Result = yakuDurationValue * weights[_YakuDurationWeight]
                 + yakuProgressValue * weights[_YakuProgressWeight];
@@ -92,7 +161,8 @@ namespace Hanafuda
                 for (int partID = 0; partID < board.CardsCollected.Count; partID++)
                 {
                     int count = board.CardsCollected[partID];
-                    if (count == 0) continue;
+                    if (count == 0)
+                        continue;
                     List<Yaku> yakus = Yaku.GetNewYakus(stateYakus, board.computerCollection.GetRange(lastIndex, count), true);
                     lastIndex += count;
 
@@ -125,23 +195,21 @@ namespace Hanafuda
              */
             for (int stateID = 0; stateID < Tree.GetLevel(1).Count; stateID++)
             {
-                SearchingBoard state = Tree.GetState(1, stateID);
-                Result[stateID] = RateSingleState(yakuDurations[stateID], yakuProgress[stateID], null);
+                if (Tree.GetLevel(1)[stateID].isFinal)
+                    Result[stateID] = Mathf.Infinity;
+                else
+                    Result[stateID] = RateSingleState(yakuDurations[stateID], yakuProgress[stateID], null);
             }
             return Result;
         }
 
         protected override void BuildStateTree(IHanafudaBoard cRoot, int playerID)
         {
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            watch.Start();
-            Global.Log("Searching AI Tree Building started");
             SearchingBoard root = new SearchingBoard(cRoot, playerID);
             root.Turn = true;
             Tree = new SearchingStateTree(new SearchingBoard(root));
             Tree.Build(skipOpponent: true);
-            Global.Log($"State Tree Building Time: {watch.ElapsedMilliseconds}");
-            Global.Log($"State Tree Last Count: {Tree.GetLevel(Tree.Size - 1).Count}");
+            StateValues.Clear();
             StateValues = RateFirstLevel();
         }
 

@@ -22,6 +22,8 @@
  *      4. Vermeiden von "In die Hand spielen"
  *      5. Einsammeln durch passen
  *      6. Passen
+ *  - Berechnende KI: Qualitätsanpassungen durch einbau der Deck-Wahrscheinlichkeit
+ *  - Suchende KI: Starkes Memory-Leck
  * 
  * Zurückgestellt:
  * - Win/Loose Animationen

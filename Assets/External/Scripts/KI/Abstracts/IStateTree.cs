@@ -20,9 +20,8 @@ namespace Hanafuda
         public List<T> GetLevel(int id) => Content[id];
         public T GetState(int x, int y) => Content[x][y];
 
-        protected List<List<T>> Content = new List<List<T>>();
+        protected List<List<T>> Content = new List<List<T>>(9);
 
-        public static object thisLock;
         protected readonly List<Task<object>> tasks = new List<Task<object>>();
 
         [Serializable]
@@ -57,18 +56,13 @@ namespace Hanafuda
         /// <param name="SkipOpponent">Gibt an, ob sich der Spieler während der Berechnung ändert</param>
         public virtual void Build(int maxDepth = 16, bool Turn = true, bool skipOpponent = false)
         {
-            try
-            {
-                Application.backgroundLoadingPriority = UnityEngine.ThreadPriority.High;
-            }
-            catch (Exception) { }
             MaxDepth = maxDepth;
             StartTurn = Turn;
             SkipOpponent = skipOpponent;
 
             Root.Turn = StartTurn;
 
-            Content.Clear();
+            Content = new List<List<T>>(9);
             Content.Add(new List<T> { Root });
 
             Content.Add(new List<T>());
@@ -102,19 +96,6 @@ namespace Hanafuda
 
         public object DeepConstruction(object param)
         {
-            try
-            {
-                // Change the thread priority to the one required.
-                Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Highest;
-
-                // Execute the task logic.
-            }
-            finally
-            {
-                // Restore the thread default priority.
-                Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Normal;
-            }
-
             List<List<T>> stateTree = new List<List<T>>();
             int level = 0;
             int node = 0;
@@ -145,7 +126,6 @@ namespace Hanafuda
 
         public IStateTree(T root = null, List<List<T>> tree = null)
         {
-            thisLock = new object();
             if (root != null)
                 Root = root;
             if (tree != null)

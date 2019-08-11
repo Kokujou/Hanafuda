@@ -1964,7 +1964,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ece69d571e5c994399aada8e431b01d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Maximum: 100
+  Maximum: 1000
   Minimum: 1
   Increment: {fileID: 1424381241}
   Decrement: {fileID: 376372244}

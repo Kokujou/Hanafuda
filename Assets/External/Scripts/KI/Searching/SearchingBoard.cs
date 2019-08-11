@@ -30,12 +30,17 @@ namespace Hanafuda
             TurnID = target.TurnID;
         }
 
-
-        public SearchingBoard(IHanafudaBoard root, int playerID) : base(root, playerID)
+        public SearchingBoard(IHanafudaBoard root, int playerID)
         {
-            playerHand = new Player(root.Players[playerID]).Hand;
-            computerHand = computer.Hand;
-            computerCollection = computer.CollectedCards;
+            Turn = root.Turn;
+            Field = new List<Card>(root.Field);
+            LastMove = null;
+            computer = root.Players[1 - playerID];
+            Value = 0f;
+            isFinal = false;
+            playerHand = new List<Card>(root.Players[playerID].Hand);
+            computerHand = new List<Card>(computer.Hand);
+            computerCollection = new List<Card>(computer.CollectedCards);
             Deck = root.Deck.ToDictionary(24);
             CardsCollected = new List<int>(8);
             Root = -1;
@@ -43,29 +48,14 @@ namespace Hanafuda
             Global.Log(string.Join(";",computerHand));
         }
 
-        protected override void ApplyMove(string selection, string secondSelection, bool fromHand, bool turn)
-        {
-            return;
-        }
-
         protected override bool CheckYaku(bool turn)
         {
-            return false;
+            List<Card> activeCollection = computerCollection;
+            return Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), activeCollection).Count > 0;
         }
 
         public override SearchingBoard Clone()
-        {
-            SearchingBoard Result = new SearchingBoard(this);
-
-            Result.Field = new List<Card>(Field);
-            Result.computerHand = new List<Card>(computerHand);
-            Result.computerCollection = new List<Card>(computerCollection);
-            Result.CardsCollected = new List<int>(CardsCollected);
-            Result.Turn = Turn;
-            Result.Root = Root;
-            Result.TurnID = TurnID;
-
-            return Result;
-        }
+            => new SearchingBoard(this);
+        protected override void ApplyMove(string selection, string secondSelection, bool fromHand, bool turn) => throw new NotImplementedException();
     }
 }

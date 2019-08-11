@@ -30,8 +30,8 @@ namespace Hanafuda
 
         void Start()
         {
-            Increment.onClick.AddListener(() => Value+=10);
-            Decrement.onClick.AddListener(() => Value-=10);
+            Increment.onClick.AddListener(() => Value+=100);
+            Decrement.onClick.AddListener(() => Value-=100);
             Value = Minimum;
         }
     }

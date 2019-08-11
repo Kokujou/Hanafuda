@@ -46,7 +46,8 @@ namespace Hanafuda
                     if (fieldCard.Monat == card.Monat)
                         matches.Add(fieldCard);
 
-                if (opponent) return matches;
+                if (opponent)
+                    return matches;
 
                 if (matches.Count == 0)
                     return matches;
@@ -63,51 +64,54 @@ namespace Hanafuda
             protected override object BuildChildNodes(object param)
             {
                 SearchingBoard parent = (SearchingBoard)param;
-                List<SearchingBoard> result = new List<SearchingBoard>(8);
+                var result = new List<SearchingBoard>(8);
+                var disposableResults = new List<SearchingBoard>(8);
+
+                if (parent.isFinal)
+                    return result;
+
                 foreach (Card card in parent.computerHand)
                 {
-                    SearchingBoard child = new SearchingBoard(parent);
+                    SearchingBoard child = parent.Clone();
                     child.TurnID = parent.TurnID + 1;
-                    List<Card> newCollection = new List<Card>(parent.computerCollection);
-                    List<Card> newField = new List<Card>(16);
-                    newField.AddRange(parent.Field);
-                    List<Card> matches = TryCollect(newField, parent.TurnID, card);
+                    List<Card> handMatches = TryCollect(child.Field, parent.TurnID, card);
                     int collectedCards = 0;
-                    if (matches.Count > 0)
+                    int oldFieldCount = child.Field.Count;
+                    if (handMatches.Count > 0)
                     {
-                        newCollection.Add(card);
-                        newCollection.AddRange(matches);
-                        collectedCards += 1 + matches.Count;
-                        foreach (Card match in matches)
-                            newField.Remove(match);
+                        child.computerCollection.Add(card);
+                        child.computerCollection.AddRange(handMatches);
+                        collectedCards += 1 + handMatches.Count;
+                        foreach (Card match in handMatches)
+                            child.Field.Remove(match);
                     }
                     else
                     {
-                        newField.Add(card);
+                        child.Field.Add(card);
                     }
 
                     int deckID = (parent.TurnID) * 2;
-                    Card deckCard = parent.Deck[deckID];
-                    List<Card> deckMatches = TryCollect(newField, parent.TurnID, deckCard);
+                    Card deckCard = child.Deck[deckID];
+                    List<Card> deckMatches = TryCollect(child.Field, parent.TurnID, deckCard);
                     if (deckMatches.Count > 0)
                     {
-                        newCollection.Add(deckCard);
-                        newCollection.AddRange(deckMatches);
+                        child.computerCollection.Add(deckCard);
+                        child.computerCollection.AddRange(deckMatches);
                         collectedCards += 1 + deckMatches.Count;
                         foreach (Card match in deckMatches)
-                            newField.Remove(match);
+                            child.Field.Remove(match);
                     }
                     else
                     {
-                        newField.Add(deckCard);
+                        child.Field.Add(deckCard);
                     }
 
                     int oppDeckID = (parent.TurnID) * 2 + 1;
-                    Card oppDeckCard = parent.Deck[deckID];
-                    List<Card> oppDeckMatches = TryCollect(newField, parent.TurnID, oppDeckCard, true);
+                    Card oppDeckCard = child.Deck[deckID];
+                    List<Card> oppDeckMatches = TryCollect(child.Field, parent.TurnID, oppDeckCard, true);
                     if (oppDeckMatches.Count == 0)
                     {
-                        newField.Add(oppDeckCard);
+                        child.Field.Add(oppDeckCard);
                     }
 
                     List<Card> newHand = new List<Card>(8);
@@ -115,17 +119,27 @@ namespace Hanafuda
                         if (newCard != card)
                             newHand.Add(newCard);
                     child.computerHand = newHand;
-                    child.computerCollection = newCollection;
-                    child.Field = newField;
                     child.LastMove = new Move();
                     child.LastMove.HandSelection = card.Title;
                     child.LastMove.DeckSelection = deckCard.Title;
                     child.CardsCollected.Add(collectedCards);
-                    result.Add(child);
+
+                    if (child.computerHand.Count == 0)
+                    {
+                        child.isFinal = true;
+                    }
+
+                    if (child.Field.Count > oldFieldCount)
+                        disposableResults.Add(child);
+                    else
+                        result.Add(child);
                 }
+                if (result.Count == 0)
+                    result.AddRange(disposableResults);
+
+                param = null;
                 return result;
             }
-
         }
     }
 }

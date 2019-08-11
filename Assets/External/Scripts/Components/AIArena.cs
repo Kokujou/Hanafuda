@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,16 +19,14 @@ namespace Hanafuda
         private uint ExecutionTimes;
         private Settings.AIMode P1Mode, P2Mode;
 
-        private Player P1KI, P2KI;
-
         public Color InfoColor, WarningColor, ErrorColor;
 
         public class IterationOutput
         {
-            public int P1Wins { get; set; }
-            public int P2Wins { get; set; }
-            public int Draws { get; set; }
-            public float avgDuration { get; set; }
+            public int P1Wins;
+            public int P2Wins;
+            public int Draws;
+            public float avgDuration;
         }
 
         struct VirtualBoard : IHanafudaBoard
@@ -67,7 +66,6 @@ namespace Hanafuda
                 activePlayer.CollectedCards.AddRange(deckMatches);
                 foreach (Card card in deckMatches)
                     Field.Remove(card);
-
             }
         }
         public void StartSimulation()
@@ -80,9 +78,12 @@ namespace Hanafuda
             IterationOutput totalOutput = new IterationOutput();
             Random random = new Random();
 
-            Parallel.For<IterationOutput>(0, ExecutionTimes, () => new IterationOutput(), (round, state, output) =>
+            Parallel.For<IterationOutput>(0, ExecutionTimes, 
+                new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, 
+                () => new IterationOutput(), (round, state, output) =>
             {
-                var result = PlayNewGame(true, P1Mode, P2Mode);
+                Global.Log($"{round}");
+                var result = Task.Run(()=>PlayNewGame(true, P1Mode, P2Mode)).Result;
                 if (result == 0)
                     output.Draws++;
                 else if (result == 1)
@@ -92,12 +93,9 @@ namespace Hanafuda
                 return output;
             }, finalOutput =>
             {
-                lock (synchronizeOutput)
-                {
-                    totalOutput.P1Wins += finalOutput.P1Wins;
-                    totalOutput.P2Wins += finalOutput.P2Wins;
-                    totalOutput.Draws += finalOutput.Draws;
-                }
+                Interlocked.Add(ref totalOutput.P1Wins, finalOutput.P1Wins);
+                Interlocked.Add(ref totalOutput.P2Wins, finalOutput.P2Wins);
+                Interlocked.Add(ref totalOutput.Draws, finalOutput.Draws);
             });
 
             Log($"\n\nP1Wins: {(float)totalOutput.P1Wins / (ExecutionTimes)}, P2Wins: {(float)totalOutput.P2Wins / (ExecutionTimes)}, " +
@@ -119,6 +117,7 @@ namespace Hanafuda
                 {
                     if (newBoard.Players[playerID].Hand.Count == 0)
                     {
+                        newBoard = new VirtualBoard();
                         return EndGame();
                     }
 
@@ -128,24 +127,25 @@ namespace Hanafuda
                     selectedMove.DeckSelection = newBoard.Deck[0].Title;
 
                     newBoard.ApplyMove(selectedMove);
-                    Log(PlayerAction.FromMove(selectedMove, newBoard).ToString());
+
                     if (selectedMove.HadYaku && !selectedMove.Koikoi)
                     {
-                        return EndGame( newBoard.Players[selectedMove.PlayerID]);
+                        var winnerName = newBoard.Players[selectedMove.PlayerID].Name;
+                        newBoard = new VirtualBoard();
+                        return EndGame( winnerName);
                     }
                 }
-
             }
         }
 
-        private static int EndGame(Player player = null)
+        private static int EndGame(string name = default)
         {
-            if (player == null)
+            if (name == default)
             {
                 Log("Unentschieden. Keine Karten mehr auf der Hand.", LogType.Error);
                 return 0;
             }
-            if (player.Name == "Player 1")
+            if (name == "Player 1")
                 return 1;
             else
                 return 2;
