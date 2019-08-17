@@ -33,6 +33,8 @@ namespace Hanafuda
             List<Card> target = fromHand ? activePlayer.Hand : Deck;
 
             Card selectedCard = target.Find(x => x.Title == selection);
+            if (selectedCard == null)
+                Debug.Log($"{selection} is not present in List from { (turn ? "computer" : "player")}");
             List<Card> matches = new List<Card>();
 
             //Build Matches and Remove from Field

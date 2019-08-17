@@ -48,69 +48,67 @@ namespace Hanafuda
     {
         public class OmniscientStateTree : IStateTree<OmniscientBoard>
         {
-            private static List<Move> AddDeckActions(List<Card> deckMatches, Move root)
+            private static void AddDeckActions(ref List<Move> baseMoves, OmniscientBoard parent, Card.Months handMonth)
             {
-                List<Move> ToBuild = new List<Move>();
+                var deckMatches = parent.Field.FindAll(x => x.Monat == parent.Deck[0].Monat);
+                var newMoves = new List<Move>();
+
+                if (parent.Deck[0].Monat == handMonth)
+                    return;
+
                 if (deckMatches.Count == 2)
                 {
-                    for (var deckChoice = 0; deckChoice < 2; deckChoice++)
+                    foreach (Move move in baseMoves)
                     {
-                        Move deckMove = new Move(root);
-                        deckMove.DeckFieldSelection = deckMatches[deckChoice].Title;
-                        ToBuild.Add(deckMove);
+                        newMoves.Add(new Move(move) { DeckFieldSelection = deckMatches[0].Title });
+                        move.DeckFieldSelection = deckMatches[1].Title;
                     }
                 }
-                else
-                    ToBuild.Add(root);
-                return ToBuild;
+                baseMoves.AddRange(newMoves);
             }
 
             protected override object BuildChildNodes(object param)
             {
                 OmniscientBoard parent = (OmniscientBoard)param;
                 List<OmniscientBoard> result = new List<OmniscientBoard>();
+
+                if (parent.isFinal)
+                    return result;
+
                 // Memo: matches = 0
                 // Memo: Koikoi sagen!
-                if (!parent.isFinal)
+                List<Card> aHand = parent.Turn ? parent.computer.Hand : parent.player.Hand;
+                for (var i = 0; i < aHand.Count; i++)
                 {
-                    List<Card> aHand = parent.Turn ? parent.computer.Hand : parent.player.Hand;
-                    for (var i = 0; i < aHand.Count; i++)
+                    List<Move> toBuild = new List<Move>();
+                    Move move = new Move();
+                    move.HandSelection = aHand[i].Title;
+                    move.DeckSelection = parent.Deck[0].Title;
+
+                    List<Card> handMatches = parent.Field.FindAll(x => x.Monat == aHand[i].Monat);
+                    if (handMatches.Count == 2)
                     {
-                        List<Move> ToBuild = new List<Move>();
-                        Move move = new Move();
-                        move.HandSelection = aHand[i].Title;
-                        move.DeckSelection = parent.Deck[0].Title;
-                        List<Card> handMatches = new List<Card>();
-                        List<Card> deckMatches = new List<Card>();
-                        for (int field = 0; field < parent.Field.Count; field++)
+                        toBuild.AddRange(new[] {
+                            new Move(move) { HandFieldSelection = handMatches[0].Title },
+                            new Move(move) { HandFieldSelection = handMatches[1].Title },
+                        });
+                    }
+                    else
+                        toBuild.Add(move);
+
+                    AddDeckActions(ref toBuild, parent, aHand[i].Monat);
+
+                    for (int build = 0; build < toBuild.Count; build++)
+                    {
+                        OmniscientBoard child = parent.ApplyMove(parent, toBuild[build], parent.Turn);
+                        if (child.HasNewYaku)
                         {
-                            if (parent.Field[field].Monat == aHand[i].Monat)
-                                handMatches.Add(parent.Field[field]);
-                            if (parent.Field[field].Monat == parent.Deck[0].Monat)
-                                deckMatches.Add(parent.Field[field]);
+                            child.SayKoikoi(true);
+                            OmniscientBoard finalChild = parent.ApplyMove(parent, toBuild[build], parent.Turn);
+                            finalChild.SayKoikoi(false);
+                            result.Add(finalChild);
                         }
-                        if (handMatches.Count == 2)
-                        {
-                            for (var handChoice = 0; handChoice < 2; handChoice++)
-                            {
-                                Move handMove = new Move(move);
-                                handMove.HandFieldSelection = handMatches[handChoice].Title;
-                                ToBuild.AddRange(AddDeckActions(deckMatches, handMove));
-                            }
-                        }
-                        else ToBuild.AddRange(AddDeckActions(deckMatches, move));
-                        for (int build = 0; build < ToBuild.Count; build++)
-                        {
-                            OmniscientBoard child = parent.ApplyMove(parent, ToBuild[build], parent.Turn);
-                            if (child.HasNewYaku)
-                            {
-                                child.SayKoikoi(true);
-                                OmniscientBoard finalChild = parent.ApplyMove(parent, ToBuild[build], parent.Turn);
-                                finalChild.SayKoikoi(false);
-                                result.Add(finalChild);
-                            }
-                            result.Add(child);
-                        }
+                        result.Add(child);
                     }
                 }
                 return result;

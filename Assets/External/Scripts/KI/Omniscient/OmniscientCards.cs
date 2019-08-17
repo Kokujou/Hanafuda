@@ -58,7 +58,6 @@ namespace Hanafuda
 
                 PCollectableMonths = PCollectableMonths.ToDictionary(x => x.Key, x => (x.Value / 2) * 2);
                 OppCollectableMonths = OppCollectableMonths.ToDictionary(x => x.Key, x => (x.Value / 2) * 2);
-
             }
 
             protected override void CalcMinTurns(OmniscientBoard State, bool Turn)

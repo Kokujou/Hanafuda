@@ -13,7 +13,7 @@ namespace Hanafuda
 
         public override float RateState(OmniscientBoard state) => 0f;
 
-        public override Move RequestDeckSelection(Spielfeld board, Move baseMove, int playerID) => baseMove;
+        public override Move RequestDeckSelection(IHanafudaBoard board, Move baseMove, int playerID) => baseMove;
 
         public override void SetWeight(string name, float value) { }
 

@@ -7,6 +7,6 @@ namespace Hanafuda
         Dictionary<string, float> GetWeights();
         void SetWeight(string name, float value);
         Move MakeTurn(IHanafudaBoard board, int playerID);
-        Move RequestDeckSelection(Spielfeld board, Move baseMove, int playerID);
+        Move RequestDeckSelection(IHanafudaBoard board, Move baseMove, int playerID);
     }
 }

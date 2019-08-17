@@ -14,10 +14,10 @@ namespace Hanafuda
 
         private Dictionary<string, float> weights = new Dictionary<string, float>()
         {
-            { _YakuDurationWeight, 0 },
-            { _YakuProgressWeight, 0 },
-            { _OpponentDependenceWeight, 0 },
-            { _YakuQualityWeight, 0 }
+            { _YakuDurationWeight, 1 },
+            { _YakuProgressWeight, 1 },
+            { _OpponentDependenceWeight, 1 },
+            { _YakuQualityWeight, 1 }
         };
 
         public override Dictionary<string, float> GetWeights() => weights;
@@ -213,7 +213,7 @@ namespace Hanafuda
             StateValues = RateFirstLevel();
         }
 
-        public override Move RequestDeckSelection(Spielfeld board, Move baseMove, int playerID)
+        public override Move RequestDeckSelection(IHanafudaBoard board, Move baseMove, int playerID)
         {
             throw new NotImplementedException();
         }

@@ -17,16 +17,18 @@ namespace Hanafuda
 
                 if (!parent.isFinal)
                 {
-                    Dictionary<Card, float> aHand = parent.Turn ? parent.computer.Hand.ToDictionary(x => x, x => 1f) : parent.UnknownCards;
-                    for (int handID = 0; handID < aHand.Count; handID++)
+                    var aHand = parent.Turn ? 
+                        parent.computer.Hand.ToDictionary(x => x, x => 1f) :
+                        parent.UnknownCards;
+                    foreach (var handCard in aHand)
                     {
                         List<Move> ToBuild = new List<Move>();
                         Move move = new Move();
-                        move.HandSelection = aHand.ElementAt(handID).Key.Title;
+                        move.HandSelection = handCard.Key.Title;
                         List<Card> handMatches = new List<Card>();
                         for (int field = 0; field < parent.Field.Count; field++)
                         {
-                            if (parent.Field[field].Monat == aHand.ElementAt(handID).Key.Monat)
+                            if (parent.Field[field].Monat == handCard.Key.Monat)
                                 handMatches.Add(parent.Field[field]);
                         }
                         if (handMatches.Count == 2)

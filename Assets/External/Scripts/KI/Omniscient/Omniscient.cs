@@ -238,7 +238,7 @@ namespace Hanafuda
             return new StateProps() { GlobalMinimum = GlobalMinimum, LocalMinimum = TotalCardValue };
         }
 
-        public override Move RequestDeckSelection(Spielfeld board, Move baseMove, int playerID)
+        public override Move RequestDeckSelection(IHanafudaBoard board, Move baseMove, int playerID)
         {
             throw new NotImplementedException();
         }

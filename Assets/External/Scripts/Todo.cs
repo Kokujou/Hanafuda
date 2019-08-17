@@ -23,7 +23,7 @@
  *      5. Einsammeln durch passen
  *      6. Passen
  *  - Berechnende KI: Qualitätsanpassungen durch einbau der Deck-Wahrscheinlichkeit
- *  - Suchende KI: Starkes Memory-Leck
+ *  - Suchende KI: Optimierung
  * 
  * Zurückgestellt:
  * - Win/Loose Animationen
