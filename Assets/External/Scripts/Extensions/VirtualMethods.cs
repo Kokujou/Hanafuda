@@ -10,6 +10,24 @@ namespace Hanafuda
     public static class VirtualMethods
     {
         /// <summary>
+        /// primitive factorization
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static long Faculty(this int number)
+        {
+            if (number <= 1)
+                return 1;
+            long result = number;
+            while (number > 1)
+            {
+                result *= number;
+                number--;
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Determines if the field consists out of 4 matching cards and needs a redeal
         /// </summary>
         /// <param name="field"></param>
@@ -24,21 +42,26 @@ namespace Hanafuda
         /// <returns>0: no win, 1: 4 matching cards, 2: 4 pairs</returns>
         public static int IsInitialWin(this List<Card> hand)
         {
-            if (hand.Count != 8) return 0;
+            if (hand.Count != 8)
+                return 0;
             Dictionary<Card.Months, int> months = Enumerable.Range(0, 12).ToDictionary(x => (Card.Months)x, x => 0);
             foreach (Card card in hand)
                 months[card.Monat]++;
             int pairs = 0;
             foreach (var pair in months)
-                if (pair.Value == 4) return 1;
-                else if (pair.Value == 2) pairs++;
-            if (pairs == 4) return 2;
+                if (pair.Value == 4)
+                    return 1;
+                else if (pair.Value == 2)
+                    pairs++;
+            if (pairs == 4)
+                return 2;
             return 0;
         }
 
         public static bool IsOmniscient(this Settings.AIMode mode)
         {
-            if (mode == Settings.AIMode.Omniscient || mode == Settings.AIMode.Searching) return true;
+            if (mode == Settings.AIMode.Omniscient || mode == Settings.AIMode.Searching)
+                return true;
             return false;
         }
 
@@ -57,8 +80,10 @@ namespace Hanafuda
         public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
         {
             T toCompare = val;
-            if (toCompare.CompareTo(min) < 0) toCompare = min;
-            else if (toCompare.CompareTo(max) > 0) toCompare = max;
+            if (toCompare.CompareTo(min) < 0)
+                toCompare = min;
+            else if (toCompare.CompareTo(max) > 0)
+                toCompare = max;
             return toCompare;
         }
 
@@ -87,7 +112,8 @@ namespace Hanafuda
         public static T GetRandom<T>(this List<T> list, Func<T, bool> exclude = null)
         {
             int index = Random.Range(0, list.Count);
-            if (list.Count == 1) return list[0];
+            if (list.Count == 1)
+                return list[0];
             while (exclude != null && exclude(list[index]))
                 index = Random.Range(0, list.Count);
             return list[index];

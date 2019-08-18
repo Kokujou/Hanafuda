@@ -33,45 +33,11 @@ namespace Hanafuda
         {
         }
 
-        public override Move MakeTurn(IHanafudaBoard board, int playerID)
-        {
-            Debug.Log("KI Turn Decision started");
-            BuildStateTree(board, playerID);
-            //Bewertung möglicherweise in Threads?
-            float maxValue = float.NegativeInfinity;
-            SearchingBoard selectedBoard = null;
-
-            List<SearchingBoard> firstLevel = Tree.GetLevel(1);
-            foreach (SearchingBoard state in firstLevel)
-                state.Value = (float)new System.Random().NextDouble();
-
-            //Parallel.ForEach(Tree.GetLevel(1), state => state.Value = RateState(state));
-
-            foreach (SearchingBoard state in firstLevel)
-            {
-                if (state.Value > maxValue)
-                {
-                    maxValue = state.Value;
-                    selectedBoard = state;
-                }
-            }
-            CorrectMove(selectedBoard.LastMove, board);
-
-            if (Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), selectedBoard.computerCollection).Count > 0)
-            {
-                selectedBoard.LastMove.HadYaku = true;
-                selectedBoard.LastMove.Koikoi = false;
-            }
-
-            Global.Log($"{selectedBoard}", true);
-            return selectedBoard.LastMove;
-        }
-
-        private void CorrectMove(Move move, IHanafudaBoard parent)
+        private void CorrectMove(Move move, SearchingBoard state)
         {
             var handSelection = Global.allCards.FirstOrDefault(x => x.Title == move.HandSelection);
             var deckSelection = Global.allCards.FirstOrDefault(x => x.Title == move.DeckSelection);
-            var handMatches = parent.Field.FindAll(x => x.Monat == handSelection.Monat);
+            var handMatches = state.Field.FindAll(x => x.Monat == handSelection.Monat);
             if (handMatches.Count == 2)
             {
                 if (handSelection.Monat == deckSelection.Monat)
@@ -83,9 +49,15 @@ namespace Hanafuda
                 else
                     move.HandFieldSelection = ChooseBestCard(handMatches).Title;
             }
-            var deckMatches = parent.Field.FindAll(x => x.Monat == deckSelection.Monat);
+            var deckMatches = state.Field.FindAll(x => x.Monat == deckSelection.Monat);
             if (deckMatches.Count == 2)
                 move.DeckFieldSelection = ChooseBestCard(deckMatches).Title;
+
+            if (Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), state.computerCollection).Count > 0)
+            {
+                state.LastMove.HadYaku = true;
+                state.LastMove.Koikoi = false;
+            }
         }
 
         private Card ChooseBestCard(List<Card> cards)
@@ -101,20 +73,20 @@ namespace Hanafuda
             return bestProperty.card;
         }
 
-        private Dictionary<int, float> StateValues = new Dictionary<int, float>();
-        public override float RateState(SearchingBoard state) =>
-            state.computerHand.Count <= 1 ? 0 : StateValues[Tree.GetLevel(1).IndexOf(state)];
-
-        private long Faculty(long number)
+        private List<float> StateValues = new List<float>();
+        public override float RateState(SearchingBoard state)
         {
-            if (number <= 1)
-                return 1;
-            long result = number;
-            while (number > 1)
-            {
-                result *= number;
-                number--;
-            }
+            var result = 0f;
+
+            CorrectMove(state.LastMove, state);
+
+            var statePropsCalculator = new SearchingStatePropsCalculator();
+            var yakuDurationValue = statePropsCalculator.GetYakuDurationValue();
+            var yakuProgressValue = statePropsCalculator.GetYakuProgressValue();
+
+            result = yakuDurationValue * weights[_YakuDurationWeight]
+                + yakuProgressValue * weights[_YakuProgressWeight];
+
             return result;
         }
 
@@ -125,31 +97,37 @@ namespace Hanafuda
         /// <param name="yakuProgess">Karten, die im letzten Zustand zur Erreichung des Yaku Fehlen. (Zuweisung durch Index)</param>
         /// <param name="yakuOppDependencies">Gibt an, wie abhängig die Yaku von gegnerischen Karten sind (Zuweisung durch Index)</param>
         /// <returns></returns>
-        private float RateSingleState(Dictionary<int, int> yakuDurations, Dictionary<int, int> yakuProgess, Dictionary<int, float> yakuOppDependencies)
+        private float RateSingleState(List<int> yakuDurations, List<int> yakuProgess, List<float> yakuOppDependencies)
         {
             float Result = 0f;
 
-            float yakuDurationValue = yakuDurations.Sum(x => 8 - (x.Value > 8 ? 8 : x.Value));
+            int turnsLeft;
+            float yakuDurationValue = yakuDurations.Sum(x => 8 - (x > 8 ? 8 : x));
 
-            int maxMinSize = Global.allYaku.Max(x => x.minSize);
-            float yakuProgressValue = yakuProgess.Average(x => 1f / Faculty((Global.allYaku[x.Key].minSize - x.Value)));
+            int index = 0;
+            float yakuProgressValue = yakuProgess.Average(x => 1f / (Global.allYaku[index++].minSize - x).Faculty());
 
             Result = yakuDurationValue * weights[_YakuDurationWeight]
                 + yakuProgressValue * weights[_YakuProgressWeight];
-
             return Result;
         }
 
 
 
-        private Dictionary<int, float> RateFirstLevel()
+        private List<float> RateFirstLevel()
         {
-            Dictionary<int, float> Result = Enumerable.Range(0, Tree.GetLevel(1).Count).ToDictionary(x => x, x => 0f);
+            List<float> Result = Enumerable.Repeat(0f, Tree.GetLevel(1).Count).ToList();
 
-            Dictionary<int, Dictionary<int, int>> yakuProgress = Enumerable.Range(0, Tree.GetLevel(1).Count).ToDictionary(x => x,
-                x => Enumerable.Range(0, Global.allYaku.Count).ToDictionary(y => y, y => 0));
-            Dictionary<int, Dictionary<int, int>> yakuDurations = Enumerable.Range(0, Tree.GetLevel(1).Count).ToDictionary(x => x,
-                 x => Enumerable.Range(0, Global.allYaku.Count).ToDictionary(y => y, y => 9));
+            List<List<int>> yakuProgress = Enumerable.Repeat(
+                Enumerable.Repeat(0, Global.allYaku.Count).ToList(),
+                Tree.GetLevel(1).Count)
+                .ToList();
+
+            List<List<int>> yakuDurations = Enumerable.Repeat(
+                Enumerable.Repeat(9, Global.allYaku.Count).ToList(),
+                Tree.GetLevel(1).Count)
+                .ToList();
+
             foreach (SearchingBoard board in Tree.GetLevel(Tree.Size - 1))
             {
                 Dictionary<int, int> stateYakus = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);

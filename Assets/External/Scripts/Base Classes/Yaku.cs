@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -32,23 +33,27 @@ namespace Hanafuda
         public Card.Type TypePref;
 
         public int CompareTo(Yaku other)
-        {
-            return Global.allYaku.IndexOf(this).CompareTo(Global.allYaku.IndexOf(other));
-        }
+            => Global.allYaku.IndexOf(this).CompareTo(Global.allYaku.IndexOf(other));
 
         public int GetPoints(int collected)
         {
-            if (collected < minSize) return 0;
-            else if (collected == minSize) return basePoints;
-            else if (addPoints > 0) return (basePoints + (addPoints * (collected - minSize)));
-            else return 0;
+            if (collected < minSize)
+                return 0;
+            else if (collected == minSize)
+                return basePoints;
+            else if (addPoints > 0)
+                return (basePoints + (addPoints * (collected - minSize)));
+            else
+                return 0;
         }
 
         public static List<Yaku> GetNewYakus(Player player, List<Card> newCards)
-        {
-            return GetNewYakus(player.CollectedYaku, newCards);
-        }
-        public static List<Yaku> GetNewYakus(Dictionary<int,int> currentYakus, List<Card> newCards, bool AllowWrite = false)
+            => GetNewYakus(player.CollectedYaku, newCards);
+
+        public static List<Yaku> GetNewYakus(List<Card> collection)
+            => GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), collection);
+
+        public static List<Yaku> GetNewYakus(Dictionary<int, int> currentYakus, List<Card> newCards, bool AllowWrite = false)
         {
             List<Yaku> NewYaku = new List<Yaku>();
             for (int yakuID = 0; yakuID < Global.allYaku.Count; yakuID++)
@@ -57,7 +62,8 @@ namespace Hanafuda
                 int matchingCount = 0;
                 foreach (Card card in newCards)
                 {
-                    if (!yaku.Contains(card)) continue;
+                    if (!yaku.Contains(card))
+                        continue;
                     int oldCount = currentYakus[yakuID];
                     matchingCount++;
                     if (AllowWrite)
@@ -113,18 +119,7 @@ namespace Hanafuda
         }
 
         public override bool Equals(object Right)
-        {
-            try
-            {
-                if (this == (List<Card>)Right)
-                    return true;
-                return false;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
+            => Right is List<Card> collection && this == collection;
 
         public static bool operator ==(Yaku yaku, List<Card> Cards)
         {
@@ -141,37 +136,24 @@ namespace Hanafuda
                 }
                 if (matches >= yaku.minSize && ((yaku.Mask[0] == 1 && yaku.Mask[1] == 1) || nameMatches >= yaku.Namen.Count))
                     return true;
-                else return false;
+                else
+                    return false;
             }
             else
                 return false;
         }
 
         public static bool operator !=(Yaku Left, List<Card> Right)
-        {
-            if (Left == Right)
-                return false;
-            return true;
-        }
+            => !(Left == Right);
 
         public static bool operator ==(List<Card> Left, Yaku Right)
-        {
-            if (Right == Left)
-                return true;
-            return false;
-        }
+            => Right == Left;
 
         public static bool operator !=(List<Card> Left, Yaku Right)
-        {
-            if (Right != Left)
-                return true;
-            return false;
-        }
+            => Right != Left;
 
         public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+            => Title.GetHashCode();
 
         public bool Contains(Card card)
         {
@@ -182,9 +164,6 @@ namespace Hanafuda
                 return true;
             return false;
         }
-        public override string ToString()
-        {
-            return Title;
-        }
+        public override string ToString() => Title;
     }
 }
