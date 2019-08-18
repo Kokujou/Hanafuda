@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Hanafuda
 {
@@ -45,7 +46,7 @@ namespace Hanafuda
             CardsCollected = new List<int>(8);
             Root = -1;
             TurnID = 0;
-            Global.Log(string.Join(";",computerHand));
+            Global.Log(string.Join(";", computerHand));
         }
 
         protected override bool CheckYaku(bool turn)
@@ -56,6 +57,47 @@ namespace Hanafuda
 
         public override SearchingBoard Clone()
             => new SearchingBoard(this);
-        protected override void ApplyMove(string selection, string secondSelection, bool fromHand, bool turn) => throw new NotImplementedException();
+
+        protected override void ApplyMove(string selection, string secondSelection, bool fromHand, bool turn)
+        {
+            List<Card> target = fromHand ? computerHand : Deck.Values.ToList();
+
+            Card selectedCard = target.Find(x => x.Title == selection);
+            if (selectedCard == null)
+                Debug.Log($"{selection} is not present in List from { (turn ? "computer" : "player")}");
+            List<Card> matches = new List<Card>();
+
+            //Build Matches and Remove from Field
+            for (int i = Field.Count - 1; i >= 0; i--)
+            {
+                if (secondSelection.Length > 0)
+                {
+                    if (Field[i].Title == secondSelection)
+                    {
+                        matches.Add(Field[i]);
+                        Field.RemoveAt(i);
+                        break;
+                    }
+                    continue;
+                }
+                else if (Field[i].Monat == selectedCard.Monat)
+                {
+                    matches.Add(Field[i]);
+                    Field.RemoveAt(i);
+                }
+            }
+
+            //Collect Cards or add to Field
+            target.Remove(selectedCard);
+            if (matches.Count > 0)
+            {
+                matches.Add(selectedCard);
+                computerCollection.AddRange(matches);
+            }
+            else
+            {
+                Field.Add(selectedCard);
+            }
+        }
     }
 }

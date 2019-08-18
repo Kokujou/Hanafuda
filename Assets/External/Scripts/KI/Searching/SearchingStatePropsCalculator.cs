@@ -8,36 +8,53 @@ namespace Hanafuda
 {
     public class SearchingStatePropsCalculator
     {
+        private readonly SearchingBoard _board;
+
         private readonly int _roundsLeft;
         private readonly List<int> _yakuDurations;
         private readonly List<int> _yakuProgresses;
+        private readonly List<float> _yakuOpponentDependencies;
         private readonly Dictionary<int, int> _stateYakus;
 
         public SearchingStatePropsCalculator(SearchingBoard board)
         {
-            _roundsLeft = board.computer.Hand.Count;
+            _board = board;
+            _roundsLeft = _board.computerHand.Count;
             _stateYakus = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
+            _yakuOpponentDependencies = Enumerable.Repeat(0f, Global.allYaku.Count).ToList();
 
-            _yakuDurations = GetYakuDurations(board);
+            _yakuDurations = GetYakuDurations(_board);
             _yakuProgresses = GetYakuProgresses();
         }
 
-        public float GetYakuDurationValue()
+        public float GetYakuDurationValue(int aggregationSize = 1)
         {
-            float yakuDurationValue = _yakuDurations.Sum(x => 8 - (x > 8 ? 8 : x));
+            float yakuDurationValue = _yakuDurations
+                .Select((x, y) => _roundsLeft - (x > _roundsLeft ? _roundsLeft : x) * _yakuOpponentDependencies[y])
+                .OrderBy(x => x)
+                .Take(aggregationSize)
+                .Sum();
+
             return yakuDurationValue;
         }
 
-        public float GetYakuProgressValue()
+        public float GetYakuProgressValue(int aggregationSize = 1)
         {
-            int index = 0;
-            float yakuProgressValue = _yakuProgresses.Average(x => 1f / (Global.allYaku[index++].minSize - x).Faculty());
+            var maxima = _yakuProgresses
+                .Select((x, y) => (Global.allYaku[y].minSize - x).Faculty() * _yakuOpponentDependencies[y])
+                .OrderBy(x => x)
+                .Take(aggregationSize)
+                .ToList();
+
+            float yakuProgressValue = maxima.Average(
+                x => 1f / x);
+
             return yakuProgressValue;
         }
 
         private List<int> GetYakuProgresses()
         {
-            var yakuProgresses = new List<int>();
+            var yakuProgresses = Enumerable.Repeat(0, Global.allYaku.Count).ToList();
 
             foreach (var pair in _stateYakus)
             {
@@ -50,7 +67,7 @@ namespace Hanafuda
 
         private List<int> GetYakuDurations(SearchingBoard board)
         {
-            var yakuDurations = new List<int>();
+            var yakuDurations = Enumerable.Repeat(9, Global.allYaku.Count).ToList();
 
             int lastIndex = 0;
             for (int partID = 0; partID < board.CardsCollected.Count; partID++)
@@ -58,8 +75,26 @@ namespace Hanafuda
                 int count = board.CardsCollected[partID];
                 if (count == 0)
                     continue;
-                List<Yaku> yakus = Yaku.GetNewYakus(_stateYakus, board.computerCollection.GetRange(lastIndex, count), true);
+                var currentRange = board.computerCollection.GetRange(lastIndex, count);
                 lastIndex += count;
+
+                List<Yaku> yakus = new List<Yaku>();
+                foreach (var card in currentRange)
+                {
+                    for (int yakuId = 0; yakuId < Global.allYaku.Count; yakuId++)
+                    {
+                        var yaku = Global.allYaku[yakuId];
+                        if (card == yaku)
+                        {
+                            _stateYakus[yakuId]++;
+                            _yakuOpponentDependencies[yakuId] += GetOpponentDependency(card);
+
+                            if ((_stateYakus[yakuId] > yaku.minSize && yaku.addPoints > 0)
+                                || _stateYakus[yakuId] == yaku.minSize)
+                                yakus.Add(yaku);
+                        }
+                    }
+                }
 
                 /*
                  * Set Global Minimum for all new Yaku if they are earlier
@@ -73,6 +108,24 @@ namespace Hanafuda
             }
 
             return yakuDurations;
+        }
+
+        private float GetOpponentDependency(Card card)
+        {
+            var result = 0f;
+            var root = _board.parent;
+
+            var playerMatches = root.playerHand.Count(x => x.Monat == card.Monat);
+
+            for (int deckIndex = 0; deckIndex < root.playerHand.Count; deckIndex++)
+            {
+                if (root.Deck[deckIndex * 2 + 1].Monat == card.Monat)
+                    playerMatches++;
+            }
+
+            result += playerMatches / 3f;
+
+            return result;
         }
     }
 }

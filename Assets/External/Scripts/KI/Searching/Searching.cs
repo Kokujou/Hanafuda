@@ -9,15 +9,11 @@ namespace Hanafuda
     {
         const string _YakuDurationWeight = "_YakuDurationWeight";
         const string _YakuProgressWeight = "_YakuProgressWeight";
-        const string _OpponentDependenceWeight = "_OpponentDependenceWeight";
-        const string _YakuQualityWeight = "_YakuQualityWeight";
 
         private Dictionary<string, float> weights = new Dictionary<string, float>()
         {
             { _YakuDurationWeight, 1 },
             { _YakuProgressWeight, 1 },
-            { _OpponentDependenceWeight, 1 },
-            { _YakuQualityWeight, 1 }
         };
 
         public override Dictionary<string, float> GetWeights() => weights;
@@ -35,12 +31,13 @@ namespace Hanafuda
         {
             var result = 0f;
 
-            CorrectMove(state.LastMove, state);
+            var correctedState = CorrectState(state);
+            state.LastMove = correctedState.LastMove;
 
-            if (state.isFinal)
+            if (correctedState.isFinal)
                 return float.PositiveInfinity;
 
-            var statePropsCalculator = new SearchingStatePropsCalculator(state);
+            var statePropsCalculator = new SearchingStatePropsCalculator(correctedState);
             var yakuDurationValue = statePropsCalculator.GetYakuDurationValue();
             var yakuProgressValue = statePropsCalculator.GetYakuProgressValue();
 
@@ -61,32 +58,31 @@ namespace Hanafuda
         public override Move RequestDeckSelection(IHanafudaBoard board, Move baseMove, int playerID)
             => throw new NotImplementedException();
 
-        private void CorrectMove(Move move, SearchingBoard state)
+        private SearchingBoard CorrectState(SearchingBoard state)
         {
-            var handSelection = Global.allCards.FirstOrDefault(x => x.Title == move.HandSelection);
-            var deckSelection = Global.allCards.FirstOrDefault(x => x.Title == move.DeckSelection);
-            var handMatches = state.Field.FindAll(x => x.Monat == handSelection.Monat);
-            if (handMatches.Count == 2)
-            {
-                if (handSelection.Monat == deckSelection.Monat)
-                {
-                    move.HandFieldSelection = handMatches[0].Title;
-                    move.DeckFieldSelection = handMatches[1].Title;
-                    return;
-                }
-                else
-                    move.HandFieldSelection = ChooseBestCard(handMatches).Title;
-            }
-            var deckMatches = state.Field.FindAll(x => x.Monat == deckSelection.Monat);
-            if (deckMatches.Count == 2)
-                move.DeckFieldSelection = ChooseBestCard(deckMatches).Title;
+            var correctedMove = CorrectMove(state.LastMove, Tree.Root.Field);
+            var correctedState = Tree.Root.ApplyMove(Tree.Root, correctedMove, true);
 
-            if (Yaku.GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), state.computerCollection).Count > 0)
-            {
-                state.LastMove.HadYaku = true;
-                state.LastMove.Koikoi = false;
-            }
+            return correctedState;
         }
+
+        private Move CorrectMove(Move oldMove, List<Card> oldField)
+        {
+            var correctedMove = new Move(oldMove);
+
+            var handSelection = Global.allCards.FirstOrDefault(x => x.Title == correctedMove.HandSelection);
+            var deckSelection = Global.allCards.FirstOrDefault(x => x.Title == correctedMove.DeckSelection);
+
+            var handMatches = oldField.FindAll(x => x.Monat == handSelection.Monat);
+            var deckMatches = oldField.FindAll(x => x.Monat == deckSelection.Monat);
+            if (handMatches.Count == 2)
+                correctedMove.HandFieldSelection = ChooseBestCard(handMatches).Title;
+            if (deckMatches.Count == 2 && handSelection.Monat != deckSelection.Monat)
+                correctedMove.DeckFieldSelection = ChooseBestCard(deckMatches).Title;
+
+            return correctedMove;
+        }
+
 
         private Card ChooseBestCard(List<Card> cards)
         {

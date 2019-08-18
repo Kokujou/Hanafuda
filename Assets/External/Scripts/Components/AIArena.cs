@@ -83,7 +83,7 @@ namespace Hanafuda
                 () => new IterationOutput(), (round, state, output) =>
             {
                 Global.Log($"{round}");
-                var result = Task.Run(()=>PlayNewGame(true, P1Mode, P2Mode)).Result;
+                var result = PlayNewGame(true, P1Mode, P2Mode);
                 if (result == 0)
                     output.Draws++;
                 else if (result == 1)
