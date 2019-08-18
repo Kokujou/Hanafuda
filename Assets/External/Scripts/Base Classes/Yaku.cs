@@ -50,9 +50,6 @@ namespace Hanafuda
         public static List<Yaku> GetNewYakus(Player player, List<Card> newCards)
             => GetNewYakus(player.CollectedYaku, newCards);
 
-        public static List<Yaku> GetNewYakus(List<Card> collection)
-            => GetNewYakus(Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0), collection);
-
         public static List<Yaku> GetNewYakus(Dictionary<int, int> currentYakus, List<Card> newCards, bool AllowWrite = false)
         {
             List<Yaku> NewYaku = new List<Yaku>();
