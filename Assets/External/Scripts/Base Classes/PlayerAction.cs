@@ -34,6 +34,10 @@ namespace Hanafuda
             Board = board;
             PlayerID = Settings.PlayerID;
         }
+
+        public void SetPlayerId(int id)
+            => PlayerID = id;
+
         public void SelectFromHand(Card selection)
         {
             HandSelection = selection;
@@ -63,6 +67,9 @@ namespace Hanafuda
 
         public override string ToString()
         {
+            if (Board == null)
+                return "";
+
             string handAction;
             if (HandMatches.Count == 0)
                 handAction = $"legt {HandSelection} aufs Feld.";
@@ -86,13 +93,13 @@ namespace Hanafuda
             {
                 string koikoiAction = "";
                 if (Koikoi)
-                    koikoiAction = $"{Settings.Players[PlayerID]} hat 'Koi Koi' gesagt.";
+                    koikoiAction = $"{Board.Players[PlayerID]} hat 'Koi Koi' gesagt.";
                 else
-                    koikoiAction = $"{Settings.Players[PlayerID]} hat nicht 'Koi Koi' gesagt. Das Spiel ist beendet.";
+                    koikoiAction = $"{Board.Players[PlayerID]} hat nicht 'Koi Koi' gesagt. Das Spiel ist beendet.";
 
                 yakuAction = $"Damit konnte er neue Yaku formen.\n{koikoiAction}\n";
             }
-            return $"{Settings.Players[PlayerID]} {handAction}.\n " +
+            return $"{Board.Players[PlayerID]} {handAction}.\n " +
                 $"Anschließend {deckAction}.\n" +
                 $"{yakuAction}";
         }

@@ -9,7 +9,7 @@ namespace Hanafuda
 {
     public partial class MainScreen : MonoBehaviour
     {
-        private string Name;
+        private string Name = "";
 
         private GameObject Loading;
 
