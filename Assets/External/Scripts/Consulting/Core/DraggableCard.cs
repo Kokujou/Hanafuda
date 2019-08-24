@@ -25,7 +25,7 @@ namespace Hanafuda
         public void Start()
         {
             currentContainer = GetComponentInParent<CardDropContainer>();
-            currentContainer.AddCard(AssignedCard);
+            currentContainer.Inventory.Add(AssignedCard);
         }
 
         public void OnBeginDrag(PointerEventData eventData)
@@ -40,9 +40,6 @@ namespace Hanafuda
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (startPosition == Vector2.zero)
-                startPosition = transform.position;
-
             transform.position += (Vector3)eventData.delta;
         }
 
@@ -60,12 +57,14 @@ namespace Hanafuda
 
         private bool DropAllowed(CardDropContainer target)
             => target
-            && target != currentContainer;
+            && target != currentContainer
+            && (target.Inventory.Count < target.MaxSize
+                || target.MaxSize == 0);
 
         private void ReassignCard(CardDropContainer container)
         {
             Destroy(dummy);
-            currentContainer.RemoveCard(AssignedCard);
+            currentContainer.Inventory.Remove(AssignedCard);
             currentContainer = container;
             container.ReceiveCard(gameObject, AssignedCard);
         }
@@ -73,7 +72,8 @@ namespace Hanafuda
         private void ResetCard()
         {
             transform.position = startPosition;
-            transform.SetParent(startParent);
+            transform.SetParent(startParent, false);
+            transform.localScale = Vector3.one;
             transform.SetSiblingIndex(startSiblingIndex);
 
             Destroy(dummy);

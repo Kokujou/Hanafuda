@@ -66,6 +66,10 @@ namespace Hanafuda
         public override Move MakeTurn(IHanafudaBoard cRoot, int playerID)
         {
             Move selectedMove = base.MakeTurn(cRoot, playerID);
+
+            if (cRoot.Deck == null)
+                return selectedMove;
+
             selectedMove.DeckSelection = cRoot.Deck[0].Title;
 
             if (cRoot.Field.Count(x => x.Monat == cRoot.Deck[0].Monat) == 2)

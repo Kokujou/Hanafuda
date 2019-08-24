@@ -7,9 +7,9 @@ using UnityEngine.UI;
 
 namespace Hanafuda
 {
-    [RequireComponent(typeof(EventTrigger))]
-    public class MessageBox : MonoBehaviour
+    public class MessageBox : MonoBehaviour, IDragHandler
     {
+        public GameObject Container;
         public Text Caption, Content;
         public RectTransform ButtonParent;
         public Func<bool> DestroyCallback = () => false;
@@ -44,10 +44,12 @@ namespace Hanafuda
             DestroyCallback = destroyCallback;
         }
 
-        public void OnDrag(BaseEventData data)
+        public void OnDrag(PointerEventData eventData)
         {
-            PointerEventData eventData = (PointerEventData)data;
-            GetComponent<RectTransform>().localPosition += (Vector3)eventData.delta / GetComponentInParent<Canvas>().scaleFactor;
+            if (Container)
+                Container.transform.position += (Vector3)eventData.delta;
+            else
+                transform.position += (Vector3)eventData.delta;
         }
 
         private void Update()

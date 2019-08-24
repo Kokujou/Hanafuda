@@ -15,8 +15,9 @@ namespace Hanafuda
     public class CardDropContainer : MonoBehaviour
     {
         public Transform Container;
+        public int MaxSize;
 
-        private List<Card> Inventory = new List<Card>();
+        public List<Card> Inventory = new List<Card>();
 
         private void Start()
         {
@@ -28,27 +29,13 @@ namespace Hanafuda
         {
             Debug.Log("Received Card");
             AssignGameObject(cardObject);
-            AddCard(cardInstance);
+            Inventory.Add(cardInstance);
         }
-
-        public void AddCard(Card card)
-        {
-            Inventory.Add(card);
-        }
-
-        public void RemoveCard(Card cardInstance)
-        {
-            Inventory.Remove(cardInstance);
-        }
-
-        public List<Card> GetInventory()
-            => Inventory.ToList();
 
         private void AssignGameObject(GameObject cardObject)
         {
-            cardObject.transform.SetParent(Container);
+            cardObject.transform.SetParent(Container, false);
+            cardObject.transform.localScale = Vector3.one;
         }
-
-        
     }
 }
