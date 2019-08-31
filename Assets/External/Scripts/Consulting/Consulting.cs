@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,11 +13,13 @@ namespace Hanafuda
             Field,
             PlayerCollection,
             OpponentCollection,
-            DeckSelection;
+            DeckSelection,
+            UnassignedCollection;
 
         public RectTransform
             HandSelectionContainer,
-            DeckSelectionContainer;
+            HandFieldSelectionContainer,
+            DeckFieldSelectionContainer;
 
         private Move currentMove;
         private IArtificialIntelligence player;
@@ -29,31 +32,60 @@ namespace Hanafuda
 
             currentMove = player.MakeTurn(board, 1);
 
-            ViewRecommendation(HandSelectionContainer, currentMove.HandSelection, currentMove.HandFieldSelection);
-
+            if (currentMove.HandSelection.Length > 0)
+                ViewCard(HandSelectionContainer, currentMove.HandSelection);
+            if (currentMove.HandFieldSelection.Length > 0)
+                ViewCard(HandFieldSelectionContainer, currentMove.HandFieldSelection);
         }
 
-        private void RequestDeckSelection()
+        public async void RequestDeckSelection()
         {
+            await Task.Delay(1000);
             var deckSelection = DeckSelection.Inventory[0];
             currentMove.DeckSelection = deckSelection.Title;
 
-            var deckMove = player.RequestDeckSelection(board, currentMove, 1);
-            ViewRecommendation(DeckSelectionContainer, currentMove.DeckSelection, currentMove.DeckFieldSelection);
+            currentMove = player.RequestDeckSelection(board, currentMove, 1);
+            if (currentMove.DeckFieldSelection.Length > 0)
+                ViewCard(DeckFieldSelectionContainer, currentMove.DeckFieldSelection);
         }
 
-        private void ViewRecommendation(Transform parent, string firstSelection, string secondSelection)
+        public void ConfirmMove()
         {
-            var handSelection = Global.allCards.Find(x => x.Title == firstSelection);
-            var cardObject = BuildCardObject(handSelection);
-            cardObject.transform.SetParent(parent, true);
+            ResetDialogue();
 
-            if (secondSelection.Length <= 0)
+            if (DeckSelection.Inventory.Count != 1)
                 return;
 
-            var handFieldSelection = Global.allCards.Find(x => x.Title == secondSelection);
-            cardObject = BuildCardObject(handFieldSelection);
-            cardObject.transform.SetParent(parent);
+            var deckSelection = DeckSelection.GetComponentInChildren<DraggableCard>();
+            deckSelection.ReassignCard(PlayerCollection);
+        }
+
+        public void AbortMove()
+        {
+            ResetDialogue();
+
+            if (DeckSelection.Inventory.Count != 1)
+                return;
+
+            var deckSelection = DeckSelection.GetComponentInChildren<DraggableCard>();
+            deckSelection.ReassignCard(UnassignedCollection);
+        }
+
+        private void ResetDialogue()
+        {
+            foreach (Transform child in HandSelectionContainer)
+                Destroy(child.gameObject);
+            foreach (Transform child in HandFieldSelectionContainer)
+                Destroy(child.gameObject);
+            foreach (Transform child in DeckFieldSelectionContainer)
+                Destroy(child.gameObject);
+        }
+
+        private void ViewCard(Transform parent, string cardTitle)
+        {
+            var card = Global.allCards.Find(x => x.Title == cardTitle);
+            var cardObject = BuildCardObject(card);
+            cardObject.transform.SetParent(parent, false);
         }
 
         private GameObject BuildCardObject(Card card)
@@ -61,6 +93,8 @@ namespace Hanafuda
             var result = new GameObject(card.Title);
 
             result.AddComponent<RawImage>().texture = card.Image.mainTexture;
+            result.transform.localScale = Vector3.one;
+            ((RectTransform)result.transform).sizeDelta = new Vector2(150,240); 
 
             return result;
         }

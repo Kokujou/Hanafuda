@@ -65,11 +65,11 @@ namespace Hanafuda
         /// <returns></returns>
         protected override void ApplyMove(string selection, string secondSelection, bool fromHand, bool turn)
         {
-            List<Card> activeCollection = turn ? computer.CollectedCards : OpponentCollection;
-            Dictionary<Card, float> target = (fromHand && turn) ? computer.Hand.ToDictionary(x => x, x => 1f) : UnknownCards;
+            var activeCollection = turn ? computer.CollectedCards : OpponentCollection;
+            var target = (fromHand && turn) ? computer.Hand.ToDictionary(x => x, x => 1f) : UnknownCards;
 
-            Card selectedCard = target.First(x => x.Key.Title == selection).Key;
-            List<Card> matches = new List<Card>();
+            var selectedCard = target.First(x => x.Key.Title == selection).Key;
+            var matches = new List<Card>();
 
             //Build Matches and Remove from Field
             for (int i = Field.Count - 1; i >= 0; i--)
@@ -92,7 +92,11 @@ namespace Hanafuda
             }
 
             //Collect Cards or add to Field
-            target.Remove(selectedCard);
+            if (fromHand && turn)
+                computer.Hand.Remove(selectedCard);
+            else
+                target.Remove(selectedCard);
+
             if (matches.Count > 0)
             {
                 matches.Add(selectedCard);
@@ -102,6 +106,8 @@ namespace Hanafuda
             {
                 Field.Add(selectedCard);
             }
+
+
         }
 
         protected override bool CheckYaku(bool turn)

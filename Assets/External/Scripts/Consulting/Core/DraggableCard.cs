@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace Hanafuda
 {
@@ -61,7 +55,7 @@ namespace Hanafuda
             && (target.Inventory.Count < target.MaxSize
                 || target.MaxSize == 0);
 
-        private void ReassignCard(CardDropContainer container)
+        public void ReassignCard(CardDropContainer container)
         {
             Destroy(dummy);
             currentContainer.Inventory.Remove(AssignedCard);

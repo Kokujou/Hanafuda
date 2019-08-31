@@ -189,7 +189,7 @@ namespace Hanafuda
                 StartCoroutine(Hand2.transform.StandardAnimation(Hand2.transform.position, new Vector3(0, 180, 0), Hand2.transform.localScale, 4f, AddFunc: () =>
                 { StartCoroutine(((Player)Players[1 - Settings.PlayerID]).Hand.ResortCards(new CardLayout(true))); }));
 #else
-                StartCoroutine(((Player)players[1 - Settings.PlayerID]).Hand.ResortCards(new CardLayout(true, 4f)));
+                StartCoroutine(((Player)Players[1 - Settings.PlayerID]).Hand.ResortCards(new CardLayout(true, 4f)));
 #endif
             }
         }

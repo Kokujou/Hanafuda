@@ -50,7 +50,7 @@ namespace Hanafuda
 
         private void Awake()
         {
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR
+#if UNITY_EDITOR
                 AllowLog = true;
                 string filePath = Application.dataPath + AssetDatabase.GetAssetPath(Logger).Replace("Assets", "");
                 process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() { FileName = filePath, RedirectStandardInput = true, UseShellExecute = false });

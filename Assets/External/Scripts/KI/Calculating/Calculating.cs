@@ -26,7 +26,7 @@ namespace Hanafuda
         {
             { _GlobalWeight, 20 },
             { _LocalWeight, 100 },
-            { _CollectionWeight, 5 },
+            { _CollectionWeight, 25 },
         };
 
         public override Dictionary<string, float> GetWeights() => weights;

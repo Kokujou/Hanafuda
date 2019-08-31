@@ -62,7 +62,9 @@ namespace Hanafuda
             board.ApplyMove(move.HandSelection, move.HandFieldSelection, true, turn);
 
             if (move.DeckSelection.Length > 0)
+            {
                 board.ApplyMove(move.DeckSelection, move.DeckFieldSelection, false, turn);
+            }
 
             bool hasYaku = board.CheckYaku(turn);
             board.HasNewYaku = hasYaku;
