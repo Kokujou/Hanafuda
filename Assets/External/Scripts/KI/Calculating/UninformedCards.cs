@@ -50,8 +50,6 @@ namespace Hanafuda
             {
                 if (Turn)
                     OppPlayableMonths[pair.Key.Monat]++;
-                else
-                    PPlayableMonths[pair.Key.Monat]++;
             }
 
             PCollectableMonths = new Dictionary<Card.Months, uint>(PPlayableMonths);
@@ -93,8 +91,10 @@ namespace Hanafuda
 
             foreach (Card card in State.computer.Hand)
             {
-                if (PCollectableMonths[card.Monat] != 0 || PPlayableMonths[card.Monat] >= 2)
+                if (PCollectableMonths[card.Monat] != 0)
                     this[card.ID].MinTurns = 1;
+                else if(PPlayableMonths[card.Monat] >= 2)
+                    this[card.ID].MinTurns = 2;
             }
 
             foreach (Card card in State.Field)

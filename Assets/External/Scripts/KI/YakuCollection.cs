@@ -67,7 +67,7 @@ namespace Hanafuda
                 for (int sizeID = 0; sizeID < cardDurations.Count && count < yakuProp.yaku.minSize; sizeID++)
                 {
                     int size = cardDurations[sizeID];
-                    if (size > 0)
+                    if (size >= 0)
                     {
                         count++;
                         if (size > max) max = size;
