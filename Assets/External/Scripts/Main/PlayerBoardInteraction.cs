@@ -64,7 +64,8 @@ namespace Hanafuda
                 Settings.Players[1].tempPoints = 0;
                 Player player = Players[turn ? Settings.PlayerID : 1 - Settings.PlayerID];
                 player.tempPoints = player.CollectedYaku.Sum(x => Global.allYaku[x.Key].GetPoints(x.Value));
-                if (player.tempPoints == 0) Debug.Log(string.Join(";", player.CollectedCards));
+                if (player.tempPoints == 0)
+                    Debug.Log(string.Join(";", player.CollectedCards));
                 if (turn)
                 {
                     /*
@@ -85,8 +86,10 @@ namespace Hanafuda
                 /*
                  * Koikoi-Behandlung für Spieler bzw. Gegner
                  */
-                if (turn) ;
-                else;
+                if (turn)
+                    ;
+                else
+                    ;
             }
         }
 
@@ -122,7 +125,8 @@ namespace Hanafuda
 
         protected override void ApplyMove(Move move)
         {
-            if (move.PlayerID == Settings.PlayerID) return;
+            if (move.PlayerID == Settings.PlayerID)
+                return;
             PlayerAction action = PlayerAction.FromMove(move, this);
             action.PlayerID = move.PlayerID;
             Debug.Log(action.ToString());
@@ -169,6 +173,7 @@ namespace Hanafuda
             {
                 Debug.Log(string.Join(";", Players[Settings.PlayerID].CollectedCards));
                 List<Yaku> NewYaku = Yaku.GetNewYakus(Players[Turn ? Settings.PlayerID : 1 - Settings.PlayerID].CollectedYaku, TurnCollection, true);
+                Yaku.DistinctYakus(NewYaku);
                 TurnCollection.Clear();
                 if (NewYaku.Count > 0)
                     Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
@@ -198,7 +203,8 @@ namespace Hanafuda
                 Players[Settings.PlayerID].CollectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
                 Settings.Players = Players;
                 List<Yaku> NewYaku = Yaku.GetNewYakus(Players[Settings.PlayerID].CollectedYaku, Players[Settings.PlayerID].CollectedCards, true);
-                Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(new List<Yaku>(Global.allYaku), this);
+                Yaku.DistinctYakus(NewYaku);
+                Instantiate(Global.prefabCollection.YakuManager).GetComponent<YakuManager>().Init(NewYaku, this);
 
             }
             if (GUILayout.Button("Cheat Opp."))

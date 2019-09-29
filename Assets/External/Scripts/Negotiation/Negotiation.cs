@@ -67,7 +67,7 @@ namespace Hanafuda
             Selections = new Card[Settings.Players.Count];
             Infos = new GameObject[Settings.Players.Count];
             Hovered = new Card[] { };
-            PlayerInteraction = Global.instance.gameObject.GetComponent<Communication>();
+            PlayerInteraction = Global.Instance.gameObject.GetComponent<Communication>();
             var seed = Random.Range(0, 100);
             if (Settings.Multiplayer)
             {

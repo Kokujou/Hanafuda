@@ -16,7 +16,7 @@ namespace Hanafuda
         public override void Init(List<Player> Players)
         {
             base.Players = Players;
-            PlayerInteraction = Global.instance.GetComponent<Communication>();
+            PlayerInteraction = Global.Instance.GetComponent<Communication>();
             currentAction = new PlayerAction();
             currentAction.Init(this);
             Deck = new List<Card>();

@@ -22,7 +22,7 @@ namespace Hanafuda
         }
         public RectTransform Cards, Main;
         public Text Title_Text, Title_Shadow, Subtitle_Text, Subtitle_Shadow;
-        public List<Image> Lights;
+        public List<RawImage> Lights;
         public List<Sprite> Captions;
         public Image Caption;
 
@@ -50,7 +50,7 @@ namespace Hanafuda
             const int CardOffset = 10;
             int CardSpace = CardWidth + CardOffset;
             SetupText(Yaku);
-            List<Card> yakuCards = Collection.Where(x=>Yaku.Contains(x)).ToList();
+            List<Card> yakuCards = Collection.Where(x => Yaku.Contains(x)).ToList();
             Transform parent = Cards.transform;
             for (int yakuCard = 0; yakuCard < Yaku.minSize; yakuCard++)
             {
@@ -80,7 +80,7 @@ namespace Hanafuda
 
         public void KouYaku(Yaku Yaku, List<Card> Collection)
         {
-            if(Settings.Mobile)
+            if (Settings.Mobile)
                 transform.localScale = (transform.parent.GetComponent<CanvasScaler>().referenceResolution.x / Screen.width) * Vector3.one;
             transform.localScale = (1f / transform.parent.GetComponent<Canvas>().scaleFactor) * Vector3.one;
             Caption.sprite = Captions[(int)Enum.Parse(typeof(LightYaku), Yaku.Title)];
@@ -89,11 +89,11 @@ namespace Hanafuda
             {
                 if (Collection.Exists(x => x.Title == Matches[cardID].Title))
                 {
-                    Texture2D tex = (Texture2D)Matches[cardID].Image.mainTexture;
-                    Lights[cardID].sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f));
+                    var tex = (Texture2D)Matches[cardID].Image.mainTexture;
+                    Lights[cardID].texture = tex;
                 }
                 else
-                    Lights[cardID].sprite = Global.CardSkins[Settings.CardSkin];
+                    Lights[cardID].texture = GraphicSettingsManager.SelectedMotive;
             }
         }
     }

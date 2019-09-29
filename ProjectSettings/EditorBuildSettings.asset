@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Consulting.unity
     guid: 02fd55a3fa188b24fbe6406df4198eab
+  - enabled: 1
+    path: Assets/Scenes/GraphicSettings.unity
+    guid: a787d7ba7137cf34d8a65073dee09847
   m_configObjects: {}

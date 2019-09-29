@@ -27,7 +27,7 @@ namespace Hanafuda
 
         private void HandleDisconnect()
         {
-            Destroy(Global.instance.gameObject);
+            Destroy(Global.Instance.gameObject);
             SceneManager.LoadScene("Startup");
         }
 

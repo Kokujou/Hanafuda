@@ -26,7 +26,7 @@ namespace Hanafuda
         /// <summary>
         ///     Modus der KI: Normal, Schwer, Alptraum
         /// </summary>
-        public static Settings.AIMode AiMode = 0;
+        public static AIMode AiMode = 0;
 
         /// <summary>
         ///     true: 6 Runden, false: 12 Runden
@@ -47,11 +47,6 @@ namespace Hanafuda
         ///     Mobiler o. Desktopmodus
         /// </summary>
         public static bool Mobile { get { return Camera.main.aspect < 1; } }
-
-        /// <summary>
-        /// Ausgewähltes Hintergrundbild für die Karten
-        /// </summary>
-        public static int CardSkin = 0;
 
         /// <summary>
         /// Am Match teilnehmende Spieler

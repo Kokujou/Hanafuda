@@ -16,66 +16,37 @@ public class ToggleButton : MonoBehaviour
     public bool AllowMultiselect = false;
 
     [Serializable]
-    public class OnSelected : UnityEvent<int> { }
-    [SerializeField]
-    public OnSelected onSelected;
+    public class IntegerEvent : UnityEvent<int> { }
+    public IntegerEvent OnSelect;
 
-    // Start is called before the first frame update
     void Start()
     {
         foreach (Button button in Buttons)
         {
             button.onClick.AddListener(OnClick);
-            button.name = "unselected";
-            button.colors = new ColorBlock()
-            {
-                normalColor = StandardNormal,
-                pressedColor = StandardPushed,
-                highlightedColor = StandardNormal,
-                fadeDuration = 0.1f,
-                colorMultiplier = 1f
-            };
+            Unselect(button);
         }
-        Buttons[0].name = "selected";
-        Buttons[0].colors = new ColorBlock()
-        {
-            normalColor = SelectedNormal,
-            pressedColor = SelectedPushed,
-            highlightedColor = SelectedNormal,
-            fadeDuration = 0.1f,
-            colorMultiplier = 1f
-        };
-        onSelected.Invoke(0);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        Select(Buttons[0]);
     }
 
     public void OnClick()
     {
         GameObject GO = EventSystem.current.currentSelectedGameObject;
-        Button current = GO.GetComponent<Button>();
-        if (current.name == "selected") return;
+        Button currentButton = GO.GetComponent<Button>();
         if (!AllowMultiselect)
         {
             foreach (Button button in Buttons)
-            {
-                button.name = "unselected";
-                button.colors = new ColorBlock()
-                {
-                    normalColor = StandardNormal,
-                    pressedColor = StandardPushed,
-                    highlightedColor = StandardNormal,
-                    fadeDuration = 0.1f,
-                    colorMultiplier = 1f
-                };
-            }
+                Unselect(button);
         }
-        current.name = "selected";
-        current.colors = new ColorBlock()
+        else if (currentButton.name == "selected")
+            Unselect(currentButton);
+        Select(currentButton);
+    }
+
+    private void Select(Button button)
+    {
+        button.name = "selected";
+        button.colors = new ColorBlock()
         {
             normalColor = SelectedNormal,
             pressedColor = SelectedPushed,
@@ -83,6 +54,19 @@ public class ToggleButton : MonoBehaviour
             fadeDuration = 0.1f,
             colorMultiplier = 1f
         };
-        onSelected.Invoke(Buttons.IndexOf(current));
+        OnSelect.Invoke(Buttons.IndexOf(button));
+    }
+
+    private void Unselect(Button button)
+    {
+        button.name = "unselected";
+        button.colors = new ColorBlock()
+        {
+            normalColor = StandardNormal,
+            pressedColor = StandardPushed,
+            highlightedColor = StandardNormal,
+            fadeDuration = 0.1f,
+            colorMultiplier = 1f
+        };
     }
 }

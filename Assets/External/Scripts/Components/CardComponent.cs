@@ -22,14 +22,22 @@ namespace Hanafuda
         {
 
         }
+
         private void FieldInteraction()
         {
 
         }
+
+        private void Start()
+        {
+            Background.GetComponent<MeshRenderer>().material.mainTexture = Global.Graphics.CardMotive;
+        }
+
         private void Update()
         {
             CardInteraction();
         }
+
         public void SetActive(bool isField)
         {
             if (isField)

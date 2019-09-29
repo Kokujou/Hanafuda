@@ -156,11 +156,11 @@ namespace ExtensionMethods
                 float cardHeight = _CardSize * offsetY;
                 float alignY = (cardHeight + offsetY) * ((maxSize - 1) * 0.5f);
                 if (rowWise)
-                    Global.instance.StartCoroutine(toSort[i].Object.transform.StandardAnimation(StartPos +
+                    Global.Instance.StartCoroutine(toSort[i].Object.transform.StandardAnimation(StartPos +
                         new Vector3((i % iterations) * (cardWidth + offsetX), -alignY + (i / iterations) * (cardHeight + offsetY), 0),
                         toSort[i].Object.transform.rotation.eulerAngles, toSort[i].Object.transform.localScale, 1f / toSort.Count, .5f));
                 else
-                    Global.instance.StartCoroutine(toSort[i].Object.transform.StandardAnimation(StartPos +
+                    Global.Instance.StartCoroutine(toSort[i].Object.transform.StandardAnimation(StartPos +
                     new Vector3((i / iterations) * (cardWidth + offsetX), -alignY + (i % iterations) * (cardHeight + offsetY), 0),
                     toSort[i].Object.transform.rotation.eulerAngles, toSort[i].Object.transform.localScale, 1f / toSort.Count, .5f));
                 yield return null;
@@ -173,7 +173,7 @@ namespace ExtensionMethods
             {
                 GameObject temp = toSort[card].Object;
                 bool hand1 = temp.transform.parent.name.Contains("1");
-                Global.instance.StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, new Vector3(0, temp.transform.rotation.eulerAngles.y, hand1 ? 0 : 180), temp.transform.localScale, 0, .3f, () =>
+                Global.Instance.StartCoroutine(temp.transform.StandardAnimation(temp.transform.parent.position, new Vector3(0, temp.transform.rotation.eulerAngles.y, hand1 ? 0 : 180), temp.transform.localScale, 0, .3f, () =>
                 {
                     GameObject Card = new GameObject();
                     Card.transform.parent = temp.transform.parent;
@@ -185,7 +185,7 @@ namespace ExtensionMethods
                     int id = hand.IndexOf(temp.transform.parent);
                     float max = toSort.Count - 1;
                     if (max == 0) max = 0.5f;
-                    Global.instance.StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, -id), temp.transform.parent.eulerAngles + new Vector3(0, 0, -(_CardAngle * max * 0.5f) + _CardAngle * (max - id)), temp.transform.parent.localScale, .6f, .3f, () =>
+                    Global.Instance.StartCoroutine(temp.transform.parent.StandardAnimation(temp.transform.parent.position + new Vector3(0, 0, -id), temp.transform.parent.eulerAngles + new Vector3(0, 0, -(_CardAngle * max * 0.5f) + _CardAngle * (max - id)), temp.transform.parent.localScale, .6f, .3f, () =>
                          {
                              GameObject oldParent = temp.transform.parent.gameObject;
                              temp.transform.parent = temp.transform.parent.parent;

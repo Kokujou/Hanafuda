@@ -42,6 +42,11 @@ namespace Hanafuda
             Name = name.Replace("|", "").ToLower();
         }
 
+        public void LoadGraphicSettings()
+        {
+            SceneManager.LoadScene("GraphicSettings");
+        }
+
         public void SingleplayerStart()
         {
             Settings.Players = new List<Player>() { new Player(Name), new Player("Computer") };
@@ -61,17 +66,13 @@ namespace Hanafuda
 
         public void CreateMatch()
         {
-            Global.instance.gameObject.GetComponent<Communication>().CreateMatch(Name, Settings.Rounds6);
+            Global.Instance.gameObject.GetComponent<Communication>().CreateMatch(Name, Settings.Rounds6);
             Loading = Instantiate(Global.prefabCollection.Loading);
         }
 
         public void SearchMatch()
         {
-            Global.instance.gameObject.GetComponent<Communication>().JoinLobby(Name, Settings.Rounds6);
-        }
-
-        private void Start()
-        {
+            Global.Instance.gameObject.GetComponent<Communication>().JoinLobby(Name, Settings.Rounds6);
         }
     }
 }

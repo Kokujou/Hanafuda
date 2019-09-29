@@ -57,17 +57,17 @@ namespace Hanafuda
             {
                 Yaku yaku = Global.allYaku[yakuID];
                 int matchingCount = 0;
+                int oldCount = currentYakus[yakuID];
                 foreach (Card card in newCards)
                 {
                     if (!yaku.Contains(card))
                         continue;
-                    int oldCount = currentYakus[yakuID];
                     matchingCount++;
                     if (AllowWrite)
                         currentYakus[yakuID]++;
-                    if (yaku.GetPoints(oldCount + matchingCount) > yaku.GetPoints(oldCount))
-                        NewYaku.Add(yaku);
-                }
+                }                
+                if (yaku.GetPoints(oldCount + matchingCount) > yaku.GetPoints(oldCount))
+                    NewYaku.Add(yaku);
             }
             return NewYaku;
         }

@@ -163,7 +163,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224802532876908512}
   - component: {fileID: 222397255628608066}
-  - component: {fileID: 114494538984472664}
+  - component: {fileID: 8402913963661636984}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -198,7 +198,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1460117192161552}
   m_CullTransparentMesh: 0
---- !u!114 &114494538984472664
+--- !u!114 &8402913963661636984
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -207,7 +207,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1460117192161552}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: -98529514, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -218,15 +218,13 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &1492468234595444
 GameObject:
   m_ObjectHideFlags: 0
@@ -283,11 +281,11 @@ MonoBehaviour:
   Subtitle_Text: {fileID: 0}
   Subtitle_Shadow: {fileID: 0}
   Lights:
-  - {fileID: 114494538984472664}
-  - {fileID: 6961060700321726675}
-  - {fileID: 6961037758772752895}
-  - {fileID: 6961374377632205403}
-  - {fileID: 6961112837137378791}
+  - {fileID: 8402913963661636984}
+  - {fileID: 5407111434079185182}
+  - {fileID: 2059126304703220201}
+  - {fileID: 7434236573961225700}
+  - {fileID: 1178443074564868248}
   Captions:
   - {fileID: 21300000, guid: 696f82006c5f0da4bba8eb92e508c6a9, type: 3}
   - {fileID: 21300000, guid: 6fc39a1ababa5c54ca7c106fba7aff2c, type: 3}
@@ -600,7 +598,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7067178634726751715}
   - component: {fileID: 7069274895525451841}
-  - component: {fileID: 6961374377632205403}
+  - component: {fileID: 7434236573961225700}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -635,7 +633,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6991889859047846675}
   m_CullTransparentMesh: 0
---- !u!114 &6961374377632205403
+--- !u!114 &7434236573961225700
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -644,7 +642,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6991889859047846675}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: -98529514, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -655,15 +653,13 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &6991942497481278813
 GameObject:
   m_ObjectHideFlags: 0
@@ -674,7 +670,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7066715719793651139}
   - component: {fileID: 7068405286747769421}
-  - component: {fileID: 6961037758772752895}
+  - component: {fileID: 2059126304703220201}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -709,7 +705,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6991942497481278813}
   m_CullTransparentMesh: 0
---- !u!114 &6961037758772752895
+--- !u!114 &2059126304703220201
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -718,7 +714,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6991942497481278813}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: -98529514, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -729,15 +725,13 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &6992233015733402389
 GameObject:
   m_ObjectHideFlags: 0
@@ -748,7 +742,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7066601640627088787}
   - component: {fileID: 7068892217349285867}
-  - component: {fileID: 6961112837137378791}
+  - component: {fileID: 1178443074564868248}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -783,7 +777,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6992233015733402389}
   m_CullTransparentMesh: 0
---- !u!114 &6961112837137378791
+--- !u!114 &1178443074564868248
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -792,7 +786,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6992233015733402389}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: -98529514, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -803,15 +797,13 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &6992304382427173775
 GameObject:
   m_ObjectHideFlags: 0
@@ -1044,7 +1036,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7067192708169794523}
   - component: {fileID: 7068437173272401033}
-  - component: {fileID: 6961060700321726675}
+  - component: {fileID: 5407111434079185182}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -1079,7 +1071,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6992923126627113577}
   m_CullTransparentMesh: 0
---- !u!114 &6961060700321726675
+--- !u!114 &5407111434079185182
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1088,7 +1080,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6992923126627113577}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: -98529514, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -1099,15 +1091,13 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &6993788785835940517
 GameObject:
   m_ObjectHideFlags: 0
