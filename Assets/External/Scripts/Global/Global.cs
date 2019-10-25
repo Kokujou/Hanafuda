@@ -28,6 +28,7 @@ namespace Hanafuda
         public static List<Yaku> allYaku = new List<Yaku>();
         public List<Card> AllCards = new List<Card>();
         public List<Yaku> AllYaku = new List<Yaku>();
+        public Texture DefaultCardMotive;
         public UnityEngine.Object Logger;
 
         private static bool AllowLog = false;
@@ -56,7 +57,6 @@ namespace Hanafuda
 
         private void LoadGraphicSettings()
         {
-
             Graphics = GetComponent<GraphicSettings>();
             var settingsFilePath = Path.Combine(Application.persistentDataPath, "GraphicSettings.json");
 
@@ -64,6 +64,9 @@ namespace Hanafuda
                 return;
 
             JsonUtility.FromJsonOverwrite(File.ReadAllText(settingsFilePath), Graphics);
+            if (!Graphics.CardMotive)
+                Graphics.CardMotive = DefaultCardMotive;
+
             Screen.SetResolution((int)Graphics.FullscreenResolution.x, (int)Graphics.FullscreenResolution.y, Graphics.FullscreenMode);
         }
 

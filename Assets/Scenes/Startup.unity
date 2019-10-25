@@ -1116,11 +1116,6 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: ToggleButton+IntegerEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
-  SetDefault:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: ToggleButton+ToggleEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
 --- !u!1 &1139087146
 GameObject:
   m_ObjectHideFlags: 0
@@ -1398,6 +1393,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6d9f586b4c2154945a6ad4e43b92ef71, type: 2}
   - {fileID: 11400000, guid: 2f2e3f069d0949946a15750f66666234, type: 2}
   - {fileID: 11400000, guid: bb8047697f25d3241a0d8fc2b33325fc, type: 2}
+  DefaultCardMotive: {fileID: 2800000, guid: 47cb178bb16459540be506bde7a0f150, type: 3}
   Logger: {fileID: 102900000, guid: 62bbdb5ba49abdf47b55992494aa1753, type: 3}
 --- !u!4 &1233903757
 Transform:
@@ -3980,11 +3976,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: ToggleButton+IntegerEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-  SetDefault:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: ToggleButton+ToggleEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
 --- !u!222 &2766011608395080904
 CanvasRenderer:
