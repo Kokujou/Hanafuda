@@ -31,8 +31,10 @@ namespace Hanafuda
 
             UpdatePoints();
             SetupTexts();
-            MarkGameResult();            
-            SetupYakus();
+            MarkGameResult();
+
+            if (WinnerId > 0)
+                SetupYakus();
 
             Settings.Rounds++;
         }
@@ -78,6 +80,6 @@ namespace Hanafuda
         protected abstract void SetupTexts();
         protected abstract void MarkGameResult();
         protected abstract void UpdatePoints();
-        protected abstract void SetupYakus();        
+        protected abstract void SetupYakus();
     }
 }

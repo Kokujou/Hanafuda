@@ -17,7 +17,6 @@ namespace Hanafuda {
         {
             P1Text.text = Settings.Players[0].Name;
             P2Text.text = Settings.Players[1].Name;
-            if (!Settings.Mobile) gameObject.SetActive(false);
         }
 
         public UIYaku GetYakuList(int id)

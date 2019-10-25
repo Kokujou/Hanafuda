@@ -4,36 +4,47 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Hanafuda {
+namespace Hanafuda
+{
     public class Drag : MonoBehaviour
     {
         public RectTransform Target;
-        public float CanvasWidth;
+        public float MinPositionX;
+        public float MaxPositionX;
+        public float FlipBackTreshold;
 
-        private int expand = 1;
+        private float BorderPositionX
+            => MinPositionX + ((MaxPositionX - MinPositionX) * FlipBackTreshold);
 
-        private const float _FlipBackTreshold = .25f;
+        private static readonly Color _darkGray = new Color(.25f, .25f, .25f);
+        private static readonly Color _lightGray = new Color(.75f, .75f, .75f);
 
         public void OnDrag(BaseEventData data)
         {
+            Debug.Log(Target.localPosition.x);
             PointerEventData pointer = (PointerEventData)data;
             Target.localPosition += (pointer.delta.x / GetComponentInParent<Canvas>().scaleFactor) * Vector3.right;
-            if (Target.localPosition.x > 0) Target.localPosition = Vector3.zero;
-            else if (Target.localPosition.x < -CanvasWidth) Target.localPosition = Vector3.right * -CanvasWidth;
+            if (Target.localPosition.x > MaxPositionX) Target.localPosition = new Vector2(MaxPositionX, Target.localPosition.y);
+            else if (Target.localPosition.x < MinPositionX) Target.localPosition = Vector3.right * MinPositionX;
         }
 
         public void OnDrop(BaseEventData data)
         {
-            PointerEventData pointer = (PointerEventData)data;
-            if ((expand > 0 && Target.localPosition.x > -CanvasWidth * (1 - _FlipBackTreshold)) ||
-                (expand < 0 && Target.localPosition.x < -CanvasWidth * _FlipBackTreshold))
-                expand *= -1;
-            Target.localPosition = (expand + 1) * -0.5f * CanvasWidth * Vector3.right;
-            transform.rotation = Quaternion.Euler(180 * -0.5f * (expand - 1) * Vector3.up);
-            Color darkGray = new Color(.25f, .25f, .25f);
-            Color lightGray = new Color(.75f, .75f, .75f);
-            GetComponentInChildren<Text>().color = expand > 0 ? lightGray : darkGray;
-            GetComponent<Image>().color = expand < 0 ? lightGray : darkGray;
+            Debug.Log(BorderPositionX);
+            if (Target.localPosition.x < BorderPositionX)
+            {
+                Target.localPosition = Vector3.right * MinPositionX;
+                transform.rotation = Quaternion.Euler(Vector3.zero);
+                GetComponentInChildren<Text>().color = _darkGray;
+                GetComponent<Image>().color = _lightGray;
+            }
+            else
+            {
+                Target.localPosition = Vector3.right * MaxPositionX;
+                transform.rotation = Quaternion.Euler(Vector3.up * 180);
+                GetComponentInChildren<Text>().color = _lightGray;
+                GetComponent<Image>().color = _darkGray;
+            }
         }
     }
 }

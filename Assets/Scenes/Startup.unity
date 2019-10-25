@@ -1328,7 +1328,7 @@ MonoBehaviour:
       type: 3}
     GameInfoMobile: {fileID: 4639847898527528316, guid: 9d7f8db6437369b48aea6351f3caf224,
       type: 3}
-    GameInfoPC: {fileID: 6322306589383461071, guid: b53078e19ff4f524c9f94a9044e7c85e,
+    GameInfoPC: {fileID: 4639847898527528316, guid: e2624b260b97f394ea210d37b3ada935,
       type: 3}
   AllCards:
   - {fileID: 11400000, guid: c5e3397eb63894048a8a3b9f9359f5e4, type: 2}
