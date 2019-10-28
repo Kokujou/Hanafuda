@@ -14,12 +14,12 @@ namespace Hanafuda
 
         protected override void MarkGameResult()
         {
-            if (WinnerId == 0)
+            if (WinnerId == Settings.PlayerID)
             {
                 ColorTexts(WinnerColor, P1Name, P1Points, WinnerName);
                 ColorTexts(LooserColor, P2Name, P2Points);
             }
-            else if (WinnerId == 1)
+            else if (WinnerId == 1- Settings.PlayerID)
             {
                 ColorTexts(WinnerColor, P2Name, P2Points);
                 ColorTexts(LooserColor, P1Name, P1Points, WinnerName);

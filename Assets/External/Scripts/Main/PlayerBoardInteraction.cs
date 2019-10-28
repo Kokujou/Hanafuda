@@ -199,6 +199,7 @@ namespace Hanafuda
 #if UNITY_EDITOR
             if (GUILayout.Button("Cheat Player"))
             {
+                Turn = true;
                 Players[Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
                 Players[Settings.PlayerID].CollectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
                 Settings.Players = Players;

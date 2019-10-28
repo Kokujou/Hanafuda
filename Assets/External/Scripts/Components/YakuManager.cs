@@ -155,6 +155,7 @@ namespace Hanafuda
                 }));
                 Main.SetActive(false);
             });
+            YesButton.triggers.Clear();
             YesButton.triggers.Add(entry);
             entry = new EventTrigger.Entry
             {
@@ -167,6 +168,7 @@ namespace Hanafuda
                 Board.gameObject.SetActive(true);
                 Board.SayKoiKoi(false);
             });
+            NoButton.triggers.Clear();
             NoButton.triggers.Add(entry);
         }
     }
