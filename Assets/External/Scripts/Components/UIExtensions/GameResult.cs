@@ -31,7 +31,8 @@ namespace Hanafuda
             SetupTexts();
             MarkGameResult();
 
-            SetupYakus();
+            if (WinnerId >= 0)
+                SetupYakus();
 
             Settings.Rounds++;
         }
@@ -66,7 +67,7 @@ namespace Hanafuda
                     var winner = Settings.Players[WinnerId];
                     Settings.Players.RemoveAt(WinnerId);
                     Settings.Players.Insert(0, winner);
-                    Settings.PlayerID = 1 - WinnerId;
+                    Settings.PlayerID = 1 - Settings.PlayerID;
                 }
                 SceneManager.LoadScene("Main");
             }

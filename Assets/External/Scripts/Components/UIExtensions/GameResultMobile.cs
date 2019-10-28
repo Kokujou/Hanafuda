@@ -30,10 +30,10 @@ namespace Hanafuda
 
         protected override void SetupTexts()
         {
-            P1Name.text = Settings.Players[0].Name;
-            P2Name.text = Settings.Players[1].Name;
-            P1Points.text = Settings.Players[0].TotalPoints.ToString();
-            P2Points.text = Settings.Players[1].TotalPoints.ToString();
+            P1Name.text = Settings.Players[Settings.PlayerID].Name;
+            P2Name.text = Settings.Players[1 - Settings.PlayerID].Name;
+            P1Points.text = Settings.Players[Settings.PlayerID].TotalPoints.ToString();
+            P2Points.text = Settings.Players[1 - Settings.PlayerID].TotalPoints.ToString();
 
             if (Settings.Rounds + 1 >= (Settings.Rounds6 ? 6 : 12))
                 ContinueText.text = "Spiel Beenden";
@@ -58,14 +58,14 @@ namespace Hanafuda
         protected override void UpdatePoints()
         {
             if (P1InitialWin > 0)
-                Settings.Players[0].tempPoints += 6;
+                Settings.Players[Settings.PlayerID].tempPoints += 6;
             else if (P2InitialWin > 0)
-                Settings.Players[1].tempPoints += 6;
+                Settings.Players[1 - Settings.PlayerID].tempPoints += 6;
 
-            Settings.Players[0].pTotalPoints.Add(Settings.Players[0].tempPoints);
-            Settings.Players[1].pTotalPoints.Add(Settings.Players[1].tempPoints);
-            Settings.Players[0].TotalPoints += Settings.Players[0].tempPoints;
-            Settings.Players[1].TotalPoints += Settings.Players[1].tempPoints;
+            Settings.Players[Settings.PlayerID].pTotalPoints.Add(Settings.Players[Settings.PlayerID].tempPoints);
+            Settings.Players[1 - Settings.PlayerID].pTotalPoints.Add(Settings.Players[1 - Settings.PlayerID].tempPoints);
+            Settings.Players[Settings.PlayerID].TotalPoints += Settings.Players[Settings.PlayerID].tempPoints;
+            Settings.Players[1 - Settings.PlayerID].TotalPoints += Settings.Players[1 - Settings.PlayerID].tempPoints;
         }
     }
 }
