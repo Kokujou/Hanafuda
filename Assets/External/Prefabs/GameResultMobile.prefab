@@ -161,6 +161,8 @@ MonoBehaviour:
   YakuColumns:
   - {fileID: 2414261737555279338}
   - {fileID: 3686701701622266146}
+  GridSpacingX: -45
+  GridSpacingY: 10
 --- !u!1 &444844097664299136
 GameObject:
   m_ObjectHideFlags: 0
@@ -197,7 +199,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000023900702}
+  m_AnchoredPosition: {x: 0, y: 0.0000076293945}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &444844097664299138
@@ -2121,11 +2123,6 @@ MonoBehaviour:
   P2Name: {fileID: 1118253207684899650}
   WinnerName: {fileID: 444844097703314391}
   ContinueText: {fileID: 4265597668441162907}
-  YakuColumns:
-  - {fileID: 444844097320358614}
-  - {fileID: 3686701701622266146}
-  YakuPrefab: {fileID: 7617368290858693424, guid: 9987ba46635aa2b469457402c136031e,
-    type: 3}
   YakuInfo: {fileID: 7216215554743237189}
   WinnerColor: {r: 0.10980392, g: 0.64705884, b: 0.10980392, a: 1}
   LooserColor: {r: 0.64705884, g: 0.10980392, b: 0.10980392, a: 1}

@@ -805,6 +805,8 @@ MonoBehaviour:
     type: 3}
   YakuColumns:
   - {fileID: 4639847899192890371}
+  GridSpacingX: 10
+  GridSpacingY: 10
 --- !u!114 &4639847899192890370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1502,6 +1504,8 @@ MonoBehaviour:
     type: 3}
   YakuColumns:
   - {fileID: 7490727543181087619}
+  GridSpacingX: 10
+  GridSpacingY: 10
 --- !u!114 &7490727543181087618
 MonoBehaviour:
   m_ObjectHideFlags: 0

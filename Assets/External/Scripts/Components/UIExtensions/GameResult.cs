@@ -13,8 +13,6 @@ namespace Hanafuda
         public Text P2Name;
         public Text WinnerName;
         public Text ContinueText;
-        public RectTransform[] YakuColumns;
-        public GameObject YakuPrefab;
         public UIYaku YakuInfo;
 
         public Color WinnerColor;
@@ -33,8 +31,7 @@ namespace Hanafuda
             SetupTexts();
             MarkGameResult();
 
-            if (WinnerId > 0)
-                SetupYakus();
+            SetupYakus();
 
             Settings.Rounds++;
         }
@@ -47,16 +44,16 @@ namespace Hanafuda
 
         private int GetWinnerId()
         {
-            P1InitialWin = Settings.Players[0].Hand.IsInitialWin();
-            P2InitialWin = Settings.Players[1].Hand.IsInitialWin();
+            P1InitialWin = Settings.Players[Settings.PlayerID].Hand.IsInitialWin();
+            P2InitialWin = Settings.Players[1 - Settings.PlayerID].Hand.IsInitialWin();
             if (P1InitialWin > 0)
-                return 0;
+                return Settings.PlayerID;
             if (P2InitialWin > 0)
-                return 1;
-            if (Settings.Players[0].tempPoints > Settings.Players[1].tempPoints)
-                return 0;
-            if (Settings.Players[1].tempPoints > Settings.Players[0].tempPoints)
-                return 1;
+                return (1 - Settings.PlayerID);
+            if (Settings.Players[Settings.PlayerID].tempPoints > Settings.Players[1 - Settings.PlayerID].tempPoints)
+                return Settings.PlayerID;
+            if (Settings.Players[1 - Settings.PlayerID].tempPoints > Settings.Players[Settings.PlayerID].tempPoints)
+                return (1 - Settings.PlayerID);
             else return -1;
         }
 
@@ -64,11 +61,11 @@ namespace Hanafuda
         {
             if (Settings.Rounds < (Settings.Rounds6 ? 6 : 12))
             {
-                int winnerIndex = WinnerId;
-                if (winnerIndex > 0)
+                if (WinnerId > 0)
                 {
-                    Settings.Players.RemoveAt(winnerIndex);
-                    Settings.Players.Insert(0, Settings.Players[WinnerId]);
+                    var winner = Settings.Players[WinnerId];
+                    Settings.Players.RemoveAt(WinnerId);
+                    Settings.Players.Insert(0, winner);
                     Settings.PlayerID = 1 - WinnerId;
                 }
                 SceneManager.LoadScene("Main");

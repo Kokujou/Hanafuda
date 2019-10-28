@@ -763,7 +763,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.00010643252}
+  m_AnchoredPosition: {x: 0, y: -0.000017317665}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &4639847899192890380
@@ -801,10 +801,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 134e900e76a0693419212717ecce603f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  YakuPrefab: {fileID: 7617368290858693424, guid: a6e644890cb61ff40b3ae9a209a2a77e,
+  YakuPrefab: {fileID: 7617368290858693424, guid: 9987ba46635aa2b469457402c136031e,
     type: 3}
   YakuColumns:
   - {fileID: 4639847899192890371}
+  GridSpacingX: 10
+  GridSpacingY: 10
 --- !u!114 &4639847899192890370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1498,10 +1500,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 134e900e76a0693419212717ecce603f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  YakuPrefab: {fileID: 7617368290858693424, guid: a6e644890cb61ff40b3ae9a209a2a77e,
+  YakuPrefab: {fileID: 7617368290858693424, guid: 9987ba46635aa2b469457402c136031e,
     type: 3}
   YakuColumns:
   - {fileID: 7490727543181087619}
+  GridSpacingX: 10
+  GridSpacingY: 10
 --- !u!114 &7490727543181087618
 MonoBehaviour:
   m_ObjectHideFlags: 0

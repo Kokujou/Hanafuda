@@ -17,6 +17,7 @@ namespace Hanafuda
             public GameObject PKarte, PSlide;
             public GameObject CherryBlossoms, YakuManager, KoikoiText, gAddYaku, gFixedYaku, gKouYaku;
             public GameObject Loading, PText, UIHide, UIMask, UIMatch, UIMessageBox, UIButton, GameInfoMobile, GameInfoPC;
+            public GameObject UIYakuPC, UIYakuMobile;
         }
 
         // Use this for initialization

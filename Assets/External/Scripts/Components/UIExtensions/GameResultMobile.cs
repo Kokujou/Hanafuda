@@ -52,7 +52,7 @@ namespace Hanafuda
             var initialWin = P1InitialWin + P2InitialWin;
             YakuInfo.BuildFromCards(initialWin > 0 ? Settings.Players[WinnerId].Hand : winner.CollectedCards,
                     (initialWin > 0 ? new Dictionary<int, int>() { { -1, initialWin == 1 ? 4 : 8 } } :
-                    winner.CollectedYaku.Where(x => Global.allYaku[x.Key].minSize <= x.Value).ToDictionary(x => x.Key, x => x.Value)), -45);
+                    winner.CollectedYaku.Where(x => Global.allYaku[x.Key].minSize <= x.Value).ToDictionary(x => x.Key, x => x.Value)));
         }
 
         protected override void UpdatePoints()

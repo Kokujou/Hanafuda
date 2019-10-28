@@ -15,9 +15,6 @@ namespace Hanafuda
         public Text[] P1Points;
         public Text[] P2Points;
 
-        private int _Column;
-        private int Column { get => _Column; set { if (value >= YakuColumns.Length) _Column = 0; else _Column = value; } }
-
         protected override void Start()
         {
             if (!Settings.Rounds6)
@@ -31,13 +28,13 @@ namespace Hanafuda
 
         protected override void SetupTexts()
         {
-            P1Name.text = Settings.Players[0].Name;
-            P2Name.text = Settings.Players[1].Name;
+            P1Name.text = Settings.Players[Settings.PlayerID].Name;
+            P2Name.text = Settings.Players[1 - Settings.PlayerID].Name;
 
             for (var i = 0; i < (Settings.Rounds6 ? 6 : 12); i++)
             {
-                P1Points[i].text = $"{Settings.Players[0].pTotalPoints.ElementAtOrDefault(i)}";
-                P2Points[i].text = $"{Settings.Players[1].pTotalPoints.ElementAtOrDefault(i)}";
+                P1Points[i].text = $"{Settings.Players[Settings.PlayerID].pTotalPoints.ElementAtOrDefault(i)}";
+                P2Points[i].text = $"{Settings.Players[1 - Settings.PlayerID].pTotalPoints.ElementAtOrDefault(i)}";
             }
 
             if (Settings.Rounds + 1 >= (Settings.Rounds6 ? 6 : 12))
@@ -53,7 +50,7 @@ namespace Hanafuda
 
         protected override void MarkGameResult()
         {
-            if (WinnerId == 0)
+            if (WinnerId == Settings.PlayerID)
             {
                 var winnerTexts = P1Points
                     .Append(P1Name).Append(WinnerName)
@@ -64,7 +61,7 @@ namespace Hanafuda
                     .ToArray();
                 ColorTexts(LooserColor, looserTexts);
             }
-            else if (WinnerId == 1)
+            else if (WinnerId == (1 - Settings.PlayerID))
             {
                 var winnerTexts = P2Points.Append(P2Name).ToArray();
                 ColorTexts(WinnerColor, winnerTexts);
@@ -99,49 +96,9 @@ namespace Hanafuda
         {
             var winner = Settings.Players[WinnerId];
             var initialWin = P1InitialWin + P2InitialWin;
-            Column = 0;
-            foreach (var collectedYaku in (initialWin > 0 ? new Dictionary<int, int>() { { -1, initialWin == 1 ? 4 : 8 } } :
-                winner.CollectedYaku.Where(x => x.Value >= Global.allYaku[x.Key].minSize)))
-            {
-                Yaku yaku = null;
-                if (initialWin == 0)
-                    yaku = Global.allYaku[collectedYaku.Key];
-                else if (initialWin == 1)
-                    yaku = new Yaku() { Title = "Teshi", JName = "手四", basePoints = 6, minSize = 4, Mask = null };
-                else if (initialWin == 2)
-                    yaku = new Yaku() { Title = "Kuttsuki", JName = "くっつき", basePoints = 6, minSize = 8, Mask = null };
-                GameObject obj = Instantiate(YakuPrefab, YakuColumns[Column]);
-                RawImage card = obj.GetComponentInChildren<RawImage>();
-                obj.GetComponentInChildren<Text>().text = yaku.Title + $" - {yaku.GetPoints(collectedYaku.Value)}P";
-
-                List<Card> yakuCards;
-                if (initialWin > 0)
-                    yakuCards = winner.Hand;
-                else
-                    yakuCards = winner.CollectedCards.Where(x => yaku.Contains(x)).ToList();
-
-                RawImage secondRowCard = null;
-                if (yaku.minSize > 5)
-                {
-                    ((RectTransform)obj.transform).sizeDelta += Vector2.up * (60f / 1.6f);
-                    GameObject secondRow = Instantiate(card.transform.parent.gameObject, card.transform.parent.parent);
-                    secondRowCard = secondRow.GetComponentInChildren<RawImage>();
-                }
-                for (int i = 0; i < yaku.minSize || i % 5 != 0; i++)
-                {
-                    RawImage currentCard;
-                    if (i == 0) currentCard = card;
-                    else if (i < 5) currentCard = Instantiate(card.gameObject, card.transform.parent).GetComponent<RawImage>();
-                    else if (i == 5) currentCard = secondRowCard;
-                    else currentCard = Instantiate(secondRowCard.gameObject, secondRowCard.transform.parent).GetComponent<RawImage>();
-                    if (i < yaku.minSize)
-                        currentCard.texture = yakuCards[i].Image.mainTexture;
-                    else
-                        currentCard.color = new Color(0, 0, 0, 0);
-                }
-
-                Column++;
-            }
+            YakuInfo.BuildFromCards(initialWin > 0 ? Settings.Players[WinnerId].Hand : winner.CollectedCards,
+                    (initialWin > 0 ? new Dictionary<int, int>() { { -1, initialWin == 1 ? 4 : 8 } } :
+                    winner.CollectedYaku.Where(x => Global.allYaku[x.Key].minSize <= x.Value).ToDictionary(x => x.Key, x => x.Value)));
         }
 
         private void ClonePointsGrids()

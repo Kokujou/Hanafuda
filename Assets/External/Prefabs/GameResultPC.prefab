@@ -315,13 +315,7 @@ MonoBehaviour:
   P2Name: {fileID: 8082800017164618465}
   WinnerName: {fileID: 8384711103008945167}
   ContinueText: {fileID: 5278904247998329667}
-  YakuColumns:
-  - {fileID: 5278904247299356803}
-  - {fileID: 5278904248279799640}
-  - {fileID: 5278904248322443139}
-  YakuPrefab: {fileID: 2241743261357360761, guid: 20bd130412226484f83a25646b172be2,
-    type: 3}
-  YakuInfo: {fileID: 0}
+  YakuInfo: {fileID: 9064439693755188587}
   WinnerColor: {r: 0.10980392, g: 0.64705884, b: 0.10980392, a: 1}
   LooserColor: {r: 0.64705884, g: 0.10980392, b: 0.10980392, a: 1}
   DrawnColor: {r: 0.69803923, g: 0.69803923, b: 0.101960786, a: 1}
@@ -1528,7 +1522,7 @@ MonoBehaviour:
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
-  m_ChildControlHeight: 0
+  m_ChildControlHeight: 1
 --- !u!1 &5278904247444863872
 GameObject:
   m_ObjectHideFlags: 0
@@ -2590,7 +2584,7 @@ MonoBehaviour:
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
-  m_ChildControlHeight: 0
+  m_ChildControlHeight: 1
 --- !u!1 &5278904248322443138
 GameObject:
   m_ObjectHideFlags: 0
@@ -2670,7 +2664,7 @@ MonoBehaviour:
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
-  m_ChildControlHeight: 0
+  m_ChildControlHeight: 1
 --- !u!1 &5278904248427949968
 GameObject:
   m_ObjectHideFlags: 0
@@ -4723,6 +4717,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8384711102843873618}
   - component: {fileID: 8384711102843873614}
+  - component: {fileID: 9064439693755188587}
   m_Layer: 5
   m_Name: YakuList
   m_TagString: Untagged
@@ -4775,6 +4770,26 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
+--- !u!114 &9064439693755188587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8384711102843873617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 134e900e76a0693419212717ecce603f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  YakuPrefab: {fileID: 5093135523793820209, guid: 1fb7aaa819a9b03408b7f92e921c5c45,
+    type: 3}
+  YakuColumns:
+  - {fileID: 5278904247299356803}
+  - {fileID: 5278904248279799640}
+  - {fileID: 5278904248322443139}
+  GridSpacingX: -10
+  GridSpacingY: 10
 --- !u!1 &8384711103008945164
 GameObject:
   m_ObjectHideFlags: 0
@@ -4890,7 +4905,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000014331766}
+  m_AnchoredPosition: {x: 0, y: 0.000010375297}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &8384711103067948890

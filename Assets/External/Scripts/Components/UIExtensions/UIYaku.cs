@@ -11,6 +11,8 @@ namespace Hanafuda
         public GameObject YakuPrefab;
         public Transform[] YakuColumns;
 
+        public float GridSpacingX, GridSpacingY;
+
         private List<KeyValuePair<Transform, Yaku>> YakuTransforms = new List<KeyValuePair<Transform, Yaku>>();
 
         public void AddCards(List<Card> cards)
@@ -51,8 +53,8 @@ namespace Hanafuda
                 }
             }
         }
-        public void BuildFromCards(List<Card> cards, Dictionary<int, int> yakus, float GridSpacingX = 10, float GridSpacingY = 10)
-        { 
+        public void BuildFromCards(List<Card> cards, Dictionary<int, int> yakus)
+        {
             int Column = 0;
             if (!yakus.Keys.Contains(-1))
                 yakus = yakus.OrderBy(x => Global.allYaku[x.Key].minSize).ToDictionary(x => x.Key, x => x.Value);
