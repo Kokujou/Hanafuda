@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using System.Linq;
 using System.Diagnostics;
+using UnityEngine.SceneManagement;
 // ReSharper disable All
 /*
  * Todo:
@@ -32,6 +33,12 @@ namespace Hanafuda
         public UnityEngine.Object Logger;
 
         private static bool AllowLog = false;
+
+        public void ReturnToMain()
+        {
+            Destroy(Instance.gameObject);
+            SceneManager.LoadScene("Startup");
+        }
 
         public void OnApplicationQuit()
         {

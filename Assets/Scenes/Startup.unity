@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.5197744, g: 0.424058, b: 0.3685518, a: 1}
+  m_IndirectSpecularColor: {r: 0.52223283, g: 0.42508188, b: 0.37003198, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1330,6 +1330,8 @@ MonoBehaviour:
       type: 3}
     GameInfoPC: {fileID: 4639847898527528316, guid: e2624b260b97f394ea210d37b3ada935,
       type: 3}
+    UIYakuPC: {fileID: 0}
+    UIYakuMobile: {fileID: 0}
   AllCards:
   - {fileID: 11400000, guid: c5e3397eb63894048a8a3b9f9359f5e4, type: 2}
   - {fileID: 11400000, guid: 49502d594415026439c607ed3fdd2517, type: 2}

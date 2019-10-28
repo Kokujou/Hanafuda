@@ -25,6 +25,9 @@ namespace Hanafuda
         private IArtificialIntelligence player;
         private IHanafudaBoard board;
 
+        public void ReturnToMain()
+            => Global.Instance.ReturnToMain();
+
         public void GetRecommendation()
         {
             board = BuildUninformedBoard();
@@ -94,7 +97,7 @@ namespace Hanafuda
 
             result.AddComponent<RawImage>().texture = card.Image.mainTexture;
             result.transform.localScale = Vector3.one;
-            ((RectTransform)result.transform).sizeDelta = new Vector2(150,240); 
+            ((RectTransform)result.transform).sizeDelta = new Vector2(150, 240);
 
             return result;
         }
