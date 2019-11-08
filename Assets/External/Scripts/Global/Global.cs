@@ -68,7 +68,13 @@ namespace Hanafuda
             var settingsFilePath = Path.Combine(Application.persistentDataPath, "GraphicSettings.json");
 
             if (!File.Exists(settingsFilePath))
+            {
+                Graphics.AspectRatio = (float)Screen.width / Screen.height;
+                Graphics.FullscreenResolution = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
+                Graphics.FullscreenMode = Screen.fullScreenMode;
+                Graphics.CardMotive = DefaultCardMotive;
                 return;
+            }
 
             JsonUtility.FromJsonOverwrite(File.ReadAllText(settingsFilePath), Graphics);
             if (!Graphics.CardMotive)
