@@ -200,7 +200,12 @@ namespace Hanafuda
             if (GUILayout.Button("Cheat Player"))
             {
                 Turn = true;
-                Players[Settings.PlayerID].CollectedCards = new List<Card>(Global.allCards);
+                Players[Settings.PlayerID].CollectedCards = new List<Card>()
+                {
+                    Global.allCards.First(x=>x.Title == "Vollmond"),
+                    Global.allCards.First(x=>x.Title == "Kirschblüten mit Decke"),
+                    Global.allCards.First(x=>x.Title == "Kranich unter der Sonne")
+                };
                 Players[Settings.PlayerID].CollectedYaku = Enumerable.Range(0, Global.allYaku.Count).ToDictionary(x => x, x => 0);
                 Settings.Players = Players;
                 List<Yaku> NewYaku = Yaku.GetNewYakus(Players[Settings.PlayerID].CollectedYaku, Players[Settings.PlayerID].CollectedCards, true);

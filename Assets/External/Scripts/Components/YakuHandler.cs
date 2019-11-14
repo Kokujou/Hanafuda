@@ -93,7 +93,7 @@ namespace Hanafuda
                     Lights[cardID].texture = tex;
                 }
                 else
-                    Lights[cardID].texture = GraphicSettingsManager.SelectedMotive;
+                    Lights[cardID].texture = Global.Graphics.CardMotive;
             }
         }
     }

@@ -29,6 +29,8 @@ namespace Hanafuda
         public static List<Yaku> allYaku = new List<Yaku>();
         public List<Card> AllCards = new List<Card>();
         public List<Yaku> AllYaku = new List<Yaku>();
+
+        public List<Texture> SupportedMotives;
         public Texture DefaultCardMotive;
         public UnityEngine.Object Logger;
 

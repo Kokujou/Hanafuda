@@ -28,7 +28,8 @@ namespace Hanafuda
             .GetComponentsInChildren<RawImage>().Select(x => x.texture).ToList();
 
         private static int _selectedMotive;
-        public static Texture SelectedMotive => SupportedMotives[_selectedMotive];
+        public static Texture SelectedMotive =>
+            SupportedMotives[_selectedMotive];
 
         private const string SettingsFile = "./GraphicSettings.json";
         private static string SettingsFilePath;
